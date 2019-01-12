@@ -12,16 +12,27 @@ class AutoScheduler:
         self.actionList = []
         self.runningAction = None
         self.paused = False
+        self.updateCallback = lambda: None
         self._actionCancelled = False
 
     def updateGenerator(self):
         while True:
             if len(self.actionList) != 0 and not self.paused:
                 self.runningAction = self.actionList.pop(0)
-                yield from sea.watch(self.runningAction.generator, self._watchForCancelGenerator())
+                print("Running action " + self.runningAction.name)
+                self.updateCallback()
+                yield from sea.parallel(
+                    sea.stopAllWhenDone(self.runningAction.generator),
+                    sea.stopAllWhenDone(self._watchForCancelGenerator()))
+                print("Finished action " + self.runningAction.name)
                 self.runningAction = None
+                self.updateCallback()
             else:
                 yield
+
+    def clearActions(self):
+        self.cancelRunningAction()
+        self.actionList.clear()
 
     def cancelRunningAction(self):
         self._actionCancelled = True
