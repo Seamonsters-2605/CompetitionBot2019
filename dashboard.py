@@ -48,6 +48,16 @@ class CompetitionBotDashboard(sea.Dashboard):
         testActionButton.onclick.connect(self.queuedEvent(robot.c_testAction))
         schedulerBox.append(testActionButton)
 
+        controlBox = gui.HBox()
+        schedulerBox.append(controlBox)
+
+        pauseButton = gui.Button('Pause')
+        pauseButton.onclick.connect(self.queuedEvent(robot.c_pauseScheduler))
+        controlBox.append(pauseButton)
+        resumeButton = gui.Button('Resume')
+        resumeButton.onclick.connect(self.queuedEvent(robot.c_resumeScheduler))
+        controlBox.append(resumeButton)
+
         schedulerBox.append(gui.Label("Schedule:"))
 
         self.schedulerList = gui.ListView()

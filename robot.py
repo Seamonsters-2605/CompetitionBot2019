@@ -102,8 +102,14 @@ class CompetitionBot2019(sea.GeneratorBot):
     # dashboard callbacks
 
     def c_testAction(self, button):
-        self.autoScheduler.actionList.append(auto_actions.createTestAction(50))
+        self.autoScheduler.actionList.append(auto_actions.createTestAction(100))
         self.updateScheduler()
+
+    def c_pauseScheduler(self, button):
+        self.autoScheduler.paused = True
+
+    def c_resumeScheduler(self, button):
+        self.autoScheduler.paused = False
 
     def c_zeroSteering(self, button):
         for wheel in self.superDrive.wheels:
