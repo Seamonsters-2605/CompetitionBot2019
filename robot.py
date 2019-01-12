@@ -5,7 +5,10 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
-
+slowgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=0.5, strafeScale=0.5, turnScale=1 ) 
+mediumgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=3, strafeScale=3, turnScale=1/3*math.pi)
+fastgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=6, strafeScale=6, turnScale=2/3*math.pi)
+    
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
@@ -44,7 +47,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             pidf.config_kP(0, self.drivegear.p, 0)
             pidf.config_kI(0, self.drivegear.i, 0)
             pidf.config_kD(0, self.drivegear.d, 0)
-            pidf.config_kF(0, self.drivegear.F, 0)
+            pidf.config_kF(0, self.drivegear.f, 0)
         self.setDriveMode(gear.mode)
     
     def autonomous(self):
@@ -90,11 +93,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             yield
     
-    # dashboard callbacks
-    slowgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=0.5, strafeScale=0.5, turnScale=1 ) 
-    mediumgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=3, strafeScale=3, turnScale=1/3*math.pi)
-    fastgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=6, strafeScale=6, turnScale=2/3*math.pi)
-    
+    # dashboard callb
     def c_zeroSteering(self, button):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
