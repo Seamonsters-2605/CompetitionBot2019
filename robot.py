@@ -5,10 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
-slowgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=0.5, strafeScale=0.5, turnScale=1 ) 
-mediumgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=3, strafeScale=3, turnScale=1/3*math.pi)
-fastgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=6, strafeScale=6, turnScale=2/3*math.pi)
-    
+
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
@@ -51,11 +48,11 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.setDriveMode(gear.mode)
     
     def autonomous(self):
-        self.setGear(mediumgear)
+        self.setGear(drivegear.mediumgear)
         self.resetPositions()
 
     def teleop(self):
-        self.setGear(mediumgear)
+        self.setGear(drivegear.mediumgear)
 
         self.resetPositions()
         if self.app is not None:
@@ -99,13 +96,13 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel.zeroSteering()
     
     def slow(self, button):
-        self.setGear(slowgear)
+        self.setGear(drivegear.slowgear)
     
     def medium(self, button):
-        self.setGear(mediumgear)
+        self.setGear(drivegear.mediumgear)
     
     def fast(self, button):
-        self.setGear(fastgear)
+        self.setGear(drivegear.fastgear)
 
 
 if __name__ == "__main__":
