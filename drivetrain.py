@@ -1,3 +1,4 @@
+import math
 import ctre
 import seamonsters as sea
 
@@ -27,3 +28,30 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos,
     swerveWheel = sea.SwerveWheel(angledWheel, rotateTalon, 1612.8, reverseSteerMotor)
 
     superDrive.addWheel(swerveWheel)
+
+class DriveGear:
+
+    def __init__(self, mode,
+                 forwardScale=1.0, strafeScale=1.0, turnScale=1.0,
+                 p=0.0, i=0.0, d=0.0, f=0.0):
+        self.mode = mode
+        self.forwardScale = forwardScale
+        self.strafeScale = strafeScale
+        self.turnScale = turnScale
+        self.p = p
+        self.i = i
+        self.d = d
+        self.f = f
+
+    def __repr__(self):
+        return str(self.mode) + " fwd %f str %f trn %f pid %f %f %f %f" \
+            % (self.forwardScale, self.strafeScale, self.turnScale,
+                 self.p, self.i, self.d, self.f)
+
+
+slowgear = DriveGear(ctre.ControlMode.PercentOutput,
+    forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60)) 
+mediumgear = DriveGear(ctre.ControlMode.PercentOutput,
+    forwardScale=3, strafeScale=3, turnScale=math.radians(90))
+fastgear = DriveGear(ctre.ControlMode.PercentOutput,
+    forwardScale=6, strafeScale=6, turnScale=math.radians(120))

@@ -12,33 +12,44 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
-        self.setDriveMode(ctre.ControlMode.PercentOutput)
 
         # for encoder-based position tracking
         self.robotOrigin = None
         self.robotX = 0
         self.robotY = 0
         self.robotAngle = 0
-
+        
         self.ahrs = navx.AHRS.create_spi()
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
-    
-    def setDriveMode(self, mode):
-        print("Drive mode:", mode)
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = mode
+        self.drivegear = None
 
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
             wheel.resetPosition()
 
+    def setGear(self, gear):
+        if gear == self.drivegear:
+            return
+        self.drivegear = gear
+        print("Switch gear", gear)
+        for wheel in self.superDrive.wheels:
+            wheel.angledWheel.driveMode = mode
+            wheelMotor = wheel.angledWheel.motor
+            wheelMotor.config_kP(0, self.drivegear.p, 0)
+            wheelMotor.config_kI(0, self.drivegear.i, 0)
+            wheelMotor.config_kD(0, self.drivegear.d, 0)
+            wheelMotor.config_kF(0, self.drivegear.f, 0)
+        self.setDriveMode(gear.mode)
+    
     def autonomous(self):
+        self.setGear(drivetrain.mediumgear)
         self.resetPositions()
-        self.setDriveMode(ctre.ControlMode.Position)
 
     def teleop(self):
+        self.setGear(drivetrain.mediumgear)
+
         self.resetPositions()
         if self.app is not None:
             self.app.clearEvents()
@@ -47,11 +58,16 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.app is not None:
                 self.app.doEvents()
 
-            mag = sea.deadZone(self.joystick.getMagnitude())
-            mag *= 3 # maximum feet per second
+            Forward = sea.deadZone(self.joystick.getX())
+            Strafe = sea.deadZone(self.joystick.getY())
+            Strafe *= self.drivegear.strafeScale
+            Forward *= self.drivegear.forwardScale
+            
+            mag = math.sqrt(Forward**2 + Strafe**2)
+            
             direction = -self.joystick.getDirectionRadians() + math.pi/2
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
-            turn *= math.radians(120) # maximum radians per second
+            turn *= self.drivegear.turnScale # maximum radians per second
 
             self.superDrive.drive(mag, direction, turn)
 
@@ -70,20 +86,19 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             yield
     
-    # dashboard callbacks
-
+    # dashboard callb
     def c_zeroSteering(self, button):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
     
-    def c_percentOutputMode(self, button):
-        self.setDriveMode(ctre.ControlMode.PercentOutput)
+    def slow(self, button):
+        self.setGear(drivetrain.slowgear)
     
-    def c_velocityMode(self, button):
-        self.setDriveMode(ctre.ControlMode.Velocity)
+    def medium(self, button):
+        self.setGear(drivetrain.mediumgear)
     
-    def c_positionMode(self, button):
-        self.setDriveMode(ctre.ControlMode.Position)
+    def fast(self, button):
+        self.setGear(drivetrain.fastgear)
 
 
 if __name__ == "__main__":
