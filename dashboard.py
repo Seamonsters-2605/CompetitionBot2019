@@ -19,6 +19,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         zeroSteeringBtn.onclick.connect(self.queuedEvent(robot.c_zeroSteering))
         root.append(zeroSteeringBtn)
 
+        self.driveGearLbl = gui.Label("[drive gear]")
+        root.append(self.driveGearLbl)
+
         driveModeBox = gui.HBox()
         root.append(driveModeBox)
 

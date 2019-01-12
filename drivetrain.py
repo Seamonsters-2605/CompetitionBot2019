@@ -31,9 +31,10 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos,
 
 class DriveGear:
 
-    def __init__(self, mode,
+    def __init__(self, name, mode,
                  forwardScale=1.0, strafeScale=1.0, turnScale=1.0,
                  p=0.0, i=0.0, d=0.0, f=0.0):
+        self.name = name
         self.mode = mode
         self.forwardScale = forwardScale
         self.strafeScale = strafeScale
@@ -44,14 +45,12 @@ class DriveGear:
         self.f = f
 
     def __repr__(self):
-        return str(self.mode) + " fwd %f str %f trn %f pid %f %f %f %f" \
-            % (self.forwardScale, self.strafeScale, self.turnScale,
-                 self.p, self.i, self.d, self.f)
+        return self.name
 
 
-slowgear = DriveGear(ctre.ControlMode.PercentOutput,
+slowgear = DriveGear("Slow", ctre.ControlMode.PercentOutput,
     forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60)) 
-mediumgear = DriveGear(ctre.ControlMode.PercentOutput,
+mediumgear = DriveGear("Medium", ctre.ControlMode.PercentOutput,
     forwardScale=3, strafeScale=3, turnScale=math.radians(90))
-fastgear = DriveGear(ctre.ControlMode.PercentOutput,
+fastgear = DriveGear("Fast", ctre.ControlMode.PercentOutput,
     forwardScale=6, strafeScale=6, turnScale=math.radians(120))
