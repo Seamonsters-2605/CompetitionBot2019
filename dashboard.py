@@ -35,5 +35,32 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastBtn.onclick.connect(self.queuedEvent(robot.fast))
         driveModeBox.append(fastBtn)
 
+        root.append(self.initScheduler(robot))
+        self.updateScheduler()
+
         appCallback(self)
         return root
+
+    def initScheduler(self, robot):
+        schedulerBox = gui.VBox()
+
+        testActionButton = gui.Button('Test Action')
+        testActionButton.onclick.connect(self.queuedEvent(robot.c_testAction))
+        schedulerBox.append(testActionButton)
+
+        schedulerBox.append(gui.Label("Schedule:"))
+
+        self.schedulerList = gui.ListView()
+        schedulerBox.append(self.schedulerList)
+
+        return schedulerBox
+    
+    def updateScheduler(self):
+        scheduler = self.robot.autoScheduler
+        self.schedulerList.empty()
+        if scheduler.runningAction is not None:
+            runningItem = gui.ListItem('* ' + scheduler.runningAction.name)
+            self.schedulerList.append(runningItem)
+        for action in scheduler.actionList:
+            listItem = gui.ListItem(action.name)
+            self.schedulerList.append(listItem)

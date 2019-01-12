@@ -5,6 +5,8 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
+import auto_scheduler
+import auto_actions
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -28,7 +30,18 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
-        self.drivegear = None
+
+        self.autoScheduler = auto_scheduler.AutoScheduler()
+        self.autoScheduler.updateCallback = self.updateScheduler
+
+    def updateScheduler(self):
+        if self.app is not None:
+            self.app.updateScheduler()
+
+    def setDriveMode(self, mode):
+        print("Drive mode:", mode)
+        for wheel in self.superDrive.wheels:
+            wheel.angledWheel.driveMode = mode
 
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
@@ -49,8 +62,17 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumgear)
-        self.resetPositions()
+        print("Running auto")
+        yield from sea.parallel(self.autoScheduler.updateGenerator(),
+            self.autoUpdate())
+
+    def autoUpdate(self):
+        if self.app is not None:
+            self.app.clearEvents()
+        while True:
+            if self.app is not None:
+                self.app.doEvents()
+            yield
 
     def teleop(self):
         self.setGear(drivetrain.mediumgear)
@@ -92,7 +114,12 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             yield
     
-    # dashboard callb
+    # dashboard callbacks
+
+    def c_testAction(self, button):
+        self.autoScheduler.actionList.append(auto_actions.createTestAction(50))
+        self.updateScheduler()
+
     def c_zeroSteering(self, button):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
