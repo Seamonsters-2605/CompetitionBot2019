@@ -25,11 +25,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
         self.drivegear = None
 
-    def setDriveMode(self, mode):
-        print("Drive mode:", mode)
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = mode
-
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
             wheel.resetPosition()
@@ -38,13 +33,14 @@ class CompetitionBot2019(sea.GeneratorBot):
         if gear == self.drivegear:
             return
         self.drivegear = gear
-        #print("Switch gear", gear)
+        print("Switch gear", gear)
         for wheel in self.superDrive.wheels:
-            pidf = wheel.angledWheel.motor
-            pidf.config_kP(0, self.drivegear.p, 0)
-            pidf.config_kI(0, self.drivegear.i, 0)
-            pidf.config_kD(0, self.drivegear.d, 0)
-            pidf.config_kF(0, self.drivegear.f, 0)
+            wheel.angledWheel.driveMode = mode
+            wheelMotor = wheel.angledWheel.motor
+            wheelMotor.config_kP(0, self.drivegear.p, 0)
+            wheelMotor.config_kI(0, self.drivegear.i, 0)
+            wheelMotor.config_kD(0, self.drivegear.d, 0)
+            wheelMotor.config_kF(0, self.drivegear.f, 0)
         self.setDriveMode(gear.mode)
     
     def autonomous(self):
