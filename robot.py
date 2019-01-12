@@ -12,14 +12,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
-
-        # for encoder-based position tracking
-        self.robotOrigin = None
-        self.robotX = 0
-        self.robotY = 0
-        self.robotAngle = 0
         
         self.ahrs = navx.AHRS.create_spi()
+
+        self.pathFollower = sea.PathFollower(self.superDrive)
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
@@ -72,15 +68,12 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.superDrive.drive(mag, direction, turn)
 
             # encoder based position tracking
-            moveMag, moveDir, moveTurn, self.robotOrigin = \
-                self.superDrive.getRobotPositionOffset(self.robotOrigin)
-            self.robotX += moveMag * math.cos(moveDir + self.robotAngle)
-            self.robotY += moveMag * math.sin(moveDir + self.robotAngle)
-            self.robotAngle += moveTurn
+            self.pathFollower.updateRobotPosition()
 
             if self.app != None:
                 self.app.encoderPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                    (self.robotX, self.robotY, math.degrees(self.robotAngle)))
+                    (self.pathFollower.robotX, self.pathFollower.robotY,
+                    math.degrees(self.pathFollower.robotAngle)))
                 self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
                     (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(), self.ahrs.getAngle()))
 
