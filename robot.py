@@ -48,11 +48,11 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.setDriveMode(gear.mode)
     
     def autonomous(self):
-        self.setGear(drivegear.mediumgear)
+        self.setGear(drivetrain.mediumgear)
         self.resetPositions()
 
     def teleop(self):
-        self.setGear(drivegear.mediumgear)
+        self.setGear(drivetrain.mediumgear)
 
         self.resetPositions()
         if self.app is not None:
@@ -96,13 +96,13 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel.zeroSteering()
     
     def slow(self, button):
-        self.setGear(drivegear.slowgear)
+        self.setGear(drivetrain.slowgear)
     
     def medium(self, button):
-        self.setGear(drivegear.mediumgear)
+        self.setGear(drivetrain.mediumgear)
     
     def fast(self, button):
-        self.setGear(drivegear.fastgear)
+        self.setGear(drivetrain.fastgear)
 
 
 if __name__ == "__main__":

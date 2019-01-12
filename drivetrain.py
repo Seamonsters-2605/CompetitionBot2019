@@ -1,3 +1,4 @@
+import math
 import ctre
 import seamonsters as sea
 
@@ -43,14 +44,14 @@ class DriveGear:
         self.f = f
 
     def __repr__(self):
-        return str(self.mode) + " fwd %f str %f trn %f (%f %f %f %f)" \
+        return str(self.mode) + " fwd %f str %f trn %f pid %f %f %f %f" \
             % (self.forwardScale, self.strafeScale, self.turnScale,
                  self.p, self.i, self.d, self.f)
 
 
-slowgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput,
+slowgear = DriveGear(ctre.ControlMode.PercentOutput,
     forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60)) 
-mediumgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput,
+mediumgear = DriveGear(ctre.ControlMode.PercentOutput,
     forwardScale=3, strafeScale=3, turnScale=math.radians(90))
-fastgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput,
+fastgear = DriveGear(ctre.ControlMode.PercentOutput,
     forwardScale=6, strafeScale=6, turnScale=math.radians(120))
