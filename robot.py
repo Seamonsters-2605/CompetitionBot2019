@@ -12,7 +12,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
-        self.setDriveMode(ctre.ControlMode.PercentOutput)
 
         # for encoder-based position tracking
         self.robotOrigin = None
@@ -92,19 +91,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
     
     # dashboard callbacks
-
+    slowgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=0.5, strafeScale=0.5, turnScale=1 ) 
+    mediumgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=3, strafeScale=3, turnScale=1/3*math.pi)
+    fastgear = drivetrain.DriveGear(ctre.ControlMode.PercentOutput, forwardScale=6, strafeScale=6, turnScale=2/3*math.pi)
+    
     def c_zeroSteering(self, button):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
     
-    def c_percentOutputMode(self, button):
-        self.setDriveMode(ctre.ControlMode.PercentOutput)
+    def slow(self, button):
+        self.setGear(slowgear)
     
-    def c_velocityMode(self, button):
-        self.setDriveMode(ctre.ControlMode.Velocity)
+    def medium(self, button):
+        self.setGear(mediumgear)
     
-    def c_positionMode(self, button):
-        self.setDriveMode(ctre.ControlMode.Position)
+    def fast(self, button):
+        self.setGear(fastgear)
 
 
 if __name__ == "__main__":
