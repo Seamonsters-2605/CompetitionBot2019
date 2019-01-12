@@ -51,11 +51,11 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.setDriveMode(gear.mode)
     
     def autonomous(self):
+        self.setGear(mediumgear)
         self.resetPositions()
-        self.setDriveMode(ctre.ControlMode.Position)
 
     def teleop(self):
-        self.setGear(drivetrain.DriveGear(ctre.ControlMode.Velocity))
+        self.setGear(mediumgear)
 
         self.resetPositions()
         if self.app is not None:
