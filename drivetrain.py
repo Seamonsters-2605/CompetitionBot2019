@@ -21,6 +21,11 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos,
     driveTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     rotateTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
 
+    # rotate talon PIDs (drive talon is configured by DriveGear)
+    rotateTalon.config_kP(0, 30.0, 0)
+    rotateTalon.config_kI(0, 0.0, 0)
+    rotateTalon.config_kD(0, 24.0, 0)
+
     angledWheel = sea.AngledWheel(driveTalon, xPos, yPos, 0,
                                     encoderCountsPerFoot=31291.1352,
                                     maxVoltageVelocity=16)
@@ -49,8 +54,11 @@ class DriveGear:
 
 
 slowgear = DriveGear("Slow", ctre.ControlMode.PercentOutput,
-    forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60)) 
+    forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60),
+    p=0.032, i=0.0, d=3.2, f=0.0) 
 mediumgear = DriveGear("Medium", ctre.ControlMode.PercentOutput,
-    forwardScale=3, strafeScale=3, turnScale=math.radians(90))
+    forwardScale=3, strafeScale=3, turnScale=math.radians(90),
+    p=0.032, i=0.0, d=3.2, f=0.0)
 fastgear = DriveGear("Fast", ctre.ControlMode.PercentOutput,
-    forwardScale=6, strafeScale=6, turnScale=math.radians(120))
+    forwardScale=6, strafeScale=6, turnScale=math.radians(120),
+    p=0.032, i=0.0, d=3.2, f=0.0)
