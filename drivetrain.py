@@ -21,6 +21,9 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos,
     driveTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     rotateTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
 
+    driveTalon.setNeutralMode(ctre.NeutralMode.Coast)
+    rotateTalon.setNeutralMode(ctre.NeutralMode.Brake)
+
     # rotate talon PIDs (drive talon is configured by DriveGear)
     rotateTalon.config_kP(0, 30.0, 0)
     rotateTalon.config_kI(0, 0.0, 0)
