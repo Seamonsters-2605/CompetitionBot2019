@@ -101,8 +101,10 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     # dashboard callbacks
 
-    def c_testAction(self, button):
-        self.autoScheduler.actionList.append(auto_actions.createTestAction(100))
+    def c_addWaitAction(self, button):
+        waitTime = float(self.app.waitTimeInput.get_value())
+        self.autoScheduler.actionList.append(
+            auto_actions.createWaitAction(waitTime))
         self.updateScheduler()
 
     def c_pauseScheduler(self, button):

@@ -44,9 +44,17 @@ class CompetitionBotDashboard(sea.Dashboard):
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
 
-        testActionButton = gui.Button('Test Action')
-        testActionButton.onclick.connect(self.queuedEvent(robot.c_testAction))
-        schedulerBox.append(testActionButton)
+        addActionBox = gui.VBox()
+        addActionBox.append(gui.Label("Add Action:"))
+        schedulerBox.append(addActionBox)
+
+        waitActionBox = gui.HBox()
+        addActionBox.append(waitActionBox)
+        addWaitActionBtn = gui.Button('Wait')
+        addWaitActionBtn.onclick.connect(self.queuedEvent(robot.c_addWaitAction))
+        waitActionBox.append(addWaitActionBtn)
+        self.waitTimeInput = gui.Input()
+        waitActionBox.append(self.waitTimeInput)
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
