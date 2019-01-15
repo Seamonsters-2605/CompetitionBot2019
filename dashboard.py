@@ -56,6 +56,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.waitTimeInput = gui.Input()
         waitActionBox.append(self.waitTimeInput)
 
+        driveToPointActionBox = gui.HBox()
+        addActionBox.append(driveToPointActionBox)
+        addDriveToPointActionBtn = gui.Button('Drive to Point')
+        addDriveToPointActionBtn.onclick.connect(self.queuedEvent(robot.c_addDriveToPointAction))
+        driveToPointActionBox.append(addDriveToPointActionBtn)
+        self.pointXInput = gui.Input()
+        driveToPointActionBox.append(self.pointXInput)
+        self.pointYInput = gui.Input()
+        driveToPointActionBox.append(self.pointYInput)
+        self.pointAngleInput = gui.Input()
+        driveToPointActionBox.append(self.pointAngleInput)
+
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
 
