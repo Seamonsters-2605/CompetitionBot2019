@@ -8,7 +8,16 @@ import dashboard
 
 class CompetitionBot2019(sea.GeneratorBot):
 
+    def circleDistance(self, a, b):
+            diff = a - b
+            while diff > math.pi:
+                diff -= math.pi * 2
+            while diff < -math.pi:
+                diff += math.pi * 2
+            return diff
+
     def robotInit(self):
+
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
@@ -65,6 +74,10 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
             turn *= self.drivegear.turnScale # maximum radians per second
 
+            if not self.joystick.getPOV() == -1:
+                turn = self.circleDistance(math.radians(self.joystick.getPOV()), math.radians(self.ahrs.getAngle()))
+                turn *= math.radians(60)
+            
             self.superDrive.drive(mag, direction, turn)
 
             # encoder based position tracking
