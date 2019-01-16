@@ -9,12 +9,12 @@ import dashboard
 class CompetitionBot2019(sea.GeneratorBot):
 
     def circleDistance(self, a, b):
-            diff = a - b
-            while diff > math.pi:
-                diff -= math.pi * 2
-            while diff < -math.pi:
-                diff += math.pi * 2
-            return diff
+        diff = a - b
+        while diff > math.pi:
+            diff -= math.pi * 2
+        while diff < -math.pi:
+            diff += math.pi * 2
+        return diff
 
     def robotInit(self):
 
