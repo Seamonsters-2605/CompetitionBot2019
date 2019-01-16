@@ -8,7 +8,16 @@ import dashboard
 
 class CompetitionBot2019(sea.GeneratorBot):
 
+    def circleDistance(self, a, b):
+        diff = a - b
+        while diff > math.pi:
+            diff -= math.pi * 2
+        while diff < -math.pi:
+            diff += math.pi * 2
+        return diff
+
     def robotInit(self):
+
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
@@ -40,11 +49,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumgear)
+        self.setGear(drivetrain.mediumVoltageGear)
         self.resetPositions()
 
     def teleop(self):
-        self.setGear(drivetrain.mediumgear)
+        self.setGear(drivetrain.mediumVoltageGear)
 
         self.resetPositions()
         if self.app is not None:
@@ -65,6 +74,10 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
             turn *= self.drivegear.turnScale # maximum radians per second
 
+            if not self.joystick.getPOV() == -1:
+                turn = self.circleDistance(math.radians(self.joystick.getPOV()), math.radians(self.ahrs.getAngle()))
+                turn *= math.radians(60)
+            
             self.superDrive.drive(mag, direction, turn)
 
             # encoder based position tracking
@@ -84,14 +97,23 @@ class CompetitionBot2019(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
     
-    def slow(self, button):
-        self.setGear(drivetrain.slowgear)
+    def c_slowVoltageGear(self, button):
+        self.setGear(drivetrain.slowVoltageGear)
     
-    def medium(self, button):
-        self.setGear(drivetrain.mediumgear)
+    def c_mediumVoltageGear(self, button):
+        self.setGear(drivetrain.mediumVoltageGear)
     
-    def fast(self, button):
-        self.setGear(drivetrain.fastgear)
+    def c_fastVoltageGear(self, button):
+        self.setGear(drivetrain.fastVoltageGear)
+    
+    def c_slowVelocityGear(self, button):
+        self.setGear(drivetrain.slowVelocityGear)
+    
+    def c_mediumVelocityGear(self, button):
+        self.setGear(drivetrain.mediumVelocityGear)
+    
+    def c_fastVelocityGear(self, button):
+        self.setGear(drivetrain.fastVelocityGear)
 
 
 if __name__ == "__main__":
