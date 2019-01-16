@@ -1,6 +1,8 @@
-class DriveCoordinates
+import math
 
-    def __init__(self, name, x_coordinate, y_coordinate, orientation)
+class DriveCoordinates:
+
+    def __init__(self, name, x_coordinate, y_coordinate, orientation):
 
         self.name = name
         self.x_coordinate = x_coordinate
