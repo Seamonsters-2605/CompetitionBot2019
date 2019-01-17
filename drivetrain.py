@@ -29,10 +29,21 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos,
     rotateTalon.config_kI(0, 0.0, 0)
     rotateTalon.config_kD(0, 24.0, 0)
 
+    # Drive motor:
+    # 8192 counts per encoder revolution
+    # 4 : 1 gear ratio
+    # 8192 * 4 = 32768 counts per wheel rotation
+    # Wheel diameter: 3.97 in.
+    # Wheel circumference: 3.97 * pi / 12 = 1.03934 ft
+    # 32768 / 1.03934 = 31527.59199 counts per foot
     angledWheel = sea.AngledWheel(driveTalon, xPos, yPos, 0,
-                                    encoderCountsPerFoot=31291.1352,
+                                    encoderCountsPerFoot=31527.59199,
                                     maxVoltageVelocity=16)
 
+    # Steer motor:
+    # 537.6 counts per revolution
+    # 3 : 1 gear ratio
+    # 537.6 * 3 = 1612.8 counts per wheel rotation
     swerveWheel = sea.SwerveWheel(angledWheel, rotateTalon, 1612.8, reverseSteerMotor)
 
     superDrive.addWheel(swerveWheel)
