@@ -37,3 +37,8 @@ class GrabberArm():
     #pulls in the hatch grabber
     def pull(self):
         self.hatchGrabber.set(False)
+
+    #clamps the arms while running the intake wheels to grab the ball
+    def grabBall(self, clampSpeed, intakeSpeed):
+        self.clamp(clampSpeed)
+        self.intake(intakeSpeed)
