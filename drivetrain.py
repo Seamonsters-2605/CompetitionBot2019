@@ -7,11 +7,13 @@ ROBOT_LENGTH = 21.9950 / 12
 
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
+    """
     _makeSwerveWheel(superDrive, 1, 0,  ROBOT_WIDTH/2,  ROBOT_LENGTH/2, True)
     _makeSwerveWheel(superDrive, 3, 2, -ROBOT_WIDTH/2,  ROBOT_LENGTH/2, True)
     driveC, rotateC = _makeSwerveWheel(superDrive, 5, 4,  ROBOT_WIDTH/2, -ROBOT_LENGTH/2, True)
     rotateC.setSensorPhase(True)
     _makeSwerveWheel(superDrive, 7, 6, -ROBOT_WIDTH/2, -ROBOT_LENGTH/2, True)
+    """
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
 

@@ -5,6 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
+import grabber
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -19,6 +20,8 @@ class CompetitionBot2019(sea.GeneratorBot):
     def robotInit(self):
 
         self.joystick = wpilib.Joystick(0)
+
+        self.grabberArm = grabber.GrabberArm()
 
         self.superDrive = drivetrain.initDrivetrain()
         
@@ -89,6 +92,15 @@ class CompetitionBot2019(sea.GeneratorBot):
                     math.degrees(self.pathFollower.robotAngle)))
                 self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
                     (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(), self.ahrs.getAngle()))
+
+            if self.joystick.getRawButtonPressed(1):
+                self.grabberArm.grabBall(1,1)
+
+            #if self.joystick.getRawButtonPressed(2):
+            #    self.grabberArm.push()
+
+            if self.joystick.getRawButtonPressed(3):
+                self.grabberArm.intake(1)
 
             yield
     
