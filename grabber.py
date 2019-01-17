@@ -1,7 +1,7 @@
 import wpilib
 import ctre
 
-class grabber():
+class GrabberArm():
 
     def __init__(self):
         self.leftSpinner = ctre.WPI_TalonSRX(0)
