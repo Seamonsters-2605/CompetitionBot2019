@@ -19,6 +19,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         zeroSteeringBtn.onclick.connect(self.queuedEvent(robot.c_zeroSteering))
         root.append(zeroSteeringBtn)
 
+        zeroPosition = gui.Button("Reset position")
+        zeroPosition.onclick.connect(self.queuedEvent(robot.c_zeroPosition))
+        root.append(zeroPosition)
+
         self.driveGearLbl = gui.Label("[drive gear]")
         root.append(self.driveGearLbl)
 

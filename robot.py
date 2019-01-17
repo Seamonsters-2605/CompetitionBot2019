@@ -97,6 +97,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
     
+    def c_zeroPosition(self, button):
+        self.pathFollower.setPosition(0, 0, 0)
+    
     def c_slowVoltageGear(self, button):
         self.setGear(drivetrain.slowVoltageGear)
     
