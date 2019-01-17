@@ -9,8 +9,7 @@ def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
     _makeSwerveWheel(superDrive, 1, 0,  ROBOT_WIDTH/2,  ROBOT_LENGTH/2, True)
     _makeSwerveWheel(superDrive, 3, 2, -ROBOT_WIDTH/2,  ROBOT_LENGTH/2, True)
-    driveC, rotateC = _makeSwerveWheel(superDrive, 5, 4,  ROBOT_WIDTH/2, -ROBOT_LENGTH/2, True)
-    rotateC.setSensorPhase(True)
+    _makeSwerveWheel(superDrive, 5, 4,  ROBOT_WIDTH/2, -ROBOT_LENGTH/2, True)
     _makeSwerveWheel(superDrive, 7, 6, -ROBOT_WIDTH/2, -ROBOT_LENGTH/2, True)
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
@@ -37,8 +36,6 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos,
     swerveWheel = sea.SwerveWheel(angledWheel, rotateTalon, 1612.8, reverseSteerMotor)
 
     superDrive.addWheel(swerveWheel)
-
-    return driveTalon, rotateTalon 
 
 class DriveGear:
 
