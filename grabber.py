@@ -4,10 +4,10 @@ import ctre
 class GrabberArm():
 
     def __init__(self):
-        self.leftSpinner = ctre.WPI_TalonSRX(0)
-        self.rightSpinner = ctre.WPI_TalonSRX(1)
-        self.leftPivot = ctre.WPI_TalonSRX(2)
-        self.rightPivot = ctre.WPI_TalonSRX(3)
+        self.leftSpinner = ctre.WPI_TalonSRX(20)
+        self.rightSpinner = ctre.WPI_TalonSRX(21)
+        self.leftPivot = ctre.WPI_TalonSRX(22)
+        self.rightPivot = ctre.WPI_TalonSRX(23)
         self.hatchGrabber = wpilib.Solenoid(0)
 
     #takes in the ball at the speed "speed"
