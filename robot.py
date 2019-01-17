@@ -19,9 +19,9 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
 
-        self.joystick = wpilib.Joystick(0)
-
         self.grabberArm = grabber.GrabberArm()
+
+        self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
         
@@ -92,15 +92,22 @@ class CompetitionBot2019(sea.GeneratorBot):
                     math.degrees(self.pathFollower.robotAngle)))
                 self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
                     (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(), self.ahrs.getAngle()))
-
+           
             if self.joystick.getRawButtonPressed(1):
                 self.grabberArm.grabBall(1,1)
 
-            #if self.joystick.getRawButtonPressed(2):
-            #    self.grabberArm.push()
+            if self.joystick.getRawButtonReleased(1) or self.joystick.getRawButtonReleased(2):
+                self.grabberArm.stop()
 
-            if self.joystick.getRawButtonPressed(3):
-                self.grabberArm.intake(1)
+            if self.joystick.getRawButtonPressed(2):
+                self.grabberArm.release(1)
+                self.grabberArm.eject(1)
+
+            if self.joystick.getRawButtonPressed(3):           
+                self.grabberArm.push()
+
+            if self.joystick.getRawButtonPressed(4):
+                self.grabberArm.pull()
 
             yield
     
@@ -108,6 +115,9 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_zeroSteering(self, button):
         for wheel in self.superDrive.wheels:
             wheel.zeroSteering()
+    
+    def c_zeroPosition(self, button):
+        self.pathFollower.setPosition(0, 0, 0)
     
     def c_slowVoltageGear(self, button):
         self.setGear(drivetrain.slowVoltageGear)

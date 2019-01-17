@@ -42,3 +42,7 @@ class GrabberArm():
     def grabBall(self, clampSpeed, intakeSpeed):
         self.clamp(clampSpeed)
         self.intake(intakeSpeed)
+
+    def stop(self):
+        self.clamp(0)
+        self.intake(0)
