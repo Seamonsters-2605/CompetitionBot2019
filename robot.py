@@ -49,7 +49,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumVoltageGear)
+        self.setGear(drivetrain.mediumVelocityGear)
         self.resetPositions()
 
     def teleop(self):
