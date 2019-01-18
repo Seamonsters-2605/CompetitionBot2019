@@ -63,13 +63,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.app is not None:
                 self.app.doEvents()
 
-            Forward = sea.deadZone(self.joystick.getX())
-            Strafe = sea.deadZone(self.joystick.getY())
-            Strafe *= self.drivegear.strafeScale
-            Forward *= self.drivegear.forwardScale
-            
-            mag = math.sqrt(Forward**2 + Strafe**2)
-            
+            mag = sea.deadZone(self.joystick.getMagnitude())
+            mag *= self.drivegear.moveScale
             direction = -self.joystick.getDirectionRadians() + math.pi/2
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
             turn *= self.drivegear.turnScale # maximum radians per second
