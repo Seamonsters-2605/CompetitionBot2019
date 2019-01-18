@@ -76,12 +76,12 @@ fastVoltageGear = DriveGear("Fast Voltage", ctre.ControlMode.PercentOutput,
     forwardScale=6, strafeScale=6, turnScale=math.radians(120),
     p=0.032, i=0.0, d=3.2, f=0.0)
 
-slowVelocityGear = DriveGear("Slow Velocity", ctre.ControlMode.Velocity,
+slowVelocityGear = DriveGear("Slow Position", ctre.ControlMode.Position,
     forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60),
     p=0.032, i=0.0, d=3.2, f=0.0) 
-mediumVelocityGear = DriveGear("Medium Velocity", ctre.ControlMode.Velocity,
+mediumVelocityGear = DriveGear("Medium Position", ctre.ControlMode.Position,
     forwardScale=3, strafeScale=3, turnScale=math.radians(90),
     p=0.032, i=0.0, d=3.2, f=0.0)
-fastVelocityGear = DriveGear("Fast Velocity", ctre.ControlMode.Velocity,
+fastVelocityGear = DriveGear("Fast Position", ctre.ControlMode.Position,
     forwardScale=6, strafeScale=6, turnScale=math.radians(120),
     p=0.032, i=0.0, d=3.2, f=0.0)
