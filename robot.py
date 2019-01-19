@@ -90,10 +90,9 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
     
     # dashboard callb
-    def c_zeroSteering(self, button):
+    def c_wheelsToZero(self, button):
         for wheel in self.superDrive.wheels:
-            wheel.zeroSteering()
-    
+            wheel._setSteering(0)
     def c_zeroPosition(self, button):
         self.pathFollower.setPosition(0, 0, 0)
     

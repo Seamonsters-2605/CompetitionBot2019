@@ -16,7 +16,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.visionPositionLbl)
 
         zeroSteeringBtn = gui.Button("Reset swerve rotations")
-        zeroSteeringBtn.onclick.connect(self.queuedEvent(robot.c_zeroSteering))
+        zeroSteeringBtn.onclick.connect(self.queuedEvent(robot.c_wheelsToZero))
         root.append(zeroSteeringBtn)
 
         zeroPosition = gui.Button("Reset position")
