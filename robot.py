@@ -70,6 +70,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.app is not None:
                 self.app.doEvents()
+            self.updateDashboardPositions()
             yield
 
     def teleop(self):
@@ -99,15 +100,18 @@ class CompetitionBot2019(sea.GeneratorBot):
             # encoder based position tracking
             self.pathFollower.updateRobotPosition()
 
-            if self.app != None:
-                self.app.encoderPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                    (self.pathFollower.robotX, self.pathFollower.robotY,
-                    math.degrees(self.pathFollower.robotAngle)))
-                self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                    (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(),
-                    math.degrees(self.pathFollower._getAHRSAngle())))
+            self.updateDashboardPositions()
 
             yield
+    
+    def updateDashboardPositions(self):
+        if self.app != None:
+            self.app.encoderPositionLbl.set_text('%.3f, %.3f, %.3f' %
+                (self.pathFollower.robotX, self.pathFollower.robotY,
+                math.degrees(self.pathFollower.robotAngle)))
+            self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
+                (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(),
+                math.degrees(self.pathFollower._getAHRSAngle())))
 
     # dashboard callbacks
 
