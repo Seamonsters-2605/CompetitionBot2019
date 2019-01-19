@@ -68,18 +68,20 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.joystick.getRawButtonPressed(3):
                 if self.headless_mode == False:
                     self.headless_mode = True
+                    print("Headless Mode On")
                 else:
                     self.headless_mode = False
+                    print("Headless Mode Off")
             
             x = self.joystick.getX()
             y = self.joystick.getY()
             mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
             mag *= self.drivegear.moveScale
 
+            direction = -self.joystick.getDirectionRadians() + math.pi/2
+
             if self.headless_mode:
-                direction = (-self.joystick.getDirectionRadians() + math.pi/2) - sea.pathFollower.robotAngle
-            else:
-                direction = (-self.joystick.getDirectionRadians() + math.pi/2)
+                direction -= sea.pathFollower.robotAngle
             
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
             turn *= self.drivegear.turnScale # maximum radians per second
