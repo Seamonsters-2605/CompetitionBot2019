@@ -24,7 +24,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         
         self.ahrs = navx.AHRS.create_spi()
 
-        self.pathFollower = sea.PathFollower(self.superDrive)
+        self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
@@ -83,7 +83,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                     (self.pathFollower.robotX, self.pathFollower.robotY,
                     math.degrees(self.pathFollower.robotAngle)))
                 self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                    (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(), self.ahrs.getAngle()))
+                    (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(),
+                    math.degrees(self.pathFollower._getAHRSAngle())))
 
             yield
     
