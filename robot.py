@@ -74,7 +74,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def teleop(self):
-        self.setGear(drivetrain.mediumVoltageGear)
+        self.setGear(drivetrain.mediumVelocityGear)
 
         self.resetPositions()
         if self.app is not None:
