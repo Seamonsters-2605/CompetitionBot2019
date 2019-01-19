@@ -62,9 +62,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.app is not None:
                 self.app.doEvents()
-            self.x = self.joystick.getX()
-            self.y = self.joystick.getY()
-            mag = sea.deadZone(math.hypot(self.x * (1 - 0.5*self.y**2) ** 0.5,self.y * (1 - 0.5*self.x**2) ** 0.5))
+            x = self.joystick.getX()
+            y = self.joystick.getY()
+            mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
             mag *= self.drivegear.moveScale
             direction = -self.joystick.getDirectionRadians() + math.pi/2
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
