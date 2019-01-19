@@ -26,7 +26,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         
         self.ahrs = navx.AHRS.create_spi()
 
-        self.pathFollower = sea.PathFollower(self.superDrive)
+        self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
@@ -59,7 +59,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumVoltageGear)
+        self.setGear(drivetrain.mediumVelocityGear)
         self.resetPositions()
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
             self.autoUpdate())
@@ -82,14 +82,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.app is not None:
                 self.app.doEvents()
-
-            Forward = sea.deadZone(self.joystick.getX())
-            Strafe = sea.deadZone(self.joystick.getY())
-            Strafe *= self.drivegear.strafeScale
-            Forward *= self.drivegear.forwardScale
-            
-            mag = math.sqrt(Forward**2 + Strafe**2)
-            
+            x = self.joystick.getX()
+            y = self.joystick.getY()
+            mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
+            mag *= self.drivegear.moveScale
             direction = -self.joystick.getDirectionRadians() + math.pi/2
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
             turn *= self.drivegear.turnScale # maximum radians per second
@@ -108,7 +104,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                     (self.pathFollower.robotX, self.pathFollower.robotY,
                     math.degrees(self.pathFollower.robotAngle)))
                 self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                    (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(), self.ahrs.getAngle()))
+                    (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(),
+                    math.degrees(self.pathFollower._getAHRSAngle())))
 
             yield
 

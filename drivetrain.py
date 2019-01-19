@@ -49,13 +49,11 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
 
 class DriveGear:
 
-    def __init__(self, name, mode,
-                 forwardScale=1.0, strafeScale=1.0, turnScale=1.0,
+    def __init__(self, name, mode, moveScale, turnScale,
                  p=0.0, i=0.0, d=0.0, f=0.0):
         self.name = name
         self.mode = mode
-        self.forwardScale = forwardScale
-        self.strafeScale = strafeScale
+        self.moveScale = moveScale
         self.turnScale = turnScale
         self.p = p
         self.i = i
@@ -67,21 +65,18 @@ class DriveGear:
 
 
 slowVoltageGear = DriveGear("Slow Voltage", ctre.ControlMode.PercentOutput,
-    forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60),
-    p=0.032, i=0.0, d=3.2, f=0.0) 
+    moveScale=0.5, turnScale=math.radians(60)) 
 mediumVoltageGear = DriveGear("Medium Voltage", ctre.ControlMode.PercentOutput,
-    forwardScale=3, strafeScale=3, turnScale=math.radians(90),
-    p=0.032, i=0.0, d=3.2, f=0.0)
+    moveScale=3, turnScale=math.radians(90))
 fastVoltageGear = DriveGear("Fast Voltage", ctre.ControlMode.PercentOutput,
-    forwardScale=6, strafeScale=6, turnScale=math.radians(120),
-    p=0.032, i=0.0, d=3.2, f=0.0)
+    moveScale=6, turnScale=math.radians(120))
 
 slowVelocityGear = DriveGear("Slow Position", ctre.ControlMode.Position,
-    forwardScale=0.5, strafeScale=0.5, turnScale=math.radians(60),
-    p=0.032, i=0.0, d=3.2, f=0.0) 
+    moveScale=0.5, turnScale=math.radians(60),
+    p=0.064, i=0.0, d=3.2, f=0.0) 
 mediumVelocityGear = DriveGear("Medium Position", ctre.ControlMode.Position,
-    forwardScale=3, strafeScale=3, turnScale=math.radians(90),
+    moveScale=3, turnScale=math.radians(90),
     p=0.032, i=0.0, d=3.2, f=0.0)
 fastVelocityGear = DriveGear("Fast Position", ctre.ControlMode.Position,
-    forwardScale=6, strafeScale=6, turnScale=math.radians(120),
+    moveScale=6, turnScale=math.radians(120),
     p=0.032, i=0.0, d=3.2, f=0.0)
