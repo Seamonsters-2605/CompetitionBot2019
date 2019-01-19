@@ -103,7 +103,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.updateDashboardPositions()
 
             yield
-    
+
     def updateDashboardPositions(self):
         if self.app != None:
             self.app.encoderPositionLbl.set_text('%.3f, %.3f, %.3f' %
@@ -136,10 +136,10 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_resumeScheduler(self, button):
         self.autoScheduler.paused = False
 
-    def c_zeroSteering(self, button):
+    def c_wheelsToZero(self, button):
         for wheel in self.superDrive.wheels:
-            wheel.zeroSteering()
-    
+            wheel._setSteering(0)
+
     def c_zeroPosition(self, button):
         self.pathFollower.setPosition(0, 0, 0)
     
