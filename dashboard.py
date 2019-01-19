@@ -27,8 +27,22 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.driveGearLbl = gui.Label("[drive gear]")
         root.append(self.driveGearLbl)
 
+        root.append(self.initGearSelector(robot))
+
+        root.append(self.initFieldMap())
+        self.updateRobotPosition(0, 0, 0)
+
+        root.append(self.initScheduler(robot))
+        self.updateScheduler()
+
+        appCallback(self)
+        return root
+
+    def initGearSelector(self, robot):
+        gearSelectorBox = gui.VBox()
+
         voltageModeBox = gui.HBox()
-        root.append(voltageModeBox)
+        gearSelectorBox.append(voltageModeBox)
         slowVoltageBtn = gui.Button("[Slow Voltage]")
         slowVoltageBtn.onclick.connect(self.queuedEvent(robot.c_slowVoltageGear))
         voltageModeBox.append(slowVoltageBtn)
@@ -40,7 +54,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         voltageModeBox.append(fastVoltageBtn)
 
         velocityModeBox = gui.HBox()
-        root.append(velocityModeBox)
+        gearSelectorBox.append(velocityModeBox)
         slowVelocityBtn = gui.Button("[Slow Velocity]")
         slowVelocityBtn.onclick.connect(self.queuedEvent(robot.c_slowVelocityGear))
         velocityModeBox.append(slowVelocityBtn)
@@ -51,14 +65,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn.onclick.connect(self.queuedEvent(robot.c_fastVelocityGear))
         velocityModeBox.append(fastVelocityBtn)
 
-        root.append(self.initFieldMap())
-        self.updateRobotPosition(0, 0, 0)
-
-        root.append(self.initScheduler(robot))
-        self.updateScheduler()
-
-        appCallback(self)
-        return root
+        return gearSelectorBox
 
     def initFieldMap(self):
         self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
