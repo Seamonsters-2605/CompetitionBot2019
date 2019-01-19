@@ -58,14 +58,14 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         velocityModeBox = gui.HBox()
         gearSelectorBox.append(velocityModeBox)
-        slowVelocityBtn = gui.Button("[Slow Velocity]")
-        slowVelocityBtn.onclick.connect(self.queuedEvent(robot.c_slowVelocityGear))
+        slowVelocityBtn = gui.Button("[Slow Position]")
+        slowVelocityBtn.onclick.connect(self.queuedEvent(robot.c_slowPositionGear))
         velocityModeBox.append(slowVelocityBtn)
-        mediumVelocityBtn = gui.Button("[Medium Velocity]")
-        mediumVelocityBtn.onclick.connect(self.queuedEvent(robot.c_mediumVelocityGear))
+        mediumVelocityBtn = gui.Button("[Medium Position]")
+        mediumVelocityBtn.onclick.connect(self.queuedEvent(robot.c_mediumPositionGear))
         velocityModeBox.append(mediumVelocityBtn)
-        fastVelocityBtn = gui.Button("[Fast Velocity]")
-        fastVelocityBtn.onclick.connect(self.queuedEvent(robot.c_fastVelocityGear))
+        fastVelocityBtn = gui.Button("[Fast Position]")
+        fastVelocityBtn.onclick.connect(self.queuedEvent(robot.c_fastPositionGear))
         velocityModeBox.append(fastVelocityBtn)
 
         return gearSelectorBox

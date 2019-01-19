@@ -62,7 +62,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumVelocityGear)
+        self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
@@ -78,7 +78,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def teleop(self):
-        self.setGear(drivetrain.mediumVelocityGear)
+        self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.teleopUpdate(),
@@ -118,7 +118,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             if not self.joystick.getPOV() == -1:
                 aDiff = self.circleDistance(-math.radians(self.joystick.getPOV()), self.pathFollower.robotAngle)
                 turn = aDiff / 0.1 # seconds
-                targetAVel = drivetrain.fastVelocityGear.turnScale
+                targetAVel = drivetrain.fastPositionGear.turnScale
                 if turn > targetAVel:
                     turn = targetAVel
                 elif turn < -targetAVel:
@@ -177,14 +177,14 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_fastVoltageGear(self, button):
         self.setGear(drivetrain.fastVoltageGear)
     
-    def c_slowVelocityGear(self, button):
-        self.setGear(drivetrain.slowVelocityGear)
+    def c_slowPositionGear(self, button):
+        self.setGear(drivetrain.slowPositionGear)
     
-    def c_mediumVelocityGear(self, button):
-        self.setGear(drivetrain.mediumVelocityGear)
+    def c_mediumPositionGear(self, button):
+        self.setGear(drivetrain.mediumPositionGear)
     
-    def c_fastVelocityGear(self, button):
-        self.setGear(drivetrain.fastVelocityGear)
+    def c_fastPositionGear(self, button):
+        self.setGear(drivetrain.fastPositionGear)
 
 
 if __name__ == "__main__":
