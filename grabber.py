@@ -10,6 +10,7 @@ class GrabberArm():
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.hatchGrabber = wpilib.Solenoid(0)
+        self.slideMotor = ctre.WPI_TalonSRX(19)
 
     #takes in the ball at the speed "speed"
     def intake(self, speed):
@@ -44,6 +45,7 @@ class GrabberArm():
         self.clamp(clampSpeed)
         self.intake(intakeSpeed)
 
+    #releases the arms and ejects the ball
     def releaseBall(self, releaseSpeed, ejectSpeed):
         self.eject(1)
         self.release(1)
@@ -51,3 +53,11 @@ class GrabberArm():
     def stop(self):
         self.clamp(0)
         self.intake(0)
+
+    #grabber slides up
+    def slideUp(self, speed):
+        self.slideMotor.set(speed)
+    
+    #grabber slides down
+    def slideDown(self, speed):
+        self.slideMotor.set(-speed)
