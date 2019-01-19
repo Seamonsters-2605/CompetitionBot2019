@@ -1,19 +1,20 @@
+import math
 import remi.gui as gui
 import seamonsters as sea
 
 class CompetitionBotDashboard(sea.Dashboard):
+
+    FIELD_WIDTH = 500
+    FIELD_HEIGHT = 450
+    FIELD_PIXELS_PER_FOOT = 10
 
     def main(self, robot, appCallback):
         self.robot = robot
 
         root = gui.VBox(width=600)
 
-        self.encoderPositionLbl = gui.Label("[encoder position]")
-        root.append(self.encoderPositionLbl)
-        self.navxPositionLbl = gui.Label("[navx position]")
-        root.append(self.navxPositionLbl)
-        self.visionPositionLbl = gui.Label("[vision position]")
-        root.append(self.visionPositionLbl)
+        self.robotPositionLbl = gui.Label("[robot position]")
+        root.append(self.robotPositionLbl)
 
         zeroSteeringBtn = gui.Button("Reset swerve rotations")
         zeroSteeringBtn.onclick.connect(self.queuedEvent(robot.c_wheelsToZero))
@@ -50,11 +51,27 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn.onclick.connect(self.queuedEvent(robot.c_fastVelocityGear))
         velocityModeBox.append(fastVelocityBtn)
 
+        root.append(self.initFieldMap())
+        self.updateRobotPosition(0, 0, 0)
+
         root.append(self.initScheduler(robot))
         self.updateScheduler()
 
         appCallback(self)
         return root
+
+    def initFieldMap(self):
+        self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
+            CompetitionBotDashboard.FIELD_HEIGHT)
+
+        self.arrow = gui.SvgPolyline()
+        self.fieldSvg.append(self.arrow)
+        self.arrow.add_coord(0, 0)
+        self.arrow.add_coord(10, 40)
+        self.arrow.add_coord(-10, 40)
+        self.arrow.style['fill'] = 'gray'
+
+        return self.fieldSvg
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
@@ -99,6 +116,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox.append(self.schedulerList)
 
         return schedulerBox
+
+    def updateRobotPosition(self, robotX, robotY, robotAngle):
+        self.robotPositionLbl.set_text('%.3f, %.3f, %.3f' %
+            (robotX, robotY, math.degrees(robotAngle)))
+
+        arrowX = CompetitionBotDashboard.FIELD_WIDTH / 2
+        arrowX += robotX * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT
+        arrowY = CompetitionBotDashboard.FIELD_HEIGHT / 2
+        arrowY -= robotY * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT
+        arrowAngle = -math.degrees(robotAngle)
+        self.arrow.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
+            % (arrowX, arrowY, arrowAngle)
     
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler

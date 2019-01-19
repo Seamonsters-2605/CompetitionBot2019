@@ -84,6 +84,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.app is not None:
                 self.app.doEvents()
+
+            self.pathFollower.updateRobotPosition()
+
             x = self.joystick.getX()
             y = self.joystick.getY()
             mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
@@ -98,21 +101,15 @@ class CompetitionBot2019(sea.GeneratorBot):
             
             self.superDrive.drive(mag, direction, turn)
 
-            # encoder based position tracking
-            self.pathFollower.updateRobotPosition()
-
             self.updateDashboardPositions()
 
             yield
 
     def updateDashboardPositions(self):
         if self.app != None:
-            self.app.encoderPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                (self.pathFollower.robotX, self.pathFollower.robotY,
-                math.degrees(self.pathFollower.robotAngle)))
-            self.app.navxPositionLbl.set_text('%.3f, %.3f, %.3f' %
-                (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(),
-                math.degrees(self.pathFollower._getAHRSAngle())))
+            self.app.updateRobotPosition(
+                self.pathFollower.robotX, self.pathFollower.robotY,
+                self.pathFollower.robotAngle)
 
     # dashboard callbacks
 
