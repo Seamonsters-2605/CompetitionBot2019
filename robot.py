@@ -26,6 +26,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.pathFollower = sea.PathFollower(self.superDrive)
 
+        self.headless_mode = False
+
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
         self.drivegear = None
@@ -62,11 +64,23 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.app is not None:
                 self.app.doEvents()
+            
+            if self.joystick.getRawButtonPressed(3):
+                if self.headless_mode == False:
+                    self.headless_mode = True
+                else:
+                    self.headless_mode = False
+            
             x = self.joystick.getX()
             y = self.joystick.getY()
             mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
             mag *= self.drivegear.moveScale
-            direction = -self.joystick.getDirectionRadians() + math.pi/2
+
+            if self.headless_mode:
+                direction = (-self.joystick.getDirectionRadians() + math.pi/2) - sea.pathFollower.robotAngle
+            else:
+                direction = (-self.joystick.getDirectionRadians() + math.pi/2)
+            
             turn = -sea.deadZone(self.joystick.getRawAxis(3))
             turn *= self.drivegear.turnScale # maximum radians per second
 
