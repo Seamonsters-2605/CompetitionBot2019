@@ -19,7 +19,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         return diff
 
     def robotInit(self):
-
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
@@ -33,6 +32,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
+
+        self.timingMonitor = sea.TimingMonitor()
 
         self.drivegear = None
 
@@ -63,7 +64,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
-            self.autoUpdate())
+            self.autoUpdate(), self.timingMonitor.updateGenerator())
 
     def autoUpdate(self):
         if self.app is not None:
@@ -71,15 +72,19 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.app is not None:
                 self.app.doEvents()
-            self.updateDashboardPositions()
+            self.updateDashboardLabels()
             yield
 
     def teleop(self):
         self.setGear(drivetrain.mediumVelocityGear)
         self.resetPositions()
+        self.pathFollower.setPosition(0, 0, 0)
+        yield from sea.parallel(self.teleopUpdate(),
+            self.timingMonitor.updateGenerator())
+
+    def teleopUpdate(self):
         if self.app is not None:
             self.app.clearEvents()
-        self.pathFollower.setPosition(0, 0, 0)
 
         while True:
             if self.app is not None:
@@ -106,15 +111,17 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             self.superDrive.drive(mag, direction, turn)
 
-            self.updateDashboardPositions()
+            self.updateDashboardLabels()
 
             yield
 
-    def updateDashboardPositions(self):
+    def updateDashboardLabels(self):
         if self.app != None:
             self.app.updateRobotPosition(
                 self.pathFollower.robotX, self.pathFollower.robotY,
                 self.pathFollower.robotAngle)
+            self.app.realTimeRatioLbl.set_text(
+                '%.3f' % (self.timingMonitor.realTimeRatio,))
 
     # dashboard callbacks
 
