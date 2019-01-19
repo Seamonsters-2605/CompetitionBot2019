@@ -5,6 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
+import buttons
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -17,6 +18,14 @@ class CompetitionBot2019(sea.GeneratorBot):
         return diff
 
     def robotInit(self):
+
+        self.motor = ctre.TalonSRX(10)
+
+        self.button = buttons.Buttons()
+
+        #testing stuff:
+        
+        self.button.addPreset(1, self.button.SINGLE_CLICK, self.motor.set, [ctre.ControlMode.PercentOutput, 1])
 
         self.joystick = wpilib.Joystick(0)
 
@@ -87,8 +96,10 @@ class CompetitionBot2019(sea.GeneratorBot):
                     (self.ahrs.getDisplacementX(), self.ahrs.getDisplacementY(),
                     math.degrees(self.pathFollower._getAHRSAngle())))
 
+            self.button.update()
+
             yield
-    
+
     # dashboard callb
     def c_wheelsToZero(self, button):
         for wheel in self.superDrive.wheels:
