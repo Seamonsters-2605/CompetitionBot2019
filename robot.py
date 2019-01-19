@@ -61,6 +61,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     def autonomous(self):
         self.setGear(drivetrain.mediumVelocityGear)
         self.resetPositions()
+        self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
             self.autoUpdate())
 
@@ -75,10 +76,10 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def teleop(self):
         self.setGear(drivetrain.mediumVelocityGear)
-
         self.resetPositions()
         if self.app is not None:
             self.app.clearEvents()
+        self.pathFollower.setPosition(0, 0, 0)
 
         while True:
             if self.app is not None:
