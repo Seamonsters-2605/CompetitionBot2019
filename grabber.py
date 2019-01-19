@@ -1,5 +1,6 @@
 import wpilib
 import ctre
+import seamonsters as sea
 
 class GrabberArm():
 
@@ -42,6 +43,10 @@ class GrabberArm():
     def grabBall(self, clampSpeed, intakeSpeed):
         self.clamp(clampSpeed)
         self.intake(intakeSpeed)
+
+    def releaseBall(self, releaseSpeed, ejectSpeed):
+        self.eject(1)
+        self.release(1)
 
     def stop(self):
         self.clamp(0)

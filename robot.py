@@ -96,17 +96,16 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.joystick.getRawButtonPressed(1):
                 self.grabberArm.grabBall(1,1)
 
+            if self.joystick.getRawButtonPressed(2):
+                self.grabberArm.releaseBall(1,1)
+
             if self.joystick.getRawButtonReleased(1) or self.joystick.getRawButtonReleased(2):
                 self.grabberArm.stop()
 
-            if self.joystick.getRawButtonPressed(2):
-                self.grabberArm.release(1)
-                self.grabberArm.eject(1)
-
-            if self.joystick.getRawButtonPressed(3):           
+            if self.joystick.getRawButtonPressed(7):           
                 self.grabberArm.push()
 
-            if self.joystick.getRawButtonPressed(4):
+            if self.joystick.getRawButtonPressed(6):
                 self.grabberArm.pull()
 
             yield
