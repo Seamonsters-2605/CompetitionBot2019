@@ -96,9 +96,14 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
-                turn = self.circleDistance(math.radians(self.joystick.getPOV()), math.radians(self.ahrs.getAngle()))
-                turn *= math.radians(60)
-            
+                aDiff = self.circleDistance(-math.radians(self.joystick.getPOV()), self.pathFollower.robotAngle)
+                turn = aDiff / 0.1 # seconds
+                targetAVel = drivetrain.fastVelocityGear.turnScale
+                if turn > targetAVel:
+                    turn = targetAVel
+                elif turn < -targetAVel:
+                    turn = -targetAVel
+
             self.superDrive.drive(mag, direction, turn)
 
             self.updateDashboardPositions()
