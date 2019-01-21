@@ -1,7 +1,7 @@
 import math
 
 
-def circleDistance(self, a, b):
+def circleDistance(a, b):
     diff = a - b
     while diff > math.pi:
         diff -= math.pi * 2
@@ -31,15 +31,14 @@ waypoint6 = DriveCoordinates("Waypoint6", 15, -7.5, math.radians(0))
 humanstation1 = DriveCoordinates("human1", 27, 10.8, math.radians(180))
 waypoints = [waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6]
 
-def waypointss(driveCoord, x, y):
+def findWaypoints(driveCoord, x, y):
     meangle = math.atan2(y,x)
-    waypoint = None
+    surround = None
     Direc = None
-    yote = self.circleDistance(meangle, math.atan2(driveCoord.y_coordinate, driveCoord.x_coordinate))
+    yeet = circleDistance(meangle, math.atan2(driveCoord.y_coordinate, driveCoord.x_coordinate))
     driveDir = []
-    way1
-
-    if yote > 0:
+    way1 = None
+    if yeet > 0:
         print ("counterclockwise")
         Direc = True
         print(Direc)
@@ -48,34 +47,34 @@ def waypointss(driveCoord, x, y):
         Direc = False
         print(Direc)
     if meangle < waypoint1.angle:
-        waypoint = (5,0)
-        print(waypoint)
+        surround = (5,0)
+        print(surround)
     elif meangle < waypoint2.angle:
-        waypoint = (0,1)
-        print(waypoint)
+        surround = (0,1)
+        print(surround)
     elif meangle < waypoint3.angle:
-        waypoint = (1,2)
-        print(waypoint)
+        surround = (1,2)
+        print(surround)
     elif meangle < waypoint4.angle:
-        waypoint = (2,3)
-        print(waypoint)
+        surround = (2,3)
+        print(surround)
     elif meangle < waypoint5.angle:
-        waypoint = (3,4)
-        print(waypoint)
+        surround = (3,4)
+        print(surround)
     else:
-        waypoint = (4,5)
-        print(waypoint)
+        surround = (4,5)
+        print(surround)
     
     if Direc == True:
-        way1 = waypoint[0]
+        way1 = surround[0]
         print(way1)
     else:
-        way1 = waypoint[1]
+        way1 = surround[1]
         print(way1)
     driveDir.append(way1)
-    for x in waypoints:
+    for dRiVePoInT in waypoints:
         if Direc == True:
-            if waypoints.angle > meangle:
+            if dRiVePoInT.angle > meangle:
                 driveDir.append(waypoints[way1+1])
                 print (driveDir)
             else:
@@ -83,7 +82,7 @@ def waypointss(driveCoord, x, y):
                 print(driveDir)
                 
         elif Direc == False:
-            if waypoints.angle < meangle:
+            if dRiVePoInT.angle < meangle:
                 driveDir.append(waypoints[way1+1])
                 print(driveDir)
             else:
