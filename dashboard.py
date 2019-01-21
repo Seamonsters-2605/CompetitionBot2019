@@ -14,7 +14,7 @@ class CompetitionBotDashboard(sea.Dashboard):
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.VBox(width=600)
+        root = gui.VBox(width=600, margin='0px auto')
 
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
