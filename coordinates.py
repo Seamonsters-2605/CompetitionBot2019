@@ -29,56 +29,41 @@ waypoint4 = DriveCoordinates("Waypoint4", -15, 0, math.radians(0))
 waypoint5 = DriveCoordinates("Waypoint5", -15, -7.5, math.radians(0))
 waypoint6 = DriveCoordinates("Waypoint6", 15, -7.5, math.radians(0))
 humanstation1 = DriveCoordinates("human1", 27, 10.8, math.radians(180))
+# in counterclockwise order
 waypoints = [waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6]
 
-def findWaypoints(driveCoord, x, y):
-    meangle = math.atan2(y,x)
-    goat = circleDistance(meangle, math.atan2(driveCoord.y_coordinate, driveCoord.x_coordinate))
-    drivePoints = []
-    if goat > 0:
-        print ("counterclockwise")
-        Direc = True
-    else:
-        print("clockwise")
-        Direc = False
-       
-    if meangle < waypoint1.angle:
-        surround = (5,0)
-    elif meangle < waypoint2.angle:
-        surround = (0,1)
-    elif meangle < waypoint3.angle:
-        surround = (1,2)
-    elif meangle < waypoint4.angle:
-        surround = (2,3)
-    elif meangle < waypoint5.angle:
-        surround = (3,4)
-    elif meangle < waypoint6.angle:
-        surround = (4,5)
-    else:
-        surround = (5,0)
-    print(surround)
+def findWaypoints(targetCoord, robotX, robotY):
+    robotAngle = math.atan2(robotY, robotX)
     
-    if Direc == True:
-        way1 = surround[0]
-        print(way1)
-    else:
-        way1 = surround[1]
-        print(way1)
-    drivePoints.append(way1)
-    for dRiVePoInT in waypoints:
-        if Direc == True:
-            if dRiVePoInT.angle > meangle:
-                drivePoints.append(waypoints[way1+1])
-                print (drivePoints)
-            else:
-                print(meangle)
-                print(drivePoints)
-                
-        elif Direc == False:
-            if dRiVePoInT.angle < meangle:
-                drivePoints.append(waypoints[way1+1])
-                print(drivePoints)
-            else:
-                print (meangle)
-                print(drivePoints)
-    return drivePoints
+    nearestCWWaypoint = 0
+    while nearestCWWaypoint < len(waypoints):
+        point = waypoints[nearestCWWaypoint]
+        if circleDistance(robotAngle, point.angle) < 0:
+            break
+        nearestCWWaypoint += 1
+    nearestCWWaypoint %= len(waypoints)
+
+    moveClockwise = circleDistance(robotAngle, targetCoord.angle) > 0
+
+    pointI = nearestCWWaypoint
+    if moveClockwise:
+        pointI += 1
+        pointI %= len(waypoints)
+
+    path = []
+
+    while True:
+        waypoint = waypoints[pointI]
+        clockwiseFromWaypoint = circleDistance(waypoint.angle, targetCoord.angle) > 0
+        if clockwiseFromWaypoint == moveClockwise:
+            print("Point", pointI)
+            path.append(waypoint)
+        else:
+            break
+        if moveClockwise:
+            pointI -= 1 # negative indices are fine
+        else:
+            pointI += 1
+
+    path.append(targetCoord)
+    return path
