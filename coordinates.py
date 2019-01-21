@@ -33,12 +33,9 @@ waypoints = [waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6]
 
 def findWaypoints(driveCoord, x, y):
     meangle = math.atan2(y,x)
-    surround = None
-    Direc = None
-    yeet = circleDistance(meangle, math.atan2(driveCoord.y_coordinate, driveCoord.x_coordinate))
+    goat = circleDistance(meangle, math.atan2(driveCoord.y_coordinate, driveCoord.x_coordinate))
     driveDir = []
-    way1 = None
-    if yeet > 0:
+    if goat > 0:
         print ("counterclockwise")
         Direc = True
         print(Direc)
