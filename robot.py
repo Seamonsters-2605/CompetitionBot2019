@@ -5,6 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
+import buttons
 import auto_scheduler
 import auto_actions
 
@@ -40,6 +41,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.timingMonitor = sea.TimingMonitor()
 
         self.drivegear = None
+
+        self.button = buttons.Buttons(self.joystick)
+        self.button.addPreset(3,buttons.Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
     def updateScheduler(self):
         if self.app is not None:
@@ -96,14 +100,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             self.pathFollower.updateRobotPosition()
 
-            if self.joystick.getRawButtonPressed(3):
-                if self.headless_mode == False:
-                    self.headless_mode = True
-                    print("Headless Mode On")
-                else:
-                    self.headless_mode = False
-                    print("Headless Mode Off")
-
             x = self.joystick.getX()
             y = self.joystick.getY()
             mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
@@ -130,6 +126,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             self.updateDashboardLabels()
 
+            self.button.update()
+
             yield
 
     def updateDashboardLabels(self):
@@ -140,6 +138,16 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.realTimeRatioLbl.set_text(
                 '%.3f' % (self.timingMonitor.realTimeRatio,))
             self.app.currentLbl.set_text(str(self.pdp.getTotalCurrent()))
+
+    # button functions
+
+    def switchHeadless(self):
+        if self.headless_mode == False:
+            self.headless_mode = True
+            print("Headless Mode On")
+        else:
+            self.headless_mode = False
+            print("Headless Mode Off")
 
     # dashboard callbacks
 
