@@ -34,33 +34,29 @@ waypoints = [waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6]
 def findWaypoints(driveCoord, x, y):
     meangle = math.atan2(y,x)
     goat = circleDistance(meangle, math.atan2(driveCoord.y_coordinate, driveCoord.x_coordinate))
-    driveDir = []
+    drivePoints = []
     if goat > 0:
         print ("counterclockwise")
         Direc = True
-        print(Direc)
     else:
         print("clockwise")
         Direc = False
-        print(Direc)
+       
     if meangle < waypoint1.angle:
         surround = (5,0)
-        print(surround)
     elif meangle < waypoint2.angle:
         surround = (0,1)
-        print(surround)
     elif meangle < waypoint3.angle:
         surround = (1,2)
-        print(surround)
     elif meangle < waypoint4.angle:
         surround = (2,3)
-        print(surround)
     elif meangle < waypoint5.angle:
         surround = (3,4)
-        print(surround)
-    else:
+    elif meangle < waypoint6.angle:
         surround = (4,5)
-        print(surround)
+    else:
+        surround = (5,0)
+    print(surround)
     
     if Direc == True:
         way1 = surround[0]
@@ -68,21 +64,21 @@ def findWaypoints(driveCoord, x, y):
     else:
         way1 = surround[1]
         print(way1)
-    driveDir.append(way1)
+    drivePoints.append(way1)
     for dRiVePoInT in waypoints:
         if Direc == True:
             if dRiVePoInT.angle > meangle:
-                driveDir.append(waypoints[way1+1])
-                print (driveDir)
+                drivePoints.append(waypoints[way1+1])
+                print (drivePoints)
             else:
                 print(meangle)
-                print(driveDir)
+                print(drivePoints)
                 
         elif Direc == False:
             if dRiVePoInT.angle < meangle:
-                driveDir.append(waypoints[way1+1])
-                print(driveDir)
+                drivePoints.append(waypoints[way1+1])
+                print(drivePoints)
             else:
                 print (meangle)
-                print(driveDir)
-                
+                print(drivePoints)
+    return drivePoints
