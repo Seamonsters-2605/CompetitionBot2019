@@ -43,10 +43,9 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     # 537.6 counts per revolution
     # 3 : 1 gear ratio
     # 537.6 * 3 = 1612.8 counts per wheel rotation
-    swerveWheel = sea.SwerveWheel(angledWheel, rotateTalon, 1612.8, reverseSteerMotor=True)
+    swerveWheel = sea.SwerveWheel(angledWheel, rotateTalon, 1612.8, 0, -0.06883518, reverseSteerMotor=True)
 
     superDrive.addWheel(swerveWheel)
-
 class DriveGear:
 
     def __init__(self, name, mode, moveScale, turnScale,
