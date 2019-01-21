@@ -9,7 +9,8 @@ class Buttons():
     HELD = 3
     NOT_HELD = 4
 
-    def __init__(self, joystick):
+    def __init__(self, joystick, doubleClickDelay = 0.25):
+        self.doubleClickDelay = doubleClickDelay
         self.joystick = joystick
         self.presets = []
         self.otherPresets = []
@@ -37,7 +38,7 @@ class Buttons():
             elif clickType == Buttons.DOUBLE_CLICK:
                 if self.doubleClickDetector.get(button) == None:
                     self.doubleClickDetector[button] = time.time
-                if time.time + 0.25 > self.doubleClickDetector[button]:
+                if time.time + self.doubleClickDelay > self.doubleClickDetector[button]:
                     self.doubleClickDetector[button] = time.time
                     function(*args)  
                 else:

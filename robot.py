@@ -6,7 +6,7 @@ import seamonsters as sea
 import drivetrain
 import dashboard
 import grabber
-import buttons
+from buttons import Buttons
 import auto_scheduler
 import auto_actions
 
@@ -44,14 +44,14 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.drivegear = None
 
-        self.button = buttons.Buttons(self.joystick) 
-        self.button.addPreset(1,buttons.Buttons.HELD, self.grabberArm.grabBall, [1,1])
-        self.button.addPreset(1,buttons.Buttons.NOT_HELD,self.grabberArm.stop,[])
-        self.button.addPreset(3,buttons.Buttons.SINGLE_CLICK, self.switchHeadless, [])
-        self.button.addPreset(2,buttons.Buttons.HELD,self.grabberArm.releaseBall,[1,1])
-        self.button.addPreset(2,buttons.Buttons.NOT_HELD,self.grabberArm.stop,[])
-        self.button.addPreset(6,buttons.Buttons.SINGLE_CLICK,self.grabberArm.pull,[])
-        self.button.addPreset(7,buttons.Buttons.SINGLE_CLICK,self.grabberArm.push,[])
+        self.button = Buttons(self.joystick) 
+        self.button.addPreset(1,Buttons.HELD, self.grabberArm.grabBall, [1,1])
+        self.button.addPreset(1,Buttons.NOT_HELD,self.grabberArm.stop,[])
+        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
+        self.button.addPreset(2,Buttons.HELD,self.grabberArm.releaseBall,[1,1])
+        self.button.addPreset(2,Buttons.NOT_HELD,self.grabberArm.stop,[])
+        self.button.addPreset(6,Buttons.SINGLE_CLICK,self.grabberArm.pull,[])
+        self.button.addPreset(7,Buttons.SINGLE_CLICK,self.grabberArm.push,[])
 
 
     def updateScheduler(self):
