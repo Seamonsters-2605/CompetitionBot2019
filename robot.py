@@ -45,6 +45,17 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.button = buttons.Buttons(self.joystick)
         self.button.addPreset(3,buttons.Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
+        self.testDIO = wpilib.DigitalInput(0)
+
+    def test(self):
+        motor = self.superDrive.wheels[0].angledWheel.motor
+        motor.set(ctre.ControlMode.PercentOutput, 1)
+        while self.testDIO.get():
+            yield
+        while not self.testDIO.get():
+            yield
+        motor.set(ctre.ControlMode.PercentOutput, 0)
+
     def updateScheduler(self):
         if self.app is not None:
             self.app.updateScheduler()
