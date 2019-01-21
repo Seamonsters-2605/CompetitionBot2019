@@ -8,6 +8,9 @@ class CompetitionBotDashboard(sea.Dashboard):
     FIELD_HEIGHT = 450
     FIELD_PIXELS_PER_FOOT = 10
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, css=True, **kwargs)
+
     def main(self, robot, appCallback):
         self.robot = robot
 
