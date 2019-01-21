@@ -5,7 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
-import buttons
+from buttons import Buttons
 import auto_scheduler
 import auto_actions
 
@@ -42,8 +42,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.drivegear = None
 
-        self.button = buttons.Buttons(self.joystick)
-        self.button.addPreset(3,buttons.Buttons.SINGLE_CLICK, self.switchHeadless, [])
+        self.button = Buttons(self.joystick)
+        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
     def updateScheduler(self):
         if self.app is not None:
