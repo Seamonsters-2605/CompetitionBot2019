@@ -4,11 +4,12 @@ import time
 
 class Buttons():    
 
+    SINGLE_CLICK = 1
+    DOUBLE_CLICK = 2
+    HELD = 3
+    NOT_HELD = 4
+
     def __init__(self, joystick):
-        self.SINGLE_CLICK = 1
-        self.DOUBLE_CLICK = 2
-        self.HELD = 3
-        self.NOT_HELD = 4
         self.joystick = joystick
         self.presets = []
         self.otherPresets = []
@@ -27,13 +28,13 @@ class Buttons():
 
     def update(self):
         for button, clickType, function, args in self.presets:
-            if self.joystick.getRawButtonPressed(button) and clickType == self.SINGLE_CLICK:
+            if self.joystick.getRawButtonPressed(button) and clickType == Buttons.SINGLE_CLICK:
                 function(*args)
-            elif self.joystick.getRawButton(button) and clickType == self.HELD:
+            elif self.joystick.getRawButton(button) and clickType == Buttons.HELD:
                 function(*args)
-            elif not (self.joystick.getRawButton(button)) and clickType == self.NOT_HELD:
+            elif not (self.joystick.getRawButton(button)) and clickType == Buttons.NOT_HELD:
                 function(*args)
-            elif clickType == self.DOUBLE_CLICK:
+            elif clickType == Buttons.DOUBLE_CLICK:
                 if self.doubleClickDetector.get(button) == None:
                     self.doubleClickDetector[button] = time.time
                 if time.time + 0.25 > self.doubleClickDetector[button]:
