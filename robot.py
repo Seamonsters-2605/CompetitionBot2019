@@ -151,12 +151,14 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     # dashboard callbacks
 
+    @sea.queuedDashboardEvent
     def c_addWaitAction(self, button):
         waitTime = float(self.app.waitTimeInput.get_value())
         self.autoScheduler.actionList.append(
             auto_actions.createWaitAction(waitTime))
         self.updateScheduler()
 
+    @sea.queuedDashboardEvent
     def c_addDriveToPointAction(self, button):
         pointX = float(self.app.pointXInput.get_value())
         pointY = float(self.app.pointYInput.get_value())
@@ -166,34 +168,44 @@ class CompetitionBot2019(sea.GeneratorBot):
             auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
         self.updateScheduler()
 
+    @sea.queuedDashboardEvent
     def c_pauseScheduler(self, button):
         self.autoScheduler.paused = True
 
+    @sea.queuedDashboardEvent
     def c_resumeScheduler(self, button):
         self.autoScheduler.paused = False
 
+    @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
         for wheel in self.superDrive.wheels:
             wheel._setSteering(0)
 
+    @sea.queuedDashboardEvent
     def c_zeroPosition(self, button):
         self.pathFollower.setPosition(0, 0, 0)
-    
+
+    @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
         self.setGear(drivetrain.slowVoltageGear)
-    
+
+    @sea.queuedDashboardEvent
     def c_mediumVoltageGear(self, button):
         self.setGear(drivetrain.mediumVoltageGear)
-    
+
+    @sea.queuedDashboardEvent
     def c_fastVoltageGear(self, button):
         self.setGear(drivetrain.fastVoltageGear)
-    
+
+    @sea.queuedDashboardEvent
     def c_slowPositionGear(self, button):
         self.setGear(drivetrain.slowPositionGear)
-    
+
+    @sea.queuedDashboardEvent
     def c_mediumPositionGear(self, button):
         self.setGear(drivetrain.mediumPositionGear)
-    
+
+    @sea.queuedDashboardEvent
     def c_fastPositionGear(self, button):
         self.setGear(drivetrain.fastPositionGear)
 
