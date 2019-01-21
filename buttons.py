@@ -4,12 +4,12 @@ import time
 
 class Buttons():    
 
-    def __init__(self):
+    def __init__(self, joystick):
         self.SINGLE_CLICK = 1
         self.DOUBLE_CLICK = 2
         self.HELD = 3
         self.NOT_HELD = 4
-        self.joystick = wpilib.Joystick(0)
+        self.joystick = joystick
         self.presets = []
         self.otherPresets = []
         self.doubleClickDetector = {}

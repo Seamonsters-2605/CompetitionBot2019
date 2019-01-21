@@ -40,7 +40,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.drivegear = None
 
-        self.button = buttons.Buttons()
+        self.button = buttons.Buttons(self.joystick)
         self.button.addPreset(3,self.button.SINGLE_CLICK, self.switchHeadless, [])
 
     def updateScheduler(self):
