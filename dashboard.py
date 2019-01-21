@@ -16,6 +16,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
+        self.currentLbl = gui.Label("[current]")
+        root.append(self.currentLbl)
+
         self.robotPositionLbl = gui.Label("[robot position]")
         root.append(self.robotPositionLbl)
 

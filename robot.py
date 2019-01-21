@@ -21,6 +21,8 @@ class CompetitionBot2019(sea.GeneratorBot):
     def robotInit(self):
         self.joystick = wpilib.Joystick(0)
 
+        self.pdp = wpilib.PowerDistributionPanel()
+
         self.superDrive = drivetrain.initDrivetrain()
         
         self.ahrs = navx.AHRS.create_spi()
@@ -137,6 +139,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.pathFollower.robotAngle)
             self.app.realTimeRatioLbl.set_text(
                 '%.3f' % (self.timingMonitor.realTimeRatio,))
+            self.app.currentLbl.set_text(str(self.pdp.getTotalCurrent()))
 
     # dashboard callbacks
 
