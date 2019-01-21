@@ -22,7 +22,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     def robotInit(self):
         self.joystick = wpilib.Joystick(0)
 
-        self.pdp = wpilib.PowerDistributionPanel()
+        self.pdp = wpilib.PowerDistributionPanel(50)
 
         self.superDrive = drivetrain.initDrivetrain()
         
