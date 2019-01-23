@@ -34,20 +34,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.currentLbl = gui.Label("[current]")
         root.append(self.currentLbl)
 
-        self.robotPositionLbl = gui.Label("[robot position]")
-        root.append(self.robotPositionLbl)
-
         zeroSteeringBtn = gui.Button("Reset swerve rotations")
         zeroSteeringBtn.onclick.connect(robot.c_wheelsToZero)
         root.append(zeroSteeringBtn)
 
-        zeroPosition = gui.Button("Reset position")
-        zeroPosition.onclick.connect(robot.c_zeroPosition)
-        root.append(zeroPosition)
-
         root.append(self.initGearSelector(robot))
 
-        root.append(self.initFieldMap())
+        root.append(self.initFieldMap(robot))
         self.updateRobotPosition(0, 0, 0)
 
         root.append(self.initScheduler(robot))
@@ -89,25 +82,39 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         return gearSelectorBox
 
-    def initFieldMap(self):
-        self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
+    def initFieldMap(self, robot):
+        fieldBox = gui.VBox()
+        self.groupStyle(fieldBox)
+
+        posBox = gui.HBox()
+        fieldBox.append(posBox)
+
+        self.robotPositionLbl = gui.Label("[robot position]")
+        posBox.append(self.robotPositionLbl)
+
+        zeroPosition = gui.Button("Reset position")
+        zeroPosition.onclick.connect(robot.c_zeroPosition)
+        posBox.append(zeroPosition)
+
+        fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
+        fieldBox.append(fieldSvg)
 
         self.image = gui.SvgShape(0, 0)
         self.image.type = 'image'
         self.image.attributes['width'] = CompetitionBotDashboard.FIELD_WIDTH
         self.image.attributes['height'] = CompetitionBotDashboard.FIELD_HEIGHT
         self.image.attributes['xlink:href'] = '/res:frcField.PNG'
-        self.fieldSvg.append(self.image)
+        fieldSvg.append(self.image)
 
         self.arrow = gui.SvgPolyline()
         self.arrow.add_coord(0, 0)
         self.arrow.add_coord(10, 40)
         self.arrow.add_coord(-10, 40)
         self.arrow.style['fill'] = 'green'
-        self.fieldSvg.append(self.arrow)
+        fieldSvg.append(self.arrow)
 
-        return self.fieldSvg
+        return fieldBox
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
