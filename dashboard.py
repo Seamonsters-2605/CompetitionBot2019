@@ -17,6 +17,10 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root = gui.VBox(width=600, margin='0px auto')
 
+        closeButton = gui.Button("Close")
+        closeButton.onclick.connect(self.c_closeApp)
+        root.append(closeButton)
+
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
@@ -162,3 +166,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         for action in scheduler.actionList:
             listItem = gui.ListItem(action.name)
             self.schedulerList.append(listItem)
+
+    def c_closeApp(self, button):
+        self.close()
