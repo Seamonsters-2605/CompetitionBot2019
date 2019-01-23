@@ -12,6 +12,13 @@ class CompetitionBotDashboard(sea.Dashboard):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, css=True, **kwargs)
 
+    # apply a style to the widget to visually group items together
+    def groupStyle(self, widget):
+        widget.style['border'] = '2px solid gray'
+        widget.style['border-radius'] = '0.5em'
+        widget.style['margin'] = '0.5em'
+        widget.style['padding'] = '0.2em'
+
     def main(self, robot, appCallback):
         self.robot = robot
 
@@ -38,9 +45,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         zeroPosition.onclick.connect(robot.c_zeroPosition)
         root.append(zeroPosition)
 
-        self.driveGearLbl = gui.Label("[drive gear]")
-        root.append(self.driveGearLbl)
-
         root.append(self.initGearSelector(robot))
 
         root.append(self.initFieldMap())
@@ -54,6 +58,10 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def initGearSelector(self, robot):
         gearSelectorBox = gui.VBox()
+        self.groupStyle(gearSelectorBox)
+
+        self.driveGearLbl = gui.Label("[drive gear]")
+        gearSelectorBox.append(self.driveGearLbl)
 
         voltageModeBox = gui.HBox()
         gearSelectorBox.append(voltageModeBox)
@@ -103,6 +111,7 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
+        self.groupStyle(schedulerBox)
 
         addActionBox = gui.VBox()
         addActionBox.append(gui.Label("Add Action:"))
