@@ -19,7 +19,23 @@ class DriveCoordinates:
         self.angle = math.atan2(self.y, self.x)
 
     def __repr__(self):
-        return self.name
+        return "%s (%f, %f, %f deg)" \
+            % (self.name, self.x, self.y, math.degrees(self.orientation))
+
+    def inQuadrant(self, quadrant):
+        """
+        :param quadrant: 0 - 3, counterclockwise, 0 is positive x/y
+        """
+        newX = self.x
+        newY = self.y
+        newOrient = self.orientation
+        if quadrant == 1 or quadrant == 2:
+            newX = -newX
+            newOrient = math.pi - newOrient
+        if quadrant == 2 or quadrant == 3:
+            newY = -newY
+            newOrient = -newOrient
+        return DriveCoordinates(self.name, newX, newY, newOrient)
 
 rocket1 = DriveCoordinates("Rocket1", 6, 12, math.radians(-135))
 rocket2 = DriveCoordinates("Rocket2", 7.5, 10.5, math.radians(-90))
