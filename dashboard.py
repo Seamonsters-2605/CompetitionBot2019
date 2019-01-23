@@ -4,8 +4,9 @@ import seamonsters as sea
 
 class CompetitionBotDashboard(sea.Dashboard):
 
-    FIELD_WIDTH = 500
-    FIELD_HEIGHT = 450
+    # these values match the simulator config.json and the field image
+    FIELD_WIDTH = 540
+    FIELD_HEIGHT = 270
     FIELD_PIXELS_PER_FOOT = 10
 
     def __init__(self, *args, **kwargs):
@@ -80,12 +81,19 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
 
+        self.image = gui.SvgShape(0, 0)
+        self.image.type = 'image'
+        self.image.attributes['width'] = CompetitionBotDashboard.FIELD_WIDTH
+        self.image.attributes['height'] = CompetitionBotDashboard.FIELD_HEIGHT
+        self.image.attributes['xlink:href'] = '/res:frcField.PNG'
+        self.fieldSvg.append(self.image)
+
         self.arrow = gui.SvgPolyline()
-        self.fieldSvg.append(self.arrow)
         self.arrow.add_coord(0, 0)
         self.arrow.add_coord(10, 40)
         self.arrow.add_coord(-10, 40)
-        self.arrow.style['fill'] = 'gray'
+        self.arrow.style['fill'] = 'green'
+        self.fieldSvg.append(self.arrow)
 
         return self.fieldSvg
 
