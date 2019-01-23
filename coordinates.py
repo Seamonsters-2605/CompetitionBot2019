@@ -11,12 +11,12 @@ def clockwise(a, b):
 
 class DriveCoordinates:
 
-    def __init__(self, name, x_coordinate, y_coordinate, orientation):
+    def __init__(self, name, x, y, orientation):
         self.name = name
-        self.x_coordinate = x_coordinate
-        self.y_coordinate = y_coordinate
+        self.x = x
+        self.y = y
         self.orientation = orientation
-        self.angle = math.atan2(self.y_coordinate, self.x_coordinate)
+        self.angle = math.atan2(self.y, self.x)
 
     def __repr__(self):
         return self.name
