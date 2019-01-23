@@ -254,8 +254,8 @@ button {
     color: #000;
     position: relative;
     height: 36px;
-    margin: 0;
-    padding: 0 0px;
+    margin: 0.3em !important;
+    padding: 0em 0.8em !important;
     display: inline-block;
     font-weight: 500;
     letter-spacing: 0;
