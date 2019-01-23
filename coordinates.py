@@ -9,6 +9,13 @@ def circleDistance(a, b):
         diff += math.pi * 2
     return diff
 
+# is A to B closer clockwise or counterclockwise?
+def clockwise(a, b):
+    dist = circleDistance(a, b)
+    if dist > 0:
+        return dist < math.pi
+    else:
+        return dist < -math.pi
 
 class DriveCoordinates:
 
@@ -18,6 +25,9 @@ class DriveCoordinates:
         self.y_coordinate = y_coordinate
         self.orientation = orientation
         self.angle = math.atan2(self.y_coordinate, self.x_coordinate)
+
+    def __repr__(self):
+        return self.name
 
 rocket1 = DriveCoordinates("Rocket1", 6, 12, math.radians(-135))
 rocket2 = DriveCoordinates("Rocket2", 7.5, 10.5, math.radians(-90))
@@ -35,28 +45,31 @@ waypoints = [waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6]
 def findWaypoints(targetCoord, robotX, robotY):
     robotAngle = math.atan2(robotY, robotX)
     
-    nearestCWWaypoint = 0
-    while nearestCWWaypoint < len(waypoints):
-        point = waypoints[nearestCWWaypoint]
-        if circleDistance(robotAngle, point.angle) < 0:
-            break
-        nearestCWWaypoint += 1
-    nearestCWWaypoint %= len(waypoints)
+    nearestCWWaypoint = -1
+    pointI = 0
+    while True:
+        point = waypoints[pointI]
+        if clockwise(robotAngle, point.angle):
+            nearestCWWaypoint = pointI
+        else:
+            if nearestCWWaypoint != -1:
+                break
+        pointI += 1
+        pointI %= len(waypoints)
 
-    moveClockwise = circleDistance(robotAngle, targetCoord.angle) > 0
+    moveClockwise = clockwise(robotAngle, targetCoord.angle)
 
     pointI = nearestCWWaypoint
-    if moveClockwise:
+    if not moveClockwise:
+        # start at nearest counterclockwise waypoint
         pointI += 1
         pointI %= len(waypoints)
 
     path = []
-
     while True:
         waypoint = waypoints[pointI]
-        clockwiseFromWaypoint = circleDistance(waypoint.angle, targetCoord.angle) > 0
+        clockwiseFromWaypoint = clockwise(waypoint.angle, targetCoord.angle)
         if clockwiseFromWaypoint == moveClockwise:
-            print("Point", pointI)
             path.append(waypoint)
         else:
             break
@@ -64,6 +77,7 @@ def findWaypoints(targetCoord, robotX, robotY):
             pointI -= 1 # negative indices are fine
         else:
             pointI += 1
+            pointI %= len(waypoints)
 
     path.append(targetCoord)
     return path
