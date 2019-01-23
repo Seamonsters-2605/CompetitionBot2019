@@ -11,14 +11,6 @@ import auto_actions
 
 class CompetitionBot2019(sea.GeneratorBot):
 
-    def circleDistance(self, a, b):
-        diff = a - b
-        while diff > math.pi:
-            diff -= math.pi * 2
-        while diff < -math.pi:
-            diff += math.pi * 2
-        return diff
-
     def robotInit(self):
         self.joystick = wpilib.Joystick(0)
 
@@ -125,7 +117,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
-                aDiff = self.circleDistance(-math.radians(self.joystick.getPOV()), self.pathFollower.robotAngle)
+                aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()), self.pathFollower.robotAngle)
                 turn = aDiff / 0.1 # seconds
                 targetAVel = drivetrain.fastPositionGear.turnScale
                 if turn > targetAVel:
