@@ -1,17 +1,9 @@
 import math
-
-
-def circleDistance(a, b):
-    diff = a - b
-    while diff > math.pi:
-        diff -= math.pi * 2
-    while diff < -math.pi:
-        diff += math.pi * 2
-    return diff
+import seamonsters as sea
 
 # is A to B closer clockwise or counterclockwise?
 def clockwise(a, b):
-    dist = circleDistance(a, b)
+    dist = sea.circleDistance(a, b)
     if dist > 0:
         return dist < math.pi
     else:
