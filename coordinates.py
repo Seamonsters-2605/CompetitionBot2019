@@ -24,15 +24,16 @@ class DriveCoordinates:
 rocket1 = DriveCoordinates("Rocket1", 6, 12, math.radians(-135))
 rocket2 = DriveCoordinates("Rocket2", 7.5, 10.5, math.radians(-90))
 rocket3 = DriveCoordinates("Rocket3", 9, 12, math.radians(-45))
-waypoint1 = DriveCoordinates("Waypoint1", 15, 0, math.radians(0))
-waypoint2 = DriveCoordinates("Waypoint2", 15, 7.5, math.radians(0))
-waypoint3 = DriveCoordinates("Waypoint3", -15, 7.5, math.radians(0))
-waypoint4 = DriveCoordinates("Waypoint4", -15, 0, math.radians(0))
-waypoint5 = DriveCoordinates("Waypoint5", -15, -7.5, math.radians(0))
-waypoint6 = DriveCoordinates("Waypoint6", 15, -7.5, math.radians(0))
 humanstation1 = DriveCoordinates("human1", 27, 10.8, math.radians(180))
+
 # in counterclockwise order
-waypoints = [waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6]
+waypoints = [
+    DriveCoordinates("Waypoint1", 15, 0, math.radians(0)),
+    DriveCoordinates("Waypoint2", 15, 7.5, math.radians(0)),
+    DriveCoordinates("Waypoint3", -15, 7.5, math.radians(0)),
+    DriveCoordinates("Waypoint4", -15, 0, math.radians(0)),
+    DriveCoordinates("Waypoint5", -15, -7.5, math.radians(0)),
+    DriveCoordinates("Waypoint6", 15, -7.5, math.radians(0))]
 
 def findWaypoints(targetCoord, robotX, robotY):
     robotAngle = math.atan2(robotY, robotX)
