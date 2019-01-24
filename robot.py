@@ -128,7 +128,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.superDrive.drive(mag, direction, turn)
             
             if self.app != None:
-                self.app.updateBrokenEncoderButton()
+                self.app.updateBrokenEncoderButton(self)
 
             self.updateDashboardLabels()
 

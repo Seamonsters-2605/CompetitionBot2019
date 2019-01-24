@@ -91,17 +91,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.wheelControllsLbl = gui.Label("[wheel controlls]")
         wheelControllsBox.append(self.wheelControllsLbl)
         self.wheelBtns = [None] * 4
-
-        #newButton.style["background"] = "red"    do this when wheel is malfunctioning
         
         wheelsBox = gui.HBox()
         wheelControllsBox.append(wheelsBox)
         for wheelIndex in range(4):
-            newButton = self.wheelBtns[wheelIndex]
             newButton = gui.Button(str(wheelIndex + 1))
             newButton.wheelNum = wheelIndex + 1
             newButton.onclick.connect(robot.c_disableWheel)
             newButton.set_on_click_listener(self.switchText)
+            self.wheelBtns[wheelIndex] = newButton
             wheelsBox.append(newButton)
 
         return wheelControllsBox
@@ -212,14 +210,12 @@ class CompetitionBotDashboard(sea.Dashboard):
             button.set_text("dead")
         else:
             button.set_text(str(button.wheelNum))
-
-    def switchButtonColor(self, button, color, test):
-        if test:
-            button.style["background"] = color
             
-    def updateBrokenEncoderButton(self):
-        for button in range(len(self.wheelBtns)):
-            self.switchButtonColor(self.wheelBtns, "red", self.superDrive.wheels[button].angledWheel.encoderWorking)
+    #if the encoder stops working, the button attached to it turns red
+    def updateBrokenEncoderButton(self, robot):
+        for button in self.wheelBtns:
+            if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
+                button.style["background"] = "red"
 
     def c_closeApp(self, button):
         self.close()
