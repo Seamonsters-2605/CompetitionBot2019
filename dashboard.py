@@ -28,6 +28,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         closeButton.onclick.connect(self.c_closeApp)
         root.append(closeButton)
 
+        self.click_Cursor = (0,0)
+
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
@@ -83,6 +85,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         return gearSelectorBox
 
     def initFieldMap(self, robot):
+
         fieldBox = gui.VBox()
         self.groupStyle(fieldBox)
 
@@ -97,8 +100,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox.append(zeroPosition)
 
         fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
-            CompetitionBotDashboard.FIELD_HEIGHT)
+        CompetitionBotDashboard.FIELD_HEIGHT)
+        fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(fieldSvg)
+        
 
         self.image = gui.SvgShape(0, 0)
         self.image.type = 'image'
@@ -115,6 +120,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         fieldSvg.append(self.arrow)
 
         return fieldBox
+    
+    def mouse_down_listener(self,widget,x,y):
+        self.click_Cursor = (x,y)
+        self.pointXInput.set_value(self.svgToFieldCordinates(x,y)[0])
+        self.pointYInput.set_value(self.svgToFieldCordinates(x,y)[1])
+        print(x,y)
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
@@ -172,6 +183,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         arrowAngle = -math.degrees(robotAngle)
         self.arrow.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
             % (arrowX, arrowY, arrowAngle)
+    
+    def svgToFieldCordinates(self,x,y):
+        return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+                -(float(y) - CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
     
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
