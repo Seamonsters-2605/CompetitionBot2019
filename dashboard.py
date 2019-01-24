@@ -218,7 +218,7 @@ class CompetitionBotDashboard(sea.Dashboard):
             button.style["background"] = color
             
     def updateBrokenEncoderButton(self):
-        for button in range(self.wheelBtns.length()):
+        for button in range(len(self.wheelBtns)):
             self.switchButtonColor(self.wheelBtns, "red", self.superDrive.wheels[button].angledWheel.encoderWorking)
 
     def c_closeApp(self, button):
