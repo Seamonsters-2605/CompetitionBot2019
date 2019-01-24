@@ -28,8 +28,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         closeButton.onclick.connect(self.c_closeApp)
         root.append(closeButton)
 
-        self.click_Cursor = (0,0)
-
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
@@ -122,7 +120,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         return fieldBox
     
     def mouse_down_listener(self,widget,x,y):
-        self.click_Cursor = (x,y)
         self.pointXInput.set_value(self.svgToFieldCordinates(x,y)[0])
         self.pointYInput.set_value(self.svgToFieldCordinates(x,y)[1])
         print(x,y)
