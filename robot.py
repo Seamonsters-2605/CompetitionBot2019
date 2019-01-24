@@ -127,6 +127,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             self.superDrive.drive(mag, direction, turn)
 
+            dashboard.CompetitionBotDashboard.updateBrokenEncoderButton()
+
             self.updateDashboardLabels()
 
             self.button.update()
@@ -212,6 +214,9 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_fastPositionGear(self, button):
         self.setGear(drivetrain.fastPositionGear)
 
+    @sea.queuedDashboardEvent
+    def c_disableWheel(self, button):
+        self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)

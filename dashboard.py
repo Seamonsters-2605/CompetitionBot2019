@@ -40,6 +40,8 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root.append(self.initGearSelector(robot))
 
+        root.append(self.initWheelControlls(robot))
+
         root.append(self.initFieldMap(robot))
         self.updateRobotPosition(0, 0, 0)
 
@@ -81,6 +83,28 @@ class CompetitionBotDashboard(sea.Dashboard):
         velocityModeBox.append(fastVelocityBtn)
 
         return gearSelectorBox
+
+    def initWheelControlls(self, robot):
+        wheelControllsBox = gui.VBox()
+        self.groupStyle(wheelControllsBox)
+
+        self.wheelControllsLbl = gui.Label("[wheel controlls]")
+        wheelControllsBox.append(self.wheelControllsLbl)
+        self.wheelBtns = [None] * 4
+
+        #newButton.style["background"] = "red"    do this when wheel is malfunctioning
+        
+        wheelsBox = gui.HBox()
+        wheelControllsBox.append(wheelsBox)
+        for wheelIndex in range(4):
+            newButton = self.wheelBtns[wheelIndex]
+            newButton = gui.Button(str(wheelIndex + 1))
+            newButton.wheelNum = wheelIndex + 1
+            newButton.onclick.connect(robot.c_disableWheel)
+            newButton.set_on_click_listener(self.switchText)
+            wheelsBox.append(newButton)
+
+        return wheelControllsBox
 
     def initFieldMap(self, robot):
         fieldBox = gui.VBox()
@@ -182,6 +206,20 @@ class CompetitionBotDashboard(sea.Dashboard):
         for action in scheduler.actionList:
             listItem = gui.ListItem(action.name)
             self.schedulerList.append(listItem)
+
+    def switchText(self, button):
+        if button.get_text() != "dead":
+            button.set_text("dead")
+        else:
+            button.set_text(str(button.wheelNum))
+
+    def switchButtonColor(self, button, color, test):
+        if test:
+            button.style["background"] = color
+            
+    def updateBrokenEncoderButton(self):
+        for button in range(self.wheelBtns.length()):
+            self.switchButtonColor(self.wheelBtns, "red", self.superDrive.wheels[button].angledWheel.encoderWorking)
 
     def c_closeApp(self, button):
         self.close()
