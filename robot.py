@@ -24,6 +24,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.grabberArm = grabber.GrabberArm()
 
+        #self.grabberArm.compressor.start()
+
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()

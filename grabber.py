@@ -4,12 +4,15 @@ import seamonsters as sea
 
 class GrabberArm():
 
+    #uncomment the stuff if air compressor isn't starting
+
     def __init__(self):
         self.leftSpinner = ctre.WPI_TalonSRX(20)
         self.rightSpinner = ctre.WPI_TalonSRX(21)
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.hatchGrabber = wpilib.Solenoid(0)
+        #self.compressor = wpilib.Compressor(0)
         self.slideMotor = ctre.WPI_TalonSRX(19)
 
     #takes in the ball at the speed "speed"
