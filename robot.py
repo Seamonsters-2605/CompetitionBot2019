@@ -173,11 +173,11 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_pauseScheduler(self, button):
-        self.autoScheduler.paused = True
+        self.autoScheduler.pause()
 
     @sea.queuedDashboardEvent
     def c_resumeScheduler(self, button):
-        self.autoScheduler.paused = False
+        self.autoScheduler.unpause()
 
     @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
