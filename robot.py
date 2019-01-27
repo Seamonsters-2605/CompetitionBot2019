@@ -12,32 +12,27 @@ import auto_actions
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
-        self.joystick = wpilib.Joystick(0)
-
-        self.pdp = wpilib.PowerDistributionPanel(50)
-
         self.superDrive = drivetrain.initDrivetrain()
+        self.drivegear = None
+        self.headless_mode = False
         
         self.ahrs = navx.AHRS.create_spi()
-
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
 
-        self.headless_mode = False
+        self.joystick = wpilib.Joystick(0)
+        self.button = Buttons(self.joystick)
+        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
-        self.app = None # dashboard
-        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
+        self.pdp = wpilib.PowerDistributionPanel(50)
+        self.testDIO = wpilib.DigitalInput(0)
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
 
         self.timingMonitor = sea.TimingMonitor()
 
-        self.drivegear = None
-
-        self.button = Buttons(self.joystick)
-        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
-
-        self.testDIO = wpilib.DigitalInput(0)
+        self.app = None # dashboard
+        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
     def test(self):
         motor = self.superDrive.wheels[0].angledWheel.motor
