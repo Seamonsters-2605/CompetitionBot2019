@@ -216,7 +216,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_disableWheel(self, button):
         self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
-        self.app.switchText()
+        self.app.switchText(button)
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)
