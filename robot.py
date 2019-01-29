@@ -12,32 +12,27 @@ import auto_actions
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
-        self.joystick = wpilib.Joystick(0)
-
-        self.pdp = wpilib.PowerDistributionPanel(50)
-
         self.superDrive = drivetrain.initDrivetrain()
+        self.drivegear = None
+        self.headless_mode = False
         
         self.ahrs = navx.AHRS.create_spi()
-
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
 
-        self.headless_mode = False
+        self.joystick = wpilib.Joystick(0)
+        self.button = Buttons(self.joystick)
+        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
-        self.app = None # dashboard
-        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
+        self.pdp = wpilib.PowerDistributionPanel(50)
+        self.testDIO = wpilib.DigitalInput(0)
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
 
         self.timingMonitor = sea.TimingMonitor()
 
-        self.drivegear = None
-
-        self.button = Buttons(self.joystick)
-        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
-
-        self.testDIO = wpilib.DigitalInput(0)
+        self.app = None # dashboard
+        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
     def test(self):
         motor = self.superDrive.wheels[0].angledWheel.motor
@@ -69,15 +64,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheelMotor.config_kF(0, self.drivegear.f, 0)
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
+
+    def teleop(self):
+        self.setGear(drivetrain.mediumPositionGear)
+        self.resetPositions()
+        self.pathFollower.setPosition(0, 0, 0)
+        yield from sea.parallel(self.joystickControl(),
+            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
     
     def autonomous(self):
         self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
-            self.autoUpdate(), self.timingMonitor.updateGenerator())
+            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
 
-    def autoUpdate(self):
+    def basicUpdateLoop(self):
         if self.app is not None:
             self.app.clearEvents()
         while True:
@@ -86,21 +88,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.updateDashboardLabels()
             yield
 
-    def teleop(self):
-        self.setGear(drivetrain.mediumPositionGear)
-        self.resetPositions()
-        self.pathFollower.setPosition(0, 0, 0)
-        yield from sea.parallel(self.teleopUpdate(),
-            self.timingMonitor.updateGenerator())
-
-    def teleopUpdate(self):
-        if self.app is not None:
-            self.app.clearEvents()
-
+    def joystickControl(self):
         while True:
-            if self.app is not None:
-                self.app.doEvents()
-
             self.pathFollower.updateRobotPosition()
 
             x = self.joystick.getX()
@@ -126,8 +115,6 @@ class CompetitionBot2019(sea.GeneratorBot):
                     turn = -targetAVel
 
             self.superDrive.drive(mag, direction, turn)
-
-            self.updateDashboardLabels()
 
             self.button.update()
 
