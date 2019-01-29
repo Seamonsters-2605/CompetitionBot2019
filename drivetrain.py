@@ -68,7 +68,7 @@ slowVoltageGear = DriveGear("Slow Voltage", ctre.ControlMode.PercentOutput,
 mediumVoltageGear = DriveGear("Medium Voltage", ctre.ControlMode.PercentOutput,
     moveScale=3, turnScale=math.radians(120))
 fastVoltageGear = DriveGear("Fast Voltage", ctre.ControlMode.PercentOutput,
-    moveScale=6, turnScale=math.radians(180))
+    moveScale=10, turnScale=math.radians(180))
 
 slowPositionGear = DriveGear("Slow Position", ctre.ControlMode.Position,
     moveScale=0.5, turnScale=math.radians(60),
