@@ -16,7 +16,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.grabberArm = grabber.GrabberArm()
 
-        self.grabberArm.startCompressor()
+        #self.grabberArm.startCompressor()
 
         self.joystick = wpilib.Joystick(0)
 
@@ -111,7 +111,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.headless_mode:
                 direction -= self.pathFollower.robotAngle
             
-            turn = -sea.deadZone(self.joystick.getRawAxis(3))
+            turn = -sea.deadZone(self.joystick.getRawAxis(4))
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
@@ -213,7 +213,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_disableWheel(self, button):
-        self.superDrive.wheels[0].angledWheel.driveMode = ctre.ControlMode.Disabled
+        self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)
