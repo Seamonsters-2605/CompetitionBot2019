@@ -16,7 +16,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.grabberArm = grabber.GrabberArm()
 
-        #self.grabberArm.compressor.start()
+        self.grabberArm.startCompressor()
 
         self.joystick = wpilib.Joystick(0)
 
@@ -45,7 +45,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.button = Buttons(self.joystick) 
         self.button.addPreset(1,Buttons.HELD, self.grabberArm.grabBall, [1,1])
         self.button.addPreset(1,Buttons.NOT_HELD,self.grabberArm.stop,[])
-        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
+        self.button.addPreset(4,Buttons.SINGLE_CLICK, self.switchHeadless, [])
         self.button.addPreset(2,Buttons.HELD,self.grabberArm.releaseBall,[1,1])
         self.button.addPreset(2,Buttons.NOT_HELD,self.grabberArm.stop,[])
         self.button.addPreset(6,Buttons.SINGLE_CLICK,self.grabberArm.pull,[])
@@ -213,7 +213,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_disableWheel(self, button):
-        self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
+        self.superDrive.wheels[0].angledWheel.driveMode = ctre.ControlMode.Disabled
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)
