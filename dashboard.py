@@ -98,7 +98,6 @@ class CompetitionBotDashboard(sea.Dashboard):
             newButton = gui.Button(str(wheelIndex + 1))
             newButton.wheelNum = wheelIndex + 1
             newButton.onclick.connect(robot.c_disableWheel)
-            newButton.set_on_click_listener(self.switchText)
             self.wheelBtns[wheelIndex] = newButton
             wheelsBox.append(newButton)
 

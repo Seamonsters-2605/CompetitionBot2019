@@ -48,8 +48,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.button.addPreset(4,Buttons.SINGLE_CLICK, self.switchHeadless, [])
         self.button.addPreset(2,Buttons.HELD,self.grabberArm.releaseBall,[1,1])
         self.button.addPreset(2,Buttons.NOT_HELD,self.grabberArm.stop,[])
-        self.button.addPreset(6,Buttons.SINGLE_CLICK,self.grabberArm.pull,[])
-        self.button.addPreset(7,Buttons.SINGLE_CLICK,self.grabberArm.push,[])
+        self.button.addPreset(6,Buttons.HELD,self.grabberArm.pull,[])
+        self.button.addPreset(6,Buttons.NOT_HELD,self.grabberArm.stopPulling,[])
+        self.button.addPreset(7,Buttons.HELD,self.grabberArm.push,[])
+        self.button.addPreset(7,Buttons.NOT_HELD,self.grabberArm.stopPushing,[])
 
 
     def updateScheduler(self):
@@ -214,6 +216,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_disableWheel(self, button):
         self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
+        self.app.switchText()
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)
