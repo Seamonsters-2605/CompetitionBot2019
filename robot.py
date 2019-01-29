@@ -5,10 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
-<<<<<<< HEAD
-=======
 import grabber
->>>>>>> GrabberArm
 from buttons import Buttons
 import auto_scheduler
 import auto_actions
@@ -16,8 +13,6 @@ import auto_actions
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
-<<<<<<< HEAD
-=======
 
         self.grabberArm = grabber.GrabberArm()
 
@@ -25,7 +20,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.joystick = wpilib.Joystick(0)
 
->>>>>>> GrabberArm
         self.superDrive = drivetrain.initDrivetrain()
         self.drivegear = None
         self.headless_mode = False
@@ -48,16 +42,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
-<<<<<<< HEAD
-    def test(self):
-        motor = self.superDrive.wheels[0].angledWheel.motor
-        motor.set(ctre.ControlMode.PercentOutput, 1)
-        while self.testDIO.get():
-            yield
-        while not self.testDIO.get():
-            yield
-        motor.set(ctre.ControlMode.PercentOutput, 0)
-=======
         self.button = Buttons(self.joystick) 
         self.button.addPreset(1,Buttons.HELD, self.grabberArm.grabBall, [1,1])
         self.button.addPreset(1,Buttons.NOT_HELD,self.grabberArm.stop,[])
@@ -67,7 +51,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.button.addPreset(6,Buttons.SINGLE_CLICK,self.grabberArm.pull,[])
         self.button.addPreset(7,Buttons.SINGLE_CLICK,self.grabberArm.push,[])
 
->>>>>>> GrabberArm
 
     def updateScheduler(self):
         if self.app is not None:
