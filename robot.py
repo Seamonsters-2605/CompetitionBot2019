@@ -164,9 +164,9 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_addDriveToPointAction(self, button):
-        pointX = float(self.app.pointXInput.get_value())
-        pointY = float(self.app.pointYInput.get_value())
-        pointAngle = math.radians(float(self.app.pointAngleInput.get_value()))
+        pointX = self.app.cursorArrow.x
+        pointY = self.app.cursorArrow.y
+        pointAngle = self.app.cursorArrow.angle
         moveTime = float(self.app.waitTimeInput.get_value())
         self.autoScheduler.actionList.append(
             auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
@@ -186,8 +186,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel._setSteering(0)
 
     @sea.queuedDashboardEvent
-    def c_zeroPosition(self, button):
-        self.pathFollower.setPosition(0, 0, 0)
+    def c_resetPosition(self, button):
+        self.pathFollower.setPosition(self.app.cursorArrow.x, self.app.cursorArrow.y, self.app.cursorArrow.angle)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):

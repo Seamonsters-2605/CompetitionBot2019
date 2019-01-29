@@ -3,6 +3,35 @@ import remi.gui as gui
 import seamonsters as sea
 import coordinates
 
+def svgToFieldCoordinates(x, y):
+    return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+             (float(y) - CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+
+def fieldToSvgCoordinates(x, y):
+    return (CompetitionBotDashboard.FIELD_WIDTH / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+            CompetitionBotDashboard.FIELD_HEIGHT / 2 + y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+
+class Arrow(gui.SvgPolyline):
+
+    def __init__(self, color):
+        super().__init__()
+        self.add_coord(0, 0)
+        self.add_coord(10, 40)
+        self.add_coord(-10, 40)
+        self.style['fill'] = color
+        self.setPosition(0, 0, 0)
+
+    def setPosition(self, x, y, angle):
+        self.x = x
+        self.y = y
+        self.angle = angle
+
+        svgX, svgY = fieldToSvgCoordinates(x, y)
+        svgAngle = -math.degrees(angle)
+        self.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
+            % (svgX, svgY, svgAngle)
+
+
 class CompetitionBotDashboard(sea.Dashboard):
 
     # these values match the simulator config.json and the field image
@@ -44,7 +73,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initWheelControlls(robot))
 
         root.append(self.initFieldMap(robot))
-        self.updateRobotPosition(0, 0, 0)
 
         root.append(self.initScheduler(robot))
         self.updateScheduler()
@@ -105,7 +133,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         return wheelControllsBox
 
     def initFieldMap(self, robot):
-
         fieldBox = gui.VBox()
         self.groupStyle(fieldBox)
 
@@ -117,9 +144,30 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPositionLbl = gui.Label("[robot position]")
         posBox.append(self.robotPositionLbl)
 
-        zeroPosition = gui.Button("Reset position")
-        zeroPosition.onclick.connect(robot.c_zeroPosition)
-        posBox.append(zeroPosition)
+        resetPositionBtn = gui.Button("Reset position")
+        resetPositionBtn.onclick.connect(robot.c_resetPosition)
+        posBox.append(resetPositionBtn)
+
+        cursorBox = gui.HBox()
+        fieldBox.append(cursorBox)
+        self.cursorXInput = gui.Input()
+        self.cursorXInput.set_value("0")
+        cursorBox.append(self.cursorXInput)
+        self.cursorYInput = gui.Input()
+        self.cursorYInput.set_value("0")
+        cursorBox.append(self.cursorYInput)
+        self.cursorAngleInput = gui.Input()
+        self.cursorAngleInput.set_value("0")
+        cursorBox.append(self.cursorAngleInput)
+        setCursorBtn = gui.Button("Set cursor")
+        cursorBox.append(setCursorBtn)
+
+        def setCursor(button):
+            self.cursorArrow.setPosition(
+                float(self.cursorXInput.get_value()),
+                float(self.cursorYInput.get_value()),
+                math.radians(float(self.cursorAngleInput.get_value())))
+        setCursorBtn.onclick.connect(setCursor)
 
         self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
@@ -134,16 +182,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.fieldSvg.append(self.image)
 
         for point in self.target_points:
-            point = self.fieldToSvgCoordinates(point.x,point.y)
+            point = fieldToSvgCoordinates(point.x,point.y)
             wp_dot = gui.SvgCircle(point[0], point[1], 10)
             self.fieldSvg.append(wp_dot)
 
-        self.arrow = gui.SvgPolyline()
-        self.arrow.add_coord(0, 0)
-        self.arrow.add_coord(10, 40)
-        self.arrow.add_coord(-10, 40)
-        self.arrow.style['fill'] = 'green'
-        self.fieldSvg.append(self.arrow)
+        self.cursorArrow = Arrow('red')
+        self.fieldSvg.append(self.cursorArrow)
+
+        self.robotArrow = Arrow('green')
+        self.fieldSvg.append(self.robotArrow)
 
         self.robotPathLines = []
 
@@ -151,14 +198,12 @@ class CompetitionBotDashboard(sea.Dashboard):
     
     def mouse_down_listener(self,widget,x,y):
         for point in self.target_points:
-            if math.hypot(float(x)-self.fieldToSvgCoordinates(point.x,point.y)[0],
-                          float(y)-self.fieldToSvgCoordinates(point.x,point.y)[1]) < 5:
-                x = float(self.fieldToSvgCoordinates(point.x,point.y)[0])
-                y = float(self.fieldToSvgCoordinates(point.x,point.y)[1])
-                break
-            
-        self.pointXInput.set_value(self.svgToFieldCordinates(x,-float(y))[0])
-        self.pointYInput.set_value(self.svgToFieldCordinates(x,-float(y))[1])
+            if math.hypot(float(x)-fieldToSvgCoordinates(point.x,point.y)[0],
+                          float(y)-fieldToSvgCoordinates(point.x,point.y)[1]) < 5:
+                x = float(fieldToSvgCoordinates(point.x,point.y)[0])
+                y = float(fieldToSvgCoordinates(point.x,point.y)[1])
+        x, y = svgToFieldCoordinates(x, y)
+        self.cursorArrow.setPosition(x, y, 0)
         print(x,y)
 
     def initScheduler(self, robot):
@@ -175,6 +220,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         addWaitActionBtn.onclick.connect(robot.c_addWaitAction)
         waitActionBox.append(addWaitActionBtn)
         self.waitTimeInput = gui.Input()
+        self.waitTimeInput.set_value("2")
         waitActionBox.append(self.waitTimeInput)
 
         driveToPointActionBox = gui.HBox()
@@ -182,12 +228,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         addDriveToPointActionBtn = gui.Button('Drive to Point')
         addDriveToPointActionBtn.onclick.connect(robot.c_addDriveToPointAction)
         driveToPointActionBox.append(addDriveToPointActionBtn)
-        self.pointXInput = gui.Input()
-        driveToPointActionBox.append(self.pointXInput)
-        self.pointYInput = gui.Input()
-        driveToPointActionBox.append(self.pointYInput)
-        self.pointAngleInput = gui.Input()
-        driveToPointActionBox.append(self.pointAngleInput)
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
@@ -207,24 +247,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         return schedulerBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
-        self.robotX = robotX
-        self.robotY = robotY
-        self.robotAngle = robotAngle
+        self.robotArrow.setPosition(robotX, robotY, robotAngle)
         self.robotPositionLbl.set_text('%.3f, %.3f, %.3f' %
             (robotX, robotY, math.degrees(robotAngle)))
-
-        arrowX, arrowY = self.fieldToSvgCoordinates(robotX, robotY)
-        arrowAngle = -math.degrees(robotAngle)
-        self.arrow.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
-            % (arrowX, arrowY, arrowAngle)
-    
-    def svgToFieldCordinates(self,x,y):
-        return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
-                -(float(y) - CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
-
-    def fieldToSvgCoordinates(self, x, y):
-        return (CompetitionBotDashboard.FIELD_WIDTH / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
-            CompetitionBotDashboard.FIELD_HEIGHT / 2 + y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
 
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
@@ -233,7 +258,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         for line in self.robotPathLines:
             self.fieldSvg.remove_child(line)
         self.robotPathLines.clear()
-        lineX, lineY = self.fieldToSvgCoordinates(self.robotX, self.robotY)
+        lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
 
         if scheduler.runningAction is not None:
             runningItem = gui.ListItem('* ' + scheduler.runningAction.name)
@@ -246,7 +271,7 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def actionLines(self, lineX, lineY, action):
         for coord in action.coords:
-            x1, y1 = self.fieldToSvgCoordinates(coord[0], coord[1])
+            x1, y1 = fieldToSvgCoordinates(coord[0], coord[1])
             line = gui.SvgLine(lineX, lineY, x1, y1)
             line.set_stroke(width=3)
             self.robotPathLines.append(line)
