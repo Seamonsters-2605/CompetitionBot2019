@@ -29,11 +29,11 @@ class Buttons():
 
     def update(self):
         for button, clickType, function, args in self.presets:
-            if self.joystick.getRawButtonPressed(button) and clickType == Buttons.SINGLE_CLICK:
+            if clickType == Buttons.SINGLE_CLICK and self.joystick.getRawButtonPressed(button):
                 function(*args)
-            elif self.joystick.getRawButton(button) and clickType == Buttons.HELD:
+            elif clickType == Buttons.HELD and self.joystick.getRawButton(button):
                 function(*args)
-            elif not (self.joystick.getRawButton(button)) and clickType == Buttons.NOT_HELD:
+            elif clickType == Buttons.NOT_HELD and not (self.joystick.getRawButton(button)):
                 function(*args)
             elif clickType == Buttons.DOUBLE_CLICK:
                 if self.doubleClickDetector.get(button) == None:
