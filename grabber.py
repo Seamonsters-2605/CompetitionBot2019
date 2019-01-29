@@ -10,7 +10,7 @@ class GrabberArm():
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.hatchGrabber = wpilib.Solenoid(0)
-        #self.compressor = wpilib.Compressor(0)
+        self.compressor = wpilib.Compressor(0)
         self.slideMotor = ctre.WPI_TalonSRX(19)
 
     #takes in the ball at the speed "speed"
@@ -63,5 +63,5 @@ class GrabberArm():
     def slideDown(self, speed):
         self.slideMotor.set(-speed)
 
-    #def startCompressor(self):
-    #    self.compressor.start()
+    def startCompressor(self):
+        self.compressor.start()

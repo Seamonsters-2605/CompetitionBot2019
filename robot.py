@@ -16,7 +16,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.grabberArm = grabber.GrabberArm()
 
-        #self.grabberArm.startCompressor()
+        self.grabberArm.startCompressor()
 
         self.joystick = wpilib.Joystick(0)
 
