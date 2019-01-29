@@ -1,6 +1,7 @@
 import math
 import remi.gui as gui
 import seamonsters as sea
+import coordinates
 
 class CompetitionBotDashboard(sea.Dashboard):
 
@@ -111,6 +112,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox = gui.HBox()
         fieldBox.append(posBox)
 
+        self.target_points = coordinates.waypoints
+
         self.robotPositionLbl = gui.Label("[robot position]")
         posBox.append(self.robotPositionLbl)
 
@@ -130,6 +133,11 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.image.attributes['xlink:href'] = '/res:frcField.PNG'
         self.fieldSvg.append(self.image)
 
+        for point in self.target_points:
+            point = self.fieldToSvgCoordinates(point.x,point.y)
+            wp_dot = gui.SvgCircle(point[0], point[1], 10)
+            self.fieldSvg.append(wp_dot)
+
         self.arrow = gui.SvgPolyline()
         self.arrow.add_coord(0, 0)
         self.arrow.add_coord(10, 40)
@@ -142,8 +150,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         return fieldBox
     
     def mouse_down_listener(self,widget,x,y):
-        self.pointXInput.set_value(self.svgToFieldCordinates(x,y)[0])
-        self.pointYInput.set_value(self.svgToFieldCordinates(x,y)[1])
+        for point in self.target_points:
+            if math.hypot(float(x)-self.fieldToSvgCoordinates(point.x,point.y)[0],
+                          float(y)-self.fieldToSvgCoordinates(point.x,point.y)[1]) < 5:
+                x = float(self.fieldToSvgCoordinates(point.x,point.y)[0])
+                y = float(self.fieldToSvgCoordinates(point.x,point.y)[1])
+                break
+            
+        self.pointXInput.set_value(self.svgToFieldCordinates(x,-float(y))[0])
+        self.pointYInput.set_value(self.svgToFieldCordinates(x,-float(y))[1])
         print(x,y)
 
     def initScheduler(self, robot):
