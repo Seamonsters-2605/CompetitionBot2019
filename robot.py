@@ -113,7 +113,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.headless_mode:
                 direction -= self.pathFollower.robotAngle
             
-            turn = -sea.deadZone(self.joystick.getRawAxis(4))
+            turn = -sea.deadZone(self.joystick.getRawAxis(3) + 0.5 * self.joystick.getRawAxis(4))
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
