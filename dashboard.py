@@ -112,7 +112,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox = gui.HBox()
         fieldBox.append(posBox)
 
-        self.waypoints = coordinates.waypoints
+        self.target_points = coordinates.waypoints
 
         self.robotPositionLbl = gui.Label("[robot position]")
         posBox.append(self.robotPositionLbl)
@@ -133,10 +133,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.image.attributes['xlink:href'] = '/res:frcField.PNG'
         self.fieldSvg.append(self.image)
 
-        for waypoint in self.waypoints:
-            point = self.fieldToSvgCoordinates(waypoint.x,waypoint.y)
-            self.wp_dot = gui.SvgCircle(point[0],point[1],10)
-            self.fieldSvg.append(self.wp_dot)
+        for point in self.target_points:
+            point = self.fieldToSvgCoordinates(point.x,point.y)
+            wp_dot = gui.SvgCircle(point[0], point[1], 10)
+            self.fieldSvg.append(wp_dot)
 
         self.arrow = gui.SvgPolyline()
         self.arrow.add_coord(0, 0)
@@ -150,11 +150,11 @@ class CompetitionBotDashboard(sea.Dashboard):
         return fieldBox
     
     def mouse_down_listener(self,widget,x,y):
-        for waypoint in self.waypoints:
-            if math.hypot(float(x)-self.fieldToSvgCoordinates(waypoint.x,waypoint.y)[0],
-                          float(y)-self.fieldToSvgCoordinates(waypoint.x,waypoint.y)[1]) < 5:
-                x = float(self.fieldToSvgCoordinates(waypoint.x,waypoint.y)[0])
-                y = float(self.fieldToSvgCoordinates(waypoint.x,waypoint.y)[1])
+        for point in self.target_points:
+            if math.hypot(float(x)-self.fieldToSvgCoordinates(point.x,point.y)[0],
+                          float(y)-self.fieldToSvgCoordinates(point.x,point.y)[1]) < 5:
+                x = float(self.fieldToSvgCoordinates(point.x,point.y)[0])
+                y = float(self.fieldToSvgCoordinates(point.x,point.y)[1])
                 break
             
         self.pointXInput.set_value(self.svgToFieldCordinates(x,-float(y))[0])
