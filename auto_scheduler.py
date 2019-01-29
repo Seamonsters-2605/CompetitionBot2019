@@ -1,43 +1,53 @@
 import seamonsters as sea
 
-class Action:
+class Action(sea.State):
 
-    def __init__(self, name, generator):
+    def __init__(self, name, function, coords=[]):
+        super().__init__(function)
         self.name = name
-        self.generator = generator
+        self.coords = coords
 
 class AutoScheduler:
 
+    PAUSE_STATE = sea.State(sea.forever)
+
     def __init__(self):
+        self.stateMachine = sea.StateMachine()
         self.actionList = []
         self.runningAction = None
-        self.paused = False
         self.updateCallback = lambda: None
-        self._actionCancelled = False
+
+        self.stateMachine.push(sea.State(self._actionScheduler))
 
     def updateGenerator(self):
-        while True:
-            if len(self.actionList) != 0 and not self.paused:
-                self.runningAction = self.actionList.pop(0)
-                print("Running action " + self.runningAction.name)
-                self.updateCallback()
-                yield from sea.parallel(
-                    sea.stopAllWhenDone(self.runningAction.generator),
-                    sea.stopAllWhenDone(self._watchForCancelGenerator()))
-                print("Finished action " + self.runningAction.name)
-                self.runningAction = None
-                self.updateCallback()
-            else:
-                yield
+        yield from self.stateMachine.updateGenerator()
 
-    def clearActions(self):
-        self.cancelRunningAction()
-        self.actionList.clear()
+    def _actionScheduler(self):
+        if len(self.actionList) == 0:
+            self.runningAction = None
+            self.updateCallback()
+            while len(self.actionList) == 0:
+                yield
+        self.runningAction = self.actionList.pop(0)
+        print("Running action " + self.runningAction.name)
+        self.updateCallback()
+        return self.runningAction
 
     def cancelRunningAction(self):
-        self._actionCancelled = True
+        if isinstance(self.stateMachine.currentState(), Action):
+            self.stateMachine.pop()
 
-    def _watchForCancelGenerator(self):
-        while not self._actionCancelled:
-            yield
-        self._actionCancelled = False
+    def clearActions(self):
+        self.actionList.clear()
+        self.cancelRunningAction()
+
+    def pause(self):
+        if not self.isPaused():
+            self.stateMachine.push(AutoScheduler.PAUSE_STATE)
+
+    def unpause(self):
+        if self.isPaused():
+            self.stateMachine.pop()
+
+    def isPaused(self):
+        return self.stateMachine.currentState() == AutoScheduler.PAUSE_STATE

@@ -118,23 +118,25 @@ class CompetitionBotDashboard(sea.Dashboard):
         zeroPosition.onclick.connect(robot.c_zeroPosition)
         posBox.append(zeroPosition)
 
-        fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
+        self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
-        fieldBox.append(fieldSvg)
+        fieldBox.append(self.fieldSvg)
 
         self.image = gui.SvgShape(0, 0)
         self.image.type = 'image'
         self.image.attributes['width'] = CompetitionBotDashboard.FIELD_WIDTH
         self.image.attributes['height'] = CompetitionBotDashboard.FIELD_HEIGHT
         self.image.attributes['xlink:href'] = '/res:frcField.PNG'
-        fieldSvg.append(self.image)
+        self.fieldSvg.append(self.image)
 
         self.arrow = gui.SvgPolyline()
         self.arrow.add_coord(0, 0)
         self.arrow.add_coord(10, 40)
         self.arrow.add_coord(-10, 40)
         self.arrow.style['fill'] = 'green'
-        fieldSvg.append(self.arrow)
+        self.fieldSvg.append(self.arrow)
+
+        self.robotPathLines = []
 
         return fieldBox
 
@@ -184,26 +186,48 @@ class CompetitionBotDashboard(sea.Dashboard):
         return schedulerBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
+        self.robotX = robotX
+        self.robotY = robotY
+        self.robotAngle = robotAngle
         self.robotPositionLbl.set_text('%.3f, %.3f, %.3f' %
             (robotX, robotY, math.degrees(robotAngle)))
 
-        arrowX = CompetitionBotDashboard.FIELD_WIDTH / 2
-        arrowX += robotX * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT
-        arrowY = CompetitionBotDashboard.FIELD_HEIGHT / 2
-        arrowY -= robotY * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT
+        arrowX, arrowY = self.fieldToSvgCoordinates(robotX, robotY)
         arrowAngle = -math.degrees(robotAngle)
         self.arrow.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
             % (arrowX, arrowY, arrowAngle)
-    
+
+    def fieldToSvgCoordinates(self, x, y):
+        return (CompetitionBotDashboard.FIELD_WIDTH / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+            CompetitionBotDashboard.FIELD_HEIGHT / 2 + y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
         self.schedulerList.empty()
+
+        for line in self.robotPathLines:
+            self.fieldSvg.remove_child(line)
+        self.robotPathLines.clear()
+        lineX, lineY = self.fieldToSvgCoordinates(self.robotX, self.robotY)
+
         if scheduler.runningAction is not None:
             runningItem = gui.ListItem('* ' + scheduler.runningAction.name)
             self.schedulerList.append(runningItem)
+            lineX, lineY = self.actionLines(lineX, lineY, scheduler.runningAction)
         for action in scheduler.actionList:
             listItem = gui.ListItem(action.name)
             self.schedulerList.append(listItem)
+            lineX, lineY = self.actionLines(lineX, lineY, action)
+
+    def actionLines(self, lineX, lineY, action):
+        for coord in action.coords:
+            x1, y1 = self.fieldToSvgCoordinates(coord[0], coord[1])
+            line = gui.SvgLine(lineX, lineY, x1, y1)
+            line.set_stroke(width=3)
+            self.robotPathLines.append(line)
+            self.fieldSvg.append(line)
+            lineX, lineY = x1, y1
+        return lineX, lineY
 
     def switchText(self, button):
         if button.get_text() != "dead":
