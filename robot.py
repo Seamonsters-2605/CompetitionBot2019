@@ -5,6 +5,7 @@ import navx
 import seamonsters as sea
 import drivetrain
 import dashboard
+import grabber
 from buttons import Buttons
 import auto_scheduler
 import auto_actions
@@ -12,41 +13,46 @@ import auto_actions
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
+
+        self.grabberArm = grabber.GrabberArm()
+
+        self.grabberArm.startCompressor()
+
         self.joystick = wpilib.Joystick(0)
 
-        self.pdp = wpilib.PowerDistributionPanel(50)
-
         self.superDrive = drivetrain.initDrivetrain()
+        self.drivegear = None
+        self.headless_mode = False
         
         self.ahrs = navx.AHRS.create_spi()
-
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
 
-        self.headless_mode = False
+        self.joystick = wpilib.Joystick(0)
+        self.button = Buttons(self.joystick)
+        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
-        self.app = None # dashboard
-        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
+        self.pdp = wpilib.PowerDistributionPanel(50)
+        self.testDIO = wpilib.DigitalInput(0)
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
 
         self.timingMonitor = sea.TimingMonitor()
 
-        self.drivegear = None
+        self.app = None # dashboard
+        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
-        self.button = Buttons(self.joystick)
-        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
+        self.button = Buttons(self.joystick) 
+        self.button.addPreset(1,Buttons.HELD, self.grabberArm.grabBall, [1,1])
+        self.button.addPreset(1,Buttons.NOT_HELD,self.grabberArm.stop,[])
+        self.button.addPreset(4,Buttons.SINGLE_CLICK, self.switchHeadless, [])
+        self.button.addPreset(2,Buttons.HELD,self.grabberArm.releaseBall,[1,1])
+        self.button.addPreset(2,Buttons.NOT_HELD,self.grabberArm.stop,[])
+        self.button.addPreset(6,Buttons.HELD,self.grabberArm.pull,[])
+        self.button.addPreset(6,Buttons.NOT_HELD,self.grabberArm.stopPulling,[])
+        self.button.addPreset(7,Buttons.HELD,self.grabberArm.push,[])
+        self.button.addPreset(7,Buttons.NOT_HELD,self.grabberArm.stopPushing,[])
 
-        self.testDIO = wpilib.DigitalInput(0)
-
-    def test(self):
-        motor = self.superDrive.wheels[0].angledWheel.motor
-        motor.set(ctre.ControlMode.PercentOutput, 1)
-        while self.testDIO.get():
-            yield
-        while not self.testDIO.get():
-            yield
-        motor.set(ctre.ControlMode.PercentOutput, 0)
 
     def updateScheduler(self):
         if self.app is not None:
@@ -69,15 +75,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheelMotor.config_kF(0, self.drivegear.f, 0)
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
+
+    def teleop(self):
+        self.setGear(drivetrain.mediumPositionGear)
+        self.resetPositions()
+        self.pathFollower.setPosition(0, 0, 0)
+        yield from sea.parallel(self.joystickControl(),
+            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
     
     def autonomous(self):
         self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
-            self.autoUpdate(), self.timingMonitor.updateGenerator())
+            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
 
-    def autoUpdate(self):
+    def basicUpdateLoop(self):
         if self.app is not None:
             self.app.clearEvents()
         while True:
@@ -86,21 +99,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.updateDashboardLabels()
             yield
 
-    def teleop(self):
-        self.setGear(drivetrain.mediumPositionGear)
-        self.resetPositions()
-        self.pathFollower.setPosition(0, 0, 0)
-        yield from sea.parallel(self.teleopUpdate(),
-            self.timingMonitor.updateGenerator())
-
-    def teleopUpdate(self):
-        if self.app is not None:
-            self.app.clearEvents()
-
+    def joystickControl(self):
         while True:
-            if self.app is not None:
-                self.app.doEvents()
-
             self.pathFollower.updateRobotPosition()
 
             x = self.joystick.getX()
@@ -113,7 +113,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.headless_mode:
                 direction -= self.pathFollower.robotAngle
             
-            turn = -sea.deadZone(self.joystick.getRawAxis(3))
+            turn = -sea.deadZone(self.joystick.getRawAxis(4))
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
@@ -126,8 +126,9 @@ class CompetitionBot2019(sea.GeneratorBot):
                     turn = -targetAVel
 
             self.superDrive.drive(mag, direction, turn)
-
-            self.updateDashboardLabels()
+            
+            if self.app != None:
+                self.app.updateBrokenEncoderButton(self)
 
             self.button.update()
 
@@ -173,11 +174,11 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_pauseScheduler(self, button):
-        self.autoScheduler.paused = True
+        self.autoScheduler.pause()
 
     @sea.queuedDashboardEvent
     def c_resumeScheduler(self, button):
-        self.autoScheduler.paused = False
+        self.autoScheduler.unpause()
 
     @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
@@ -212,6 +213,10 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_fastPositionGear(self, button):
         self.setGear(drivetrain.fastPositionGear)
 
+    @sea.queuedDashboardEvent
+    def c_disableWheel(self, button):
+        self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
+        self.app.switchText(button)
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)

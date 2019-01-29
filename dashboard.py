@@ -41,6 +41,8 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root.append(self.initGearSelector(robot))
 
+        root.append(self.initWheelControlls(robot))
+
         root.append(self.initFieldMap(robot))
         self.updateRobotPosition(0, 0, 0)
 
@@ -83,6 +85,25 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         return gearSelectorBox
 
+    def initWheelControlls(self, robot):
+        wheelControllsBox = gui.VBox()
+        self.groupStyle(wheelControllsBox)
+
+        self.wheelControllsLbl = gui.Label("[wheel controlls]")
+        wheelControllsBox.append(self.wheelControllsLbl)
+        self.wheelBtns = [None] * 4
+        
+        wheelsBox = gui.HBox()
+        wheelControllsBox.append(wheelsBox)
+        for wheelIndex in range(4):
+            newButton = gui.Button(str(wheelIndex + 1))
+            newButton.wheelNum = wheelIndex + 1
+            newButton.onclick.connect(robot.c_disableWheel)
+            self.wheelBtns[wheelIndex] = newButton
+            wheelsBox.append(newButton)
+
+        return wheelControllsBox
+
     def initFieldMap(self, robot):
 
         fieldBox = gui.VBox()
@@ -104,7 +125,6 @@ class CompetitionBotDashboard(sea.Dashboard):
             CompetitionBotDashboard.FIELD_HEIGHT)
         self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
         fieldBox.append(self.fieldSvg)
-        
 
         self.image = gui.SvgShape(0, 0)
         self.image.type = 'image'
@@ -199,12 +219,12 @@ class CompetitionBotDashboard(sea.Dashboard):
             % (arrowX, arrowY, arrowAngle)
     
     def svgToFieldCordinates(self,x,y):
-        return ((float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
-                (-float(y) - CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
-    
+        return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+                -(float(y) - CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+
     def fieldToSvgCoordinates(self, x, y):
         return (CompetitionBotDashboard.FIELD_WIDTH / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
-                CompetitionBotDashboard.FIELD_HEIGHT / 2 + y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+            CompetitionBotDashboard.FIELD_HEIGHT / 2 + y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
 
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
@@ -233,6 +253,18 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.fieldSvg.append(line)
             lineX, lineY = x1, y1
         return lineX, lineY
+
+    def switchText(self, button):
+        if button.get_text() != "dead":
+            button.set_text("dead")
+        else:
+            button.set_text(str(button.wheelNum))
+            
+    #if the encoder stops working, the button attached to it turns red
+    def updateBrokenEncoderButton(self, robot):
+        for button in self.wheelBtns:
+            if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
+                button.style["background"] = "red"
 
     def c_closeApp(self, button):
         self.close()
