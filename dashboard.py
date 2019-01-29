@@ -139,7 +139,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox = gui.HBox()
         fieldBox.append(posBox)
 
-        self.target_points = coordinates.waypoints
+        self.target_points = coordinates.targetPoints
 
         self.robotPositionLbl = gui.Label("[robot position]")
         posBox.append(self.robotPositionLbl)
@@ -183,7 +183,8 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         for point in self.target_points:
             point = fieldToSvgCoordinates(point.x,point.y)
-            wp_dot = gui.SvgCircle(point[0], point[1], 10)
+            wp_dot = gui.SvgCircle(point[0], point[1], 5)
+            wp_dot.attributes['fill'] = 'blue'
             self.fieldSvg.append(wp_dot)
 
         self.cursorArrow = Arrow('red')
@@ -197,13 +198,14 @@ class CompetitionBotDashboard(sea.Dashboard):
         return fieldBox
     
     def mouse_down_listener(self,widget,x,y):
-        for point in self.target_points:
-            if math.hypot(float(x)-fieldToSvgCoordinates(point.x,point.y)[0],
-                          float(y)-fieldToSvgCoordinates(point.x,point.y)[1]) < 5:
-                x = float(fieldToSvgCoordinates(point.x,point.y)[0])
-                y = float(fieldToSvgCoordinates(point.x,point.y)[1])
         x, y = svgToFieldCoordinates(x, y)
-        self.cursorArrow.setPosition(x, y, 0)
+        angle = 0
+        for point in self.target_points:
+            if math.hypot(x - point.x, y - point.y) < 1:
+                x = point.x
+                y = point.y
+                angle = point.orientation
+        self.cursorArrow.setPosition(x, y, angle)
         print(x,y)
 
     def initScheduler(self, robot):

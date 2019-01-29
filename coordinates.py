@@ -45,6 +45,12 @@ cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(90))
 cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(90))
 cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(90))
 
+quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3]
+targetPoints = []
+for quadrant in range(0, 4):
+    for point in quadrantTargetPoints:
+        targetPoints.append(point.inQuadrant(quadrant))
+
 # in counterclockwise order
 waypoints = [
     DriveCoordinates("Waypoint1", 15, 0, math.radians(0)),
