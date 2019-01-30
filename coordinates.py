@@ -31,19 +31,19 @@ class DriveCoordinates:
         newOrient = self.orientation
         if quadrant == 1 or quadrant == 2:
             newX = -newX
-            newOrient = math.pi - newOrient
+            newOrient = -newOrient
         if quadrant == 2 or quadrant == 3:
             newY = -newY
-            newOrient = -newOrient
+            newOrient = math.pi - newOrient
         return DriveCoordinates(self.name + " quad " + str(quadrant), newX, newY, newOrient)
 
-rocket1 = DriveCoordinates("Rocket1", 6.2, 11.6, math.radians(-135))
-rocket2 = DriveCoordinates("Rocket2", 7.9, 10.6, math.radians(-90))
-rocket3 = DriveCoordinates("Rocket3", 9.6, 11.6, math.radians(-45))
-humanstation = DriveCoordinates("Human", 27, 11.2, math.radians(180))
-cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(90))
-cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(90))
-cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(90))
+rocket1 = DriveCoordinates("Rocket1", 6.2, 11.6, math.radians(-45))
+rocket2 = DriveCoordinates("Rocket2", 7.9, 10.6, math.radians(0))
+rocket3 = DriveCoordinates("Rocket3", 9.6, 11.6, math.radians(45))
+humanstation = DriveCoordinates("Human", 27, 11.2, math.radians(-90))
+cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(180))
+cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(180))
+cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(180))
 
 quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3]
 targetPoints = []

@@ -5,11 +5,11 @@ import coordinates
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
-             (float(y) - CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+            (-float(y) + CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
 
 def fieldToSvgCoordinates(x, y):
-    return (CompetitionBotDashboard.FIELD_WIDTH / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
-            CompetitionBotDashboard.FIELD_HEIGHT / 2 + y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+    return (CompetitionBotDashboard.FIELD_WIDTH  / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+            CompetitionBotDashboard.FIELD_HEIGHT / 2 - y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
 
 class Arrow(gui.SvgPolyline):
 
