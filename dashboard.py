@@ -230,6 +230,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         addDriveToPointActionBtn = gui.Button('Drive to Point')
         addDriveToPointActionBtn.onclick.connect(robot.c_addDriveToPointAction)
         driveToPointActionBox.append(addDriveToPointActionBtn)
+        addNavigateActionBtn = gui.Button('Navigate to Point')
+        addNavigateActionBtn.onclick.connect(robot.c_addNavigateAction)
+        driveToPointActionBox.append(addNavigateActionBtn)
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)

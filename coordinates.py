@@ -3,11 +3,7 @@ import seamonsters as sea
 
 # is A to B closer clockwise or counterclockwise?
 def clockwise(a, b):
-    dist = sea.circleDistance(a, b)
-    if dist > 0:
-        return dist < math.pi
-    else:
-        return dist < -math.pi
+    return sea.circleDistance(a, b) < 0
 
 class DriveCoordinates:
 

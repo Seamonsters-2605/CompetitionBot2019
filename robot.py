@@ -9,6 +9,7 @@ import grabber
 from buttons import Buttons
 import auto_scheduler
 import auto_actions
+import coordinates
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -171,6 +172,15 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.autoScheduler.actionList.append(
             auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
         self.updateScheduler()
+
+    @sea.queuedDashboardEvent
+    def c_addNavigateAction(self, button):
+        coord = coordinates.DriveCoordinates("target", self.app.cursorArrow.x, self.app.cursorArrow.y, self.app.cursorArrow.angle)
+        waypoints = coordinates.findWaypoints(coord, self.pathFollower.robotX, self.pathFollower.robotY)
+        moveTime = float(self.app.waitTimeInput.get_value())
+        for pt in waypoints:
+            action = auto_actions.createDriveToPointAction(self.pathFollower, pt.x, pt.y, pt.orientation, moveTime)
+            self.autoScheduler.actionList.append(action)
 
     @sea.queuedDashboardEvent
     def c_pauseScheduler(self, button):
