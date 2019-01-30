@@ -21,10 +21,13 @@ class Arrow(gui.SvgPolyline):
         self.style['fill'] = color
         self.setPosition(0, 0, 0)
 
-    def setPosition(self, x, y, angle):
+    def setPosition(self, x, y, angle=None):
         self.x = x
         self.y = y
-        self.angle = angle
+        if angle is not None:
+            self.angle = angle
+        else:
+            angle = self.angle
 
         svgX, svgY = fieldToSvgCoordinates(x, y)
         svgAngle = -math.degrees(angle)
@@ -199,13 +202,17 @@ class CompetitionBotDashboard(sea.Dashboard):
     
     def mouse_down_listener(self,widget,x,y):
         x, y = svgToFieldCoordinates(x, y)
-        angle = 0
+        angle = None
         for point in self.target_points:
             if math.hypot(x - point.x, y - point.y) < 1:
                 x = point.x
                 y = point.y
                 angle = point.orientation
         self.cursorArrow.setPosition(x, y, angle)
+        self.cursorXInput.set_value(str(x))
+        self.cursorYInput.set_value(str(y))
+        if angle is not None:
+            self.cursorAngleInput.set_value(str(math.degrees(angle)))
         print(x,y)
 
     def initScheduler(self, robot):
