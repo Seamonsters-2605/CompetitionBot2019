@@ -171,9 +171,9 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_addDriveToPointAction(self, button):
-        pointX = self.app.cursorArrow.x
-        pointY = self.app.cursorArrow.y
-        pointAngle = self.app.cursorArrow.angle
+        pointX = self.app.selectedCoord.x
+        pointY = self.app.selectedCoord.y
+        pointAngle = self.app.selectedCoord.orientation
         moveTime = float(self.app.waitTimeInput.get_value())
         self.autoScheduler.actionList.append(
             auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
@@ -181,7 +181,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_addNavigateAction(self, button):
-        coord = coordinates.DriveCoordinates("target", self.app.cursorArrow.x, self.app.cursorArrow.y, self.app.cursorArrow.angle)
+        coord = self.app.selectedCoord
         waypoints = coordinates.findWaypoints(coord, self.pathFollower.robotX, self.pathFollower.robotY)
         moveTime = float(self.app.waitTimeInput.get_value())
         for pt in waypoints:
@@ -203,7 +203,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_resetPosition(self, button):
-        self.pathFollower.setPosition(self.app.cursorArrow.x, self.app.cursorArrow.y, self.app.cursorArrow.angle)
+        self.pathFollower.setPosition(
+            self.app.selectedCoord.x, self.app.selectedCoord.y, self.app.selectedCoord.orientation)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
