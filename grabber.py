@@ -13,6 +13,8 @@ class GrabberArm():
         self.hatchGrabberIn = wpilib.Solenoid(1)
         self.compressor = wpilib.Compressor(0)
         self.slideMotor = ctre.WPI_TalonSRX(19)
+        self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.epsilon = 0.01
 
     #takes in the ball at the speed "speed"
     def intake(self, speed):
@@ -60,6 +62,7 @@ class GrabberArm():
         self.eject(1)
         self.release(1)
 
+    #stops all motors on the grabber part
     def stop(self):
         self.clamp(0)
         self.intake(0)
@@ -72,5 +75,21 @@ class GrabberArm():
     def slideDown(self, speed):
         self.slideMotor.set(-speed)
 
+    #Stops the slide motor
+    def slideStop(self):
+        self.slideMotor.set(0)
+    
+    #Checks to see if slide is at top or bottom and if it is, stops the motor
+    def slideCheck(self):
+        if self.slideMotor.getSelectedSensorPosition(0) > self.epsilon:
+            self.slideStop()
+        elif self.slideMotor.getSelectedSensorPosition(0) < 147 - self.epsilon:
+            self.slideStop()
+
+    #Starts the Compressor
     def startCompressor(self):
         self.compressor.start()
+    
+    #Stops the Compressor
+    def stopCompressor(self):
+        self.compressor.stop()
