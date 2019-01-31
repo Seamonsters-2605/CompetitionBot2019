@@ -1,5 +1,6 @@
 import math
 import seamonsters as sea
+import drivetrain
 
 # is A to B closer clockwise or counterclockwise?
 def clockwise(a, b):
@@ -7,12 +8,13 @@ def clockwise(a, b):
 
 class DriveCoordinates:
 
-    def __init__(self, name, x, y, orientation):
+    def __init__(self, name, x, y, orientation, wall=False):
         self.name = name
         self.x = x
         self.y = y
         self.orientation = orientation
         self.angle = math.atan2(self.y, self.x)
+        self.wall = wall
 
     def __repr__(self):
         return "%s (%f, %f, %f deg)" \
@@ -31,15 +33,22 @@ class DriveCoordinates:
         if quadrant == 2 or quadrant == 3:
             newY = -newY
             newOrient = math.pi - newOrient
-        return DriveCoordinates(self.name + " quad " + str(quadrant), newX, newY, newOrient)
+        return DriveCoordinates(self.name + " quad " + str(quadrant),
+            newX, newY, newOrient, self.wall)
+    
+    def moveAwayFromWall(self):
+        return DriveCoordinates(self.name,
+            self.x + math.sin(self.orientation) * drivetrain.ROBOT_LENGTH,
+            self.y - math.cos(self.orientation) * drivetrain.ROBOT_LENGTH,
+            self.orientation)
 
-rocket1 = DriveCoordinates("Rocket1", 6.2, 11.6, math.radians(-45))
-rocket2 = DriveCoordinates("Rocket2", 7.9, 10.6, math.radians(0))
-rocket3 = DriveCoordinates("Rocket3", 9.6, 11.6, math.radians(45))
-humanstation = DriveCoordinates("Human", 27, 11.2, math.radians(-90))
-cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(180))
-cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(180))
-cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(180))
+rocket1 = DriveCoordinates("Rocket1", 6.2, 11.6, math.radians(-45), True)
+rocket2 = DriveCoordinates("Rocket2", 7.9, 10.6, math.radians(0), True)
+rocket3 = DriveCoordinates("Rocket3", 9.6, 11.6, math.radians(45), True)
+humanstation = DriveCoordinates("Human", 27, 11.2, math.radians(-90), True)
+cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(180), True)
+cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(180), True)
+cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(180), True)
 
 quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3]
 targetPoints = []
@@ -58,6 +67,8 @@ waypoints = [
     DriveCoordinates("Waypoint4", WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, math.radians(0))]
 
 def findWaypoints(targetCoord, robotX, robotY):
+    if targetCoord.wall:
+        targetCoord = targetCoord.moveAwayFromWall()
     way1 = nearestWaypointOnBox(robotX, robotY)
     way2 = nearestWaypointOnBox(targetCoord.x, targetCoord.y)
     path = pathBetweenWaypoints(way1, way2)
