@@ -47,23 +47,62 @@ for quadrant in range(0, 4):
     for point in quadrantTargetPoints:
         targetPoints.append(point.inQuadrant(quadrant))
 
+WAYPOINT_BOX_X = 13.5
+WAYPOINT_BOX_Y = 6.5
+
 # in counterclockwise order
 waypoints = [
-    DriveCoordinates("Waypoint1", 15, 0, math.radians(0)),
-    DriveCoordinates("Waypoint2", 15, 7.5, math.radians(0)),
-    DriveCoordinates("Waypoint3", -15, 7.5, math.radians(0)),
-    DriveCoordinates("Waypoint4", -15, 0, math.radians(0)),
-    DriveCoordinates("Waypoint5", -15, -7.5, math.radians(0)),
-    DriveCoordinates("Waypoint6", 15, -7.5, math.radians(0))]
+    DriveCoordinates("Waypoint1", WAYPOINT_BOX_X, WAYPOINT_BOX_Y, math.radians(0)),
+    DriveCoordinates("Waypoint2", -WAYPOINT_BOX_X, WAYPOINT_BOX_Y, math.radians(0)),
+    DriveCoordinates("Waypoint3", -WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, math.radians(0)),
+    DriveCoordinates("Waypoint4", WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, math.radians(0))]
 
 def findWaypoints(targetCoord, robotX, robotY):
-    robotAngle = math.atan2(robotY, robotX)
-    
+    way1 = nearestWaypointOnBox(robotX, robotY)
+    way2 = nearestWaypointOnBox(targetCoord.x, targetCoord.y)
+    path = pathBetweenWaypoints(way1, way2)
+    path.append(targetCoord)
+    return path
+
+def nearestWaypointOnBox(x, y):
+    insideX = False
+    if x > WAYPOINT_BOX_X:
+        x = WAYPOINT_BOX_X
+    elif x < -WAYPOINT_BOX_X:
+        x = -WAYPOINT_BOX_X
+    else:
+        insideX = True
+    insideY = False
+    if y > WAYPOINT_BOX_Y:
+        y = WAYPOINT_BOX_Y
+    elif y < -WAYPOINT_BOX_Y:
+        y = -WAYPOINT_BOX_Y
+    else:
+        insideY = True
+    if insideX and insideY:
+        if x > 0:
+            xClosest = WAYPOINT_BOX_X
+        else:
+            xClosest = -WAYPOINT_BOX_X
+        if y > 0:
+            yClosest = WAYPOINT_BOX_Y
+        else:
+            yClosest = - WAYPOINT_BOX_Y
+        xDist = abs(x - xClosest)
+        yDist = abs(y - yClosest)
+        if xDist < yDist:
+            x = xClosest
+        else:
+            y = yClosest
+    return DriveCoordinates("Waypoint", x, y, 0)
+
+
+def pathBetweenWaypoints(way1, way2):
     nearestCWWaypoint = -1
     pointI = 0
     while True:
         point = waypoints[pointI]
-        if clockwise(robotAngle, point.angle):
+        if clockwise(way1.angle, point.angle):
             nearestCWWaypoint = pointI
         else:
             if nearestCWWaypoint != -1:
@@ -71,7 +110,7 @@ def findWaypoints(targetCoord, robotX, robotY):
         pointI += 1
         pointI %= len(waypoints)
 
-    moveClockwise = clockwise(robotAngle, targetCoord.angle)
+    moveClockwise = clockwise(way1.angle, way2.angle)
 
     pointI = nearestCWWaypoint
     if not moveClockwise:
@@ -80,9 +119,10 @@ def findWaypoints(targetCoord, robotX, robotY):
         pointI %= len(waypoints)
 
     path = []
+    path.append(way1)
     while True:
         waypoint = waypoints[pointI]
-        clockwiseFromWaypoint = clockwise(waypoint.angle, targetCoord.angle)
+        clockwiseFromWaypoint = clockwise(waypoint.angle, way2.angle)
         if clockwiseFromWaypoint == moveClockwise:
             path.append(waypoint)
         else:
@@ -93,5 +133,5 @@ def findWaypoints(targetCoord, robotX, robotY):
             pointI += 1
             pointI %= len(waypoints)
 
-    path.append(targetCoord)
+    path.append(way2)
     return path
