@@ -81,9 +81,10 @@ class GrabberArm():
     
     #Checks to see if slide is at top or bottom and if it is, stops the motor
     def slideCheck(self):
+        maxheight = 0 # Replace with the number of rotations it takes extend the winch fully
         if self.slideMotor.getSelectedSensorPosition(0) > self.epsilon:
             self.slideStop()
-        elif self.slideMotor.getSelectedSensorPosition(0) < 147 - self.epsilon:
+        elif self.slideMotor.getSelectedSensorPosition(0) < maxheight - self.epsilon:
             self.slideStop()
 
     #Starts the Compressor
