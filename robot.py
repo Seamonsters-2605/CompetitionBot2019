@@ -144,6 +144,12 @@ class CompetitionBot2019(sea.GeneratorBot):
                 '%.3f' % (self.timingMonitor.realTimeRatio,))
             self.app.currentLbl.set_text(str(self.pdp.getTotalCurrent()))
 
+    def toggleAutoScheduler(self):
+        if self.autoScheduler.isPaused():
+            self.autoScheduler.unpause()
+        else:
+            self.autoScheduler.pause()
+
     # button functions
 
     def switchHeadless(self):
@@ -226,7 +232,21 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_disableWheel(self, button):
         self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
-        self.app.switchText(button)
+        self.app.switchDeadWheelText(button)
+
+    @sea.queuedDashboardEvent
+    def c_toggleAutoScheduler(self, button):
+        self.app.toggleAutoScheduler(button)
+        self.toggleAutoScheduler()
+
+    @sea.queuedDashboardEvent
+    def c_clearAll(self, button):
+        self.autoScheduler.clearActions()
+        self.app.updateScheduler()
+    
+    @sea.queuedDashboardEvent
+    def c_cancelRunningAction(self, button):
+        self.autoScheduler.cancelRunningAction()
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)

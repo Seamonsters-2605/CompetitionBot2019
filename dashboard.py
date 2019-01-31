@@ -244,12 +244,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
 
-        pauseButton = gui.Button('Pause')
-        pauseButton.onclick.connect(robot.c_pauseScheduler)
-        controlBox.append(pauseButton)
-        resumeButton = gui.Button('Resume')
-        resumeButton.onclick.connect(robot.c_resumeScheduler)
-        controlBox.append(resumeButton)
+        pauseResumeButton = gui.Button('Start')
+        pauseResumeButton.onclick.connect(robot.c_toggleAutoScheduler)
+        controlBox.append(pauseResumeButton)
+        clearAllButton = gui.Button("Clear All")
+        clearAllButton.onclick.connect(robot.c_clearAll)
+        controlBox.append(clearAllButton)
+        cancelCurrentActionBtn = gui.Button("Cancel Current Action")
+        cancelCurrentActionBtn.onclick.connect(robot.c_cancelRunningAction)
+        controlBox.append(cancelCurrentActionBtn)
 
         schedulerBox.append(gui.Label("Schedule:"))
 
@@ -291,7 +294,7 @@ class CompetitionBotDashboard(sea.Dashboard):
             lineX, lineY = x1, y1
         return lineX, lineY
 
-    def switchText(self, button):
+    def switchDeadWheelText(self, button):
         if button.get_text() != "dead":
             button.set_text("dead")
         else:
@@ -302,6 +305,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         for button in self.wheelBtns:
             if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
                 button.style["background"] = "red"
+
+    def toggleAutoScheduler(self, button):
+        if button.get_text() == "Pause":
+            button.set_text("Resume")
+        else:
+            button.set_text("Pause")
 
     def c_closeApp(self, button):
         self.close()
