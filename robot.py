@@ -9,6 +9,7 @@ import grabber
 from buttons import Buttons
 import auto_scheduler
 import auto_actions
+import coordinates
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -117,7 +118,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
-                aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()), self.pathFollower.robotAngle)
+                aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) + math.pi, self.pathFollower.robotAngle)
                 turn = aDiff / 0.1 # seconds
                 targetAVel = drivetrain.fastPositionGear.turnScale
                 if turn > targetAVel:
@@ -170,13 +171,30 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_addDriveToPointAction(self, button):
-        pointX = float(self.app.pointXInput.get_value())
-        pointY = float(self.app.pointYInput.get_value())
-        pointAngle = math.radians(float(self.app.pointAngleInput.get_value()))
+        pointX = self.app.cursorArrow.x
+        pointY = self.app.cursorArrow.y
+        pointAngle = self.app.cursorArrow.angle
         moveTime = float(self.app.waitTimeInput.get_value())
         self.autoScheduler.actionList.append(
             auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
         self.updateScheduler()
+
+    @sea.queuedDashboardEvent
+    def c_addNavigateAction(self, button):
+        coord = coordinates.DriveCoordinates("target", self.app.cursorArrow.x, self.app.cursorArrow.y, self.app.cursorArrow.angle)
+        waypoints = coordinates.findWaypoints(coord, self.pathFollower.robotX, self.pathFollower.robotY)
+        moveTime = float(self.app.waitTimeInput.get_value())
+        for pt in waypoints:
+            action = auto_actions.createDriveToPointAction(self.pathFollower, pt.x, pt.y, pt.orientation, moveTime)
+            self.autoScheduler.actionList.append(action)
+
+    @sea.queuedDashboardEvent
+    def c_pauseScheduler(self, button):
+        self.autoScheduler.pause()
+
+    @sea.queuedDashboardEvent
+    def c_resumeScheduler(self, button):
+        self.autoScheduler.unpause()
 
     @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
@@ -184,8 +202,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel._setSteering(0)
 
     @sea.queuedDashboardEvent
-    def c_zeroPosition(self, button):
-        self.pathFollower.setPosition(0, 0, 0)
+    def c_resetPosition(self, button):
+        self.pathFollower.setPosition(self.app.cursorArrow.x, self.app.cursorArrow.y, self.app.cursorArrow.angle)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
