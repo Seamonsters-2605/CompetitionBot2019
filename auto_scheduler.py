@@ -18,6 +18,7 @@ class AutoScheduler:
         self.updateCallback = lambda: None
 
         self.stateMachine.push(sea.State(self._actionScheduler))
+        self.pause()
 
     def updateGenerator(self):
         yield from self.stateMachine.updateGenerator()
