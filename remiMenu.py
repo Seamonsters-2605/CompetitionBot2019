@@ -26,13 +26,15 @@ class MenuExplore(remi.App):
         return self.root
 
     def addItem(self,label,index):
-        if index == '':
-            index = self.addedEventIndex.get_value()
         checkBox = gui.CheckBoxLabel("remove",checked=True)
         checkBox.set_on_click_listener(self.xBoxCallback)
         item = gui.MenuItem(label,checkBox)
         self.menuItems.insert(index,item)
-        return self.eventMenu.append(item)
+        #return self.eventMenu.append(item)
+        self.eventMenu.empty()
+        for menuitem in self.menuItems:
+            self.eventMenu.append(menuitem)
+        print(self.menuItems)
 
     def xBoxCallback(self,checkBox):
         boxMenuItem = checkBox.get_parent().get_parent()
@@ -41,11 +43,18 @@ class MenuExplore(remi.App):
         self.menuItems.remove(boxMenuItem)
 
     def buttonToAddCallback(self,button):
-        queuePos = int(self.addedEventIndex.get_value())
+        try:
+            queuePos = int(self.addedEventIndex.get_value())
+        except ValueError:
+            print('Invalid input to Add Item!')
+            return
+
+            
         if queuePos > len(self.menuItems):
             queuePos = len(self.menuItems)
         elif queuePos < 0:
             queuePos = 0
+        print(f'queuePos: {queuePos}')
         self.addItem('Event',queuePos)
         
 if __name__ == '__main__':
