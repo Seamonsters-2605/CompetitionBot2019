@@ -75,7 +75,7 @@ slowPositionGear = DriveGear("Slow Position", ctre.ControlMode.Position,
     p=0.2, i=0.0, d=6.0, f=0.0)
 mediumPositionGear = DriveGear("Medium Position", ctre.ControlMode.Position,
     moveScale=6, turnScale=math.radians(180),
-    p=0.07, i=0.0, d=6.0, f=0.0)
+    p=0.07, i=0.0, d=12.0, f=0.0)
 fastPositionGear = DriveGear("Fast Position", ctre.ControlMode.Position,
     moveScale=15, turnScale=math.radians(360),
     p=0.032, i=0.0, d=6.0, f=0.0)
