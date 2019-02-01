@@ -1,10 +1,13 @@
 import math
-import seamonsters.generators
+import seamonsters as sea
 
 class PathFollower:
     """
     Controls a SuperHolonomicDrive to follow paths on the field.
     """
+
+    NAVX_LAG = 7 # frames
+    NAVX_ERROR_CORRECTION = 0.1 # out of 1
 
     def __init__(self, drive, ahrs=None):
         """
@@ -28,6 +31,8 @@ class PathFollower:
         self.robotY = 0
         self.robotAngle = 0
 
+        self._robotAngleHistory = []
+
     def setPosition(self, x, y, angle):
         self.robotX = x
         self.robotY = y
@@ -36,6 +41,7 @@ class PathFollower:
             self._ahrsOrigin = 0
             self._ahrsOrigin = self._getAHRSAngle() - angle
         self._drivePositionState = None
+        self._robotAngleHistory.clear()
 
     def _getAHRSAngle(self):
         return -math.radians(self.ahrs.getAngle()) - self._ahrsOrigin
@@ -62,10 +68,19 @@ class PathFollower:
     def updateRobotPosition(self):
         moveDist, moveDir, moveTurn, self._drivePositionState = \
             self.drive.getRobotPositionOffset(self._drivePositionState, target=True)
-        if self.ahrs is not None:
-            self.robotAngle = self._getAHRSAngle()
-        else:
-            self.robotAngle += moveTurn
+
+        self.robotAngle += moveTurn
+        self._robotAngleHistory.append(self.robotAngle)
+        # pretty sure this isn't off by 1
+        if len(self._robotAngleHistory) >= PathFollower.NAVX_LAG:
+            laggedAngle = self._robotAngleHistory.pop(0)
+            if self.ahrs is not None:
+                navxAngle = self._getAHRSAngle()
+                error = (navxAngle - laggedAngle) * PathFollower.NAVX_ERROR_CORRECTION
+                self.robotAngle += error
+                for i in range(0, len(self._robotAngleHistory)):
+                    self._robotAngleHistory[i] += error
+
         self.robotX += math.cos(moveDir + self.robotAngle) * moveDist
         self.robotY += math.sin(moveDir + self.robotAngle) * moveDist
 
@@ -108,14 +123,14 @@ class PathFollower:
             dist, dir = self._robotVectorToPoint(x, y)
             aDiff = angle - self.robotAngle
 
-            atPosition = targetMag == 0 or dist < targetMag / 50
+            atPosition = targetMag == 0 or dist < targetMag / sea.ITERATIONS_PER_SECOND
             if atPosition:
-                mag = dist * 50
+                mag = dist * sea.ITERATIONS_PER_SECOND
             else:
                 mag = targetMag
-            atAngle = targetAVel == 0 or abs(aDiff) < abs(targetAVel / 50)
+            atAngle = targetAVel == 0 or abs(aDiff) < abs(targetAVel / sea.ITERATIONS_PER_SECOND)
             if atAngle:
-                aVel = aDiff * 50
+                aVel = aDiff * sea.ITERATIONS_PER_SECOND
             else:
                 aVel = abs(targetAVel)
                 if aDiff < 0:
@@ -148,9 +163,9 @@ class PathFollower:
         for point in data[1:]:
             t, x, y, angle = self._readDataLine(point)
             if lastX == x and lastY == y and lastAngle == angle:
-                yield from seamonsters.generators.wait(int((t - lastTime) * 50))
+                yield from sea.wait(int((t - lastTime) * sea.ITERATIONS_PER_SECOND))
             else:
-                yield from seamonsters.generators.untilTrue(
+                yield from sea.untilTrue(
                     self.driveToPointGenerator(x, y, math.radians(angle),
                         t - lastTime, wheelAngleTolerance))
             lastTime = t

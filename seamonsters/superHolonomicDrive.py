@@ -1,19 +1,12 @@
 import math
 import ctre
+import seamonsters as sea
 
 TWO_PI = math.pi * 2
 
 MAX_POSITION_OCCURENCE = 10
 CHECK_ENCODER_CYCLE = 10
-# if circle = math.pi*2, returns the smallest angle between two directions
-# on a circle
-def _circleDistance(a, b, circle):
-    diff = b - a
-    while diff > circle / 2:
-        diff -= circle
-    while diff < -circle / 2:
-        diff += circle
-    return diff
+
 
 def _iteratePairs(list):
     for i in range(0, len(list) - 1):
@@ -114,7 +107,7 @@ class CasterWheel(Wheel):
     def drive(self, magnitude, direction):
         self._storedMagnitude = magnitude
         self._storedDirection = direction
-        self._distance += magnitude / 50
+        self._distance += magnitude / sea.ITERATIONS_PER_SECOND
     
     def stop(self):
         self._storedMagnitude = 0
@@ -234,7 +227,7 @@ class AngledWheel(Wheel):
         encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot
         # always incremented, even if not in position mode
         # used by getTargetPosition
-        self._positionTarget += encoderCountsPerSecond / 50.0
+        self._positionTarget += encoderCountsPerSecond / sea.ITERATIONS_PER_SECOND
 
         if self.driveMode == ctre.ControlMode.Disabled:
             if self._motorState != self.driveMode:
@@ -319,7 +312,7 @@ class SwerveWheel(Wheel):
     rotates using a TalonSRX.
     """
 
-    def __init__(self, angledWheel, steerMotor, encoderCountsPerRev,
+    def __init__(self, angledWheel, steerMotor, encoderCountsPerRev, offsetX = 0, offsetY = 0,
                  reverseSteerMotor=False):
         """
         ``zeroSteering()`` is called in __init__.
@@ -340,6 +333,8 @@ class SwerveWheel(Wheel):
         self.reverseSteerMotor = reverseSteerMotor
         self.zeroSteering()
         self._targetDirection = angledWheel.angle
+        self.offsetX = offsetX
+        self.offsetY = offsetY
 
     def zeroSteering(self):
         """
@@ -367,11 +362,13 @@ class SwerveWheel(Wheel):
     def drive(self, magnitude, direction):
         currentAngle = self._getCurrentSteeringAngle()
         # steering should never rotate more than 90 degrees from any position
-        angleDiff = _circleDistance(currentAngle, direction, math.pi)
+        angleDiff = sea.circleDistance(currentAngle, direction, math.pi)
         self._targetDirection = currentAngle + angleDiff
         #print(math.degrees(currentAngle), math.degrees(self._targetDirection))
         self._setSteering(self._targetDirection)
         self.angledWheel.angle = currentAngle
+        self.angledWheel.x = self.x + math.cos(currentAngle) * self.offsetX - math.sin(currentAngle) * self.offsetY
+        self.angledWheel.y = self.y + math.sin(currentAngle) * self.offsetX + math.cos(currentAngle) * self.offsetY
         self.angledWheel.drive(magnitude, direction)
 
     def stop(self):
@@ -409,6 +406,15 @@ class SuperHolonomicDrive:
         self.wheels.append(wheel)
 
     def drive(self, magnitude, direction, turn):
+        """
+        Drive the robot. This should be called 50 times per second.
+
+        :param magnitude: feet per second
+        :param direction: radians. 0 is right, positive counter-clockwise
+        :param turn: radians per second. positive counter-clockwise
+        :return: the scale of the actual output speed, as a fraction of the
+            input magnitude and turn components
+        """
         moveX = math.cos(direction) * magnitude
         moveY = math.sin(direction) * magnitude
 

@@ -1,39 +1,81 @@
+import math
 import remi.gui as gui
 import seamonsters as sea
+import coordinates
+
+def svgToFieldCoordinates(x, y):
+    return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+            (-float(y) + CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+
+def fieldToSvgCoordinates(x, y):
+    return (CompetitionBotDashboard.FIELD_WIDTH  / 2 + x * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
+            CompetitionBotDashboard.FIELD_HEIGHT / 2 - y * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
+
+class Arrow(gui.SvgPolyline):
+
+    def __init__(self, color):
+        super().__init__()
+        self.add_coord(0, 0)
+        self.add_coord(10, 40)
+        self.add_coord(-10, 40)
+        self.style['fill'] = color
+        self.setPosition(0, 0, 0)
+
+    def setPosition(self, x, y, angle=None):
+        self.x = x
+        self.y = y
+        if angle is not None:
+            self.angle = angle
+        else:
+            angle = self.angle
+
+        svgX, svgY = fieldToSvgCoordinates(x, y)
+        svgAngle = -math.degrees(angle)
+        self.attributes['transform'] = "translate(%s,%s) rotate(%s)" \
+            % (svgX, svgY, svgAngle)
+
 
 class CompetitionBotDashboard(sea.Dashboard):
+
+    # these values match the simulator config.json and the field image
+    FIELD_WIDTH = 540
+    FIELD_HEIGHT = 270
+    FIELD_PIXELS_PER_FOOT = 10
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, css=True, **kwargs)
+
+    # apply a style to the widget to visually group items together
+    def groupStyle(self, widget):
+        widget.style['border'] = '2px solid gray'
+        widget.style['border-radius'] = '0.5em'
+        widget.style['margin'] = '0.5em'
+        widget.style['padding'] = '0.2em'
 
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.VBox(width=600)
+        root = gui.VBox(width=600, margin='0px auto')
 
-        self.encoderPositionLbl = gui.Label("[encoder position]")
-        root.append(self.encoderPositionLbl)
-        self.navxPositionLbl = gui.Label("[navx position]")
-        root.append(self.navxPositionLbl)
-        self.visionPositionLbl = gui.Label("[vision position]")
-        root.append(self.visionPositionLbl)
+        closeButton = gui.Button("Close")
+        closeButton.onclick.connect(self.c_closeApp)
+        root.append(closeButton)
+
+        self.realTimeRatioLbl = gui.Label("[real time ratio]")
+        root.append(self.realTimeRatioLbl)
+
+        self.currentLbl = gui.Label("[current]")
+        root.append(self.currentLbl)
 
         zeroSteeringBtn = gui.Button("Reset swerve rotations")
-        zeroSteeringBtn.onclick.connect(self.queuedEvent(robot.c_zeroSteering))
+        zeroSteeringBtn.onclick.connect(robot.c_wheelsToZero)
         root.append(zeroSteeringBtn)
 
-        self.driveGearLbl = gui.Label("[drive gear]")
-        root.append(self.driveGearLbl)
+        root.append(self.initGearSelector(robot))
 
-        driveModeBox = gui.HBox()
-        root.append(driveModeBox)
+        root.append(self.initWheelControlls(robot))
 
-        slowBtn = gui.Button("Slow")
-        slowBtn.onclick.connect(self.queuedEvent(robot.slow))
-        driveModeBox.append(slowBtn)
-        mediumBtn = gui.Button("Medium")
-        mediumBtn.onclick.connect(self.queuedEvent(robot.medium))
-        driveModeBox.append(mediumBtn)
-        fastBtn = gui.Button("Fast")
-        fastBtn.onclick.connect(self.queuedEvent(robot.fast))
-        driveModeBox.append(fastBtn)
+        root.append(self.initFieldMap(robot))
 
         root.append(self.initScheduler(robot))
         self.updateScheduler()
@@ -41,8 +83,141 @@ class CompetitionBotDashboard(sea.Dashboard):
         appCallback(self)
         return root
 
+    def initGearSelector(self, robot):
+        gearSelectorBox = gui.VBox()
+        self.groupStyle(gearSelectorBox)
+
+        self.driveGearLbl = gui.Label("[drive gear]")
+        gearSelectorBox.append(self.driveGearLbl)
+
+        voltageModeBox = gui.HBox()
+        gearSelectorBox.append(voltageModeBox)
+        slowVoltageBtn = gui.Button("Slow Voltage")
+        slowVoltageBtn.onclick.connect(robot.c_slowVoltageGear)
+        voltageModeBox.append(slowVoltageBtn)
+        mediumVoltageBtn = gui.Button("Medium Voltage")
+        mediumVoltageBtn.onclick.connect(robot.c_mediumVoltageGear)
+        voltageModeBox.append(mediumVoltageBtn)
+        fastVoltageBtn = gui.Button("Fast Voltage")
+        fastVoltageBtn.onclick.connect(robot.c_fastVoltageGear)
+        voltageModeBox.append(fastVoltageBtn)
+
+        velocityModeBox = gui.HBox()
+        gearSelectorBox.append(velocityModeBox)
+        slowVelocityBtn = gui.Button("Slow Position")
+        slowVelocityBtn.onclick.connect(robot.c_slowPositionGear)
+        velocityModeBox.append(slowVelocityBtn)
+        mediumVelocityBtn = gui.Button("Medium Position")
+        mediumVelocityBtn.onclick.connect(robot.c_mediumPositionGear)
+        velocityModeBox.append(mediumVelocityBtn)
+        fastVelocityBtn = gui.Button("Fast Position")
+        fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
+        velocityModeBox.append(fastVelocityBtn)
+
+        return gearSelectorBox
+
+    def initWheelControlls(self, robot):
+        wheelControllsBox = gui.VBox()
+        self.groupStyle(wheelControllsBox)
+
+        self.wheelControllsLbl = gui.Label("[wheel controlls]")
+        wheelControllsBox.append(self.wheelControllsLbl)
+        self.wheelBtns = [None] * 4
+        
+        wheelsBox = gui.HBox()
+        wheelControllsBox.append(wheelsBox)
+        for wheelIndex in range(4):
+            newButton = gui.Button(str(wheelIndex + 1))
+            newButton.wheelNum = wheelIndex + 1
+            newButton.onclick.connect(robot.c_disableWheel)
+            self.wheelBtns[wheelIndex] = newButton
+            wheelsBox.append(newButton)
+
+        return wheelControllsBox
+
+    def initFieldMap(self, robot):
+        fieldBox = gui.VBox()
+        self.groupStyle(fieldBox)
+
+        posBox = gui.HBox()
+        fieldBox.append(posBox)
+
+        self.target_points = coordinates.targetPoints
+
+        self.robotPositionLbl = gui.Label("[robot position]")
+        posBox.append(self.robotPositionLbl)
+
+        resetPositionBtn = gui.Button("Reset position")
+        resetPositionBtn.onclick.connect(robot.c_resetPosition)
+        posBox.append(resetPositionBtn)
+
+        cursorBox = gui.HBox()
+        fieldBox.append(cursorBox)
+        self.cursorXInput = gui.Input()
+        self.cursorXInput.set_value("0")
+        cursorBox.append(self.cursorXInput)
+        self.cursorYInput = gui.Input()
+        self.cursorYInput.set_value("0")
+        cursorBox.append(self.cursorYInput)
+        self.cursorAngleInput = gui.Input()
+        self.cursorAngleInput.set_value("0")
+        cursorBox.append(self.cursorAngleInput)
+        setCursorBtn = gui.Button("Set cursor")
+        cursorBox.append(setCursorBtn)
+
+        def setCursor(button):
+            self.cursorArrow.setPosition(
+                float(self.cursorXInput.get_value()),
+                float(self.cursorYInput.get_value()),
+                math.radians(float(self.cursorAngleInput.get_value())))
+        setCursorBtn.onclick.connect(setCursor)
+
+        self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
+            CompetitionBotDashboard.FIELD_HEIGHT)
+        self.fieldSvg.set_on_mousedown_listener(self.mouse_down_listener)
+        fieldBox.append(self.fieldSvg)
+
+        self.image = gui.SvgShape(0, 0)
+        self.image.type = 'image'
+        self.image.attributes['width'] = CompetitionBotDashboard.FIELD_WIDTH
+        self.image.attributes['height'] = CompetitionBotDashboard.FIELD_HEIGHT
+        self.image.attributes['xlink:href'] = '/res:frcField.PNG'
+        self.fieldSvg.append(self.image)
+
+        for point in self.target_points:
+            point = fieldToSvgCoordinates(point.x,point.y)
+            wp_dot = gui.SvgCircle(point[0], point[1], 5)
+            wp_dot.attributes['fill'] = 'blue'
+            self.fieldSvg.append(wp_dot)
+
+        self.cursorArrow = Arrow('red')
+        self.fieldSvg.append(self.cursorArrow)
+
+        self.robotArrow = Arrow('green')
+        self.fieldSvg.append(self.robotArrow)
+
+        self.robotPathLines = []
+
+        return fieldBox
+    
+    def mouse_down_listener(self,widget,x,y):
+        x, y = svgToFieldCoordinates(x, y)
+        angle = None
+        for point in self.target_points:
+            if math.hypot(x - point.x, y - point.y) < 1:
+                x = point.x
+                y = point.y
+                angle = point.orientation
+        self.cursorArrow.setPosition(x, y, angle)
+        self.cursorXInput.set_value(str(x))
+        self.cursorYInput.set_value(str(y))
+        if angle is not None:
+            self.cursorAngleInput.set_value(str(math.degrees(angle)))
+        print(x,y)
+
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
+        self.groupStyle(schedulerBox)
 
         addActionBox = gui.VBox()
         addActionBox.append(gui.Label("Add Action:"))
@@ -51,32 +226,33 @@ class CompetitionBotDashboard(sea.Dashboard):
         waitActionBox = gui.HBox()
         addActionBox.append(waitActionBox)
         addWaitActionBtn = gui.Button('Wait')
-        addWaitActionBtn.onclick.connect(self.queuedEvent(robot.c_addWaitAction))
+        addWaitActionBtn.onclick.connect(robot.c_addWaitAction)
         waitActionBox.append(addWaitActionBtn)
         self.waitTimeInput = gui.Input()
+        self.waitTimeInput.set_value("2")
         waitActionBox.append(self.waitTimeInput)
 
         driveToPointActionBox = gui.HBox()
         addActionBox.append(driveToPointActionBox)
         addDriveToPointActionBtn = gui.Button('Drive to Point')
-        addDriveToPointActionBtn.onclick.connect(self.queuedEvent(robot.c_addDriveToPointAction))
+        addDriveToPointActionBtn.onclick.connect(robot.c_addDriveToPointAction)
         driveToPointActionBox.append(addDriveToPointActionBtn)
-        self.pointXInput = gui.Input()
-        driveToPointActionBox.append(self.pointXInput)
-        self.pointYInput = gui.Input()
-        driveToPointActionBox.append(self.pointYInput)
-        self.pointAngleInput = gui.Input()
-        driveToPointActionBox.append(self.pointAngleInput)
+        addNavigateActionBtn = gui.Button('Navigate to Point')
+        addNavigateActionBtn.onclick.connect(robot.c_addNavigateAction)
+        driveToPointActionBox.append(addNavigateActionBtn)
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
 
-        pauseButton = gui.Button('Pause')
-        pauseButton.onclick.connect(self.queuedEvent(robot.c_pauseScheduler))
-        controlBox.append(pauseButton)
-        resumeButton = gui.Button('Resume')
-        resumeButton.onclick.connect(self.queuedEvent(robot.c_resumeScheduler))
-        controlBox.append(resumeButton)
+        pauseResumeButton = gui.Button('Start')
+        pauseResumeButton.onclick.connect(robot.c_toggleAutoScheduler)
+        controlBox.append(pauseResumeButton)
+        clearAllButton = gui.Button("Clear All")
+        clearAllButton.onclick.connect(robot.c_clearAll)
+        controlBox.append(clearAllButton)
+        cancelCurrentActionBtn = gui.Button("Cancel Current Action")
+        cancelCurrentActionBtn.onclick.connect(robot.c_cancelRunningAction)
+        controlBox.append(cancelCurrentActionBtn)
 
         schedulerBox.append(gui.Label("Schedule:"))
 
@@ -84,13 +260,57 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox.append(self.schedulerList)
 
         return schedulerBox
-    
+
+    def updateRobotPosition(self, robotX, robotY, robotAngle):
+        self.robotArrow.setPosition(robotX, robotY, robotAngle)
+        self.robotPositionLbl.set_text('%.3f, %.3f, %.3f' %
+            (robotX, robotY, math.degrees(robotAngle)))
+
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
         self.schedulerList.empty()
+
+        for line in self.robotPathLines:
+            self.fieldSvg.remove_child(line)
+        self.robotPathLines.clear()
+        lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
+
         if scheduler.runningAction is not None:
             runningItem = gui.ListItem('* ' + scheduler.runningAction.name)
             self.schedulerList.append(runningItem)
+            lineX, lineY = self.actionLines(lineX, lineY, scheduler.runningAction)
         for action in scheduler.actionList:
             listItem = gui.ListItem(action.name)
             self.schedulerList.append(listItem)
+            lineX, lineY = self.actionLines(lineX, lineY, action)
+
+    def actionLines(self, lineX, lineY, action):
+        for coord in action.coords:
+            x1, y1 = fieldToSvgCoordinates(coord[0], coord[1])
+            line = gui.SvgLine(lineX, lineY, x1, y1)
+            line.set_stroke(width=3)
+            self.robotPathLines.append(line)
+            self.fieldSvg.append(line)
+            lineX, lineY = x1, y1
+        return lineX, lineY
+
+    def switchDeadWheelText(self, button):
+        if button.get_text() != "dead":
+            button.set_text("dead")
+        else:
+            button.set_text(str(button.wheelNum))
+            
+    #if the encoder stops working, the button attached to it turns red
+    def updateBrokenEncoderButton(self, robot):
+        for button in self.wheelBtns:
+            if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
+                button.style["background"] = "red"
+
+    def toggleAutoScheduler(self, button):
+        if button.get_text() == "Pause":
+            button.set_text("Resume")
+        else:
+            button.set_text("Pause")
+
+    def c_closeApp(self, button):
+        self.close()
