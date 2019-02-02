@@ -14,7 +14,7 @@ class GrabberArm():
         self.hatchGrabberOut2 = wpilib.Solenoid(2)
         self.hatchGrabberIn2 = wpilib.Solenoid(3)
         self.compressor = wpilib.Compressor(0)
-        self.slideMotor = ctre.WPI_TalonSRX(19)
+        self.slideMotor = ctre.WPI_TalonSRX(30)
 
     #takes in the ball at the speed "speed"
     def intake(self, speed):
