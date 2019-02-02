@@ -71,12 +71,8 @@ class GrabberArm():
         self.intake(0)
 
     #grabber slides up
-    def slideUp(self, speed):
+    def slide(self, speed):
         self.slideMotor.set(speed)
-    
-    #grabber slides down
-    def slideDown(self, speed):
-        self.slideMotor.set(-speed)
 
     def startCompressor(self):
         self.compressor.start()
