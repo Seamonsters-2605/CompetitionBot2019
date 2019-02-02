@@ -117,7 +117,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn = -sea.deadZone(self.joystick.getRawAxis(3) + 0.5 * self.joystick.getRawAxis(4))
             turn *= self.drivegear.turnScale # maximum radians per second
 
-            self.grabberArm.slide(self.joystick.getRawAxis(5) * 0.5)
+            self.grabberArm.slide(self.joystick.getRawAxis(2) * 0.5)
 
             if not self.joystick.getPOV() == -1:
                 aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) + math.pi, self.pathFollower.robotAngle)
