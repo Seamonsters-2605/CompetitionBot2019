@@ -9,8 +9,10 @@ class GrabberArm():
         self.rightSpinner = ctre.WPI_TalonSRX(21)
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.rightPivot = ctre.WPI_TalonSRX(23)
-        self.hatchGrabberOut = wpilib.Solenoid(0)
-        self.hatchGrabberIn = wpilib.Solenoid(1)
+        self.hatchGrabberOut1 = wpilib.Solenoid(0)
+        self.hatchGrabberIn1 = wpilib.Solenoid(1)
+        self.hatchGrabberOut2 = wpilib.Solenoid(2)
+        self.hatchGrabberIn2 = wpilib.Solenoid(3)
         self.compressor = wpilib.Compressor(0)
         self.slideMotor = ctre.WPI_TalonSRX(19)
 
@@ -36,19 +38,23 @@ class GrabberArm():
 
     #pushes out the hatch grabber
     def push(self):
-        self.hatchGrabberOut.set(True)
+        self.hatchGrabberOut1.set(True)
+        self.hatchGrabberOut2.set(True)
 
     #stops pushing the hatch grabber
     def stopPushing(self):
-        self.hatchGrabberOut.set(False)
+        self.hatchGrabberOut1.set(False)
+        self.hatchGrabberOut2.set(False)
 
     #pulls in the hatch grabber
     def pull(self):
-        self.hatchGrabberIn.set(True)
+        self.hatchGrabberIn1.set(True)
+        self.hatchGrabberIn2.set(True)
 
     #stops pulling in the hatch grabber
     def stopPulling(self):
-        self.hatchGrabberIn.set(True)
+        self.hatchGrabberIn1.set(False)
+        self.hatchGrabberIn2.set(False)
 
     #clamps the arms while running the intake wheels to grab the ball
     def grabBall(self, clampSpeed, intakeSpeed):
