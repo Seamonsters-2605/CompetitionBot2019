@@ -50,8 +50,9 @@ humanstation = DriveCoordinates("Human", 27, 11.2, math.radians(-90)).moveAwayFr
 cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(180)).moveAwayFromWall()
 cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(180)).moveAwayFromWall()
 cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(180)).moveAwayFromWall()
+cargo4 = DriveCoordinates("Cargo4", 8.4, 1.0, math.radians(90)).moveAwayFromWall()
 
-quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3]
+quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3, cargo4]
 targetPoints = []
 for quadrant in range(0, 4):
     for point in quadrantTargetPoints:
