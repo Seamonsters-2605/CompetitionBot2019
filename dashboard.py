@@ -2,6 +2,7 @@ import math
 import remi.gui as gui
 import seamonsters as sea
 import coordinates
+import drivetrain
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
@@ -15,9 +16,11 @@ class Arrow(gui.SvgPolyline):
 
     def __init__(self, color):
         super().__init__()
-        self.add_coord(0, 0)
-        self.add_coord(10, 40)
-        self.add_coord(-10, 40)
+        halfWidth = drivetrain.ROBOT_WIDTH * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT / 2
+        halfLength = drivetrain.ROBOT_LENGTH * CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT / 2
+        self.add_coord(0, -halfLength)
+        self.add_coord(halfWidth, halfLength)
+        self.add_coord(-halfWidth, halfLength)
         self.style['fill'] = color
         self.setPosition(0, 0, 0)
 
