@@ -9,5 +9,5 @@ def createDriveToPointAction(pathFollower, x, y, angle, time):
     return Action("Drive to (%f, %f, %f) for %f" % (x, y, math.degrees(angle), time),
         lambda: sea.ensureTrue(
             pathFollower.driveToPointGenerator(x, y, angle, time, math.radians(1)),
-            25),
+            10),
         coords=[(x, y)])
