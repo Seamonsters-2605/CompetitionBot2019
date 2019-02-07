@@ -2,15 +2,19 @@ import math
 import ctre
 import seamonsters as sea
 
-ROBOT_WIDTH = 21.9950 / 12 # feet
-ROBOT_LENGTH = 21.9950 / 12
+# distance between center of wheels
+WHEELBASE_WIDTH = 21.9950 / 12 # feet
+WHEELBASE_LENGTH = 21.9950 / 12
+# size of robot frame
+ROBOT_WIDTH = 29.0 / 12
+ROBOT_LENGTH = 29.0 / 12
 
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
-    _makeSwerveWheel(superDrive, 1, 0,  ROBOT_WIDTH/2,  ROBOT_LENGTH/2)
-    _makeSwerveWheel(superDrive, 3, 2, -ROBOT_WIDTH/2,  ROBOT_LENGTH/2)
-    _makeSwerveWheel(superDrive, 5, 4,  ROBOT_WIDTH/2, -ROBOT_LENGTH/2)
-    _makeSwerveWheel(superDrive, 7, 6, -ROBOT_WIDTH/2, -ROBOT_LENGTH/2)
+    _makeSwerveWheel(superDrive, 1, 0,  WHEELBASE_WIDTH/2,  WHEELBASE_LENGTH/2)
+    _makeSwerveWheel(superDrive, 3, 2, -WHEELBASE_WIDTH/2,  WHEELBASE_LENGTH/2)
+    _makeSwerveWheel(superDrive, 5, 4,  WHEELBASE_WIDTH/2, -WHEELBASE_LENGTH/2)
+    _makeSwerveWheel(superDrive, 7, 6, -WHEELBASE_WIDTH/2, -WHEELBASE_LENGTH/2)
     sea.setSimulatedDrivetrain(superDrive)
     return superDrive
 
