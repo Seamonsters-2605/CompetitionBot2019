@@ -118,10 +118,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.headless_mode:
                 direction -= self.pathFollower.robotAngle
             
-            turn = -sea.deadZone(self.joystick.getRawAxis(3) + 0.5 * self.joystick.getRawAxis(4))
+            turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)
+                + 0.5 * self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
             turn *= self.drivegear.turnScale # maximum radians per second
 
-            self.grabberArm.slide(-self.joystick.getRawAxis(2))
+            self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
 
             if not self.joystick.getPOV() == -1:
                 aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) + math.pi, self.pathFollower.robotAngle)
