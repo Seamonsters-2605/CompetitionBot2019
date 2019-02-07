@@ -147,6 +147,11 @@ class CompetitionBot2019(sea.GeneratorBot):
                 '%.3f' % (self.timingMonitor.realTimeRatio,))
             self.app.currentLbl.set_text(str(self.pdp.getTotalCurrent()))
 
+            encoderString = ''
+            for wheel in self.superDrive.wheels:
+                encoderString += '%.3f ' % math.degrees(wheel._getCurrentSteeringAngle())
+            self.app.encoderLbl.set_text(encoderString)
+
     def toggleAutoScheduler(self):
         if self.autoScheduler.isPaused():
             self.autoScheduler.unpause()
