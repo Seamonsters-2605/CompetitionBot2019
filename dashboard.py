@@ -76,28 +76,6 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root.append(self.initGearSelector(robot))
 
-        pidFrame = gui.HBox()
-        root.append(pidFrame)
-
-        pIn = gui.Input()
-        pidFrame.append(pIn)
-        iIn = gui.Input()
-        pidFrame.append(iIn)
-        dIn = gui.Input()
-        pidFrame.append(dIn)
-        fIn = gui.Input()
-        pidFrame.append(fIn)
-        setBtn = gui.Button("PID")
-        pidFrame.append(setBtn)
-
-        def setPids(widget):
-            drivetrain.mediumPositionGear.p = float(pIn.get_value())
-            drivetrain.mediumPositionGear.i = float(iIn.get_value())
-            drivetrain.mediumPositionGear.d = float(dIn.get_value())
-            drivetrain.mediumPositionGear.f = float(fIn.get_value())
-            print("PIDS", drivetrain.mediumPositionGear)
-        setBtn.onclick.connect(setPids)
-
         self.encoderLbl = gui.Label("[encoder values]")
         root.append(self.encoderLbl)
 
@@ -143,6 +121,33 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn = gui.Button("Fast Position")
         fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
         velocityModeBox.append(fastVelocityBtn)
+
+        pidFrame = gui.HBox()
+        gearSelectorBox.append(pidFrame)
+        pidTable = gui.VBox()
+        pidFrame.append(pidTable)
+        pidRow = gui.HBox()
+        pidTable.append(pidRow)
+        pIn = gui.Input()
+        pidRow.append(pIn)
+        iIn = gui.Input()
+        pidRow.append(iIn)
+        pidRow = gui.HBox()
+        pidTable.append(pidRow)
+        dIn = gui.Input()
+        pidRow.append(dIn)
+        fIn = gui.Input()
+        pidRow.append(fIn)
+        setBtn = gui.Button("PID")
+        pidFrame.append(setBtn)
+
+        def setPids(widget):
+            drivetrain.mediumPositionGear.p = float(pIn.get_value())
+            drivetrain.mediumPositionGear.i = float(iIn.get_value())
+            drivetrain.mediumPositionGear.d = float(dIn.get_value())
+            drivetrain.mediumPositionGear.f = float(fIn.get_value())
+            print("PIDS", drivetrain.mediumPositionGear)
+        setBtn.onclick.connect(setPids)
 
         return gearSelectorBox
 
