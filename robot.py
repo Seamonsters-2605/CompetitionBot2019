@@ -88,6 +88,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
+        self.superDrive.drive(0,0,0)
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
             self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
 
