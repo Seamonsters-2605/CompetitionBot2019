@@ -252,6 +252,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         addActionBox.append(gui.Label("Add Action:"))
         schedulerBox.append(addActionBox)
 
+        # BEGIN ADD ACTION BUTTONS
+
         waitActionBox = gui.HBox()
         addActionBox.append(waitActionBox)
         addWaitActionBtn = gui.Button('Wait')
@@ -269,6 +271,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         addNavigateActionBtn = gui.Button('Navigate to Point')
         addNavigateActionBtn.onclick.connect(robot.c_addNavigateAction)
         driveToPointActionBox.append(addNavigateActionBtn)
+
+        addVisionAlignActionBtn = gui.Button('Vision Align')
+        addVisionAlignActionBtn.onclick.connect(robot.c_addVisionAlignAction)
+        addActionBox.append(addVisionAlignActionBtn)
+
+        # END ADD ACTION BUTTONS
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)

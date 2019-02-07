@@ -10,6 +10,7 @@ from buttons import Buttons
 import auto_scheduler
 import auto_actions
 import coordinates
+from networktables import NetworkTables
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -39,6 +40,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.autoScheduler.updateCallback = self.updateScheduler
 
         self.timingMonitor = sea.TimingMonitor()
+
+        self.vision = NetworkTables.getTable('limelight')
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
@@ -195,6 +198,12 @@ class CompetitionBot2019(sea.GeneratorBot):
         for pt in waypoints:
             action = auto_actions.createDriveToPointAction(self.pathFollower, pt.x, pt.y, pt.orientation, moveTime)
             self.autoScheduler.actionList.append(action)
+        self.updateScheduler()
+
+    @sea.queuedDashboardEvent
+    def c_addVisionAlignAction(self, button):
+        self.autoScheduler.actionList.append(auto_actions.createVisionAlignAction(self.superDrive, self.vision))
+        self.updateScheduler()
 
     @sea.queuedDashboardEvent
     def c_pauseScheduler(self, button):
