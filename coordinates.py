@@ -43,6 +43,10 @@ class DriveCoordinate:
             self.y - math.cos(self.orientation) * WALL_MARGIN,
             self.orientation)
 
+    def withOrientation(self, orientation):
+        return DriveCoordinate(self.name, self.x, self.y, orientation)
+
+
 rocket1 = DriveCoordinate("Rocket1", 6.2, 11.6, math.radians(-60)).moveAwayFromWall()
 rocket2 = DriveCoordinate("Rocket2", 7.9, 10.6, math.radians(0)).moveAwayFromWall()
 rocket3 = DriveCoordinate("Rocket3", 9.6, 11.6, math.radians(60)).moveAwayFromWall()
@@ -63,19 +67,22 @@ WAYPOINT_BOX_Y = 6.5
 
 # in counterclockwise order
 waypoints = [
-    DriveCoordinates("Waypoint1", WAYPOINT_BOX_X, WAYPOINT_BOX_Y, math.radians(0)),
-    DriveCoordinates("Waypoint2", -WAYPOINT_BOX_X, WAYPOINT_BOX_Y, math.radians(0)),
-    DriveCoordinates("Waypoint3", -WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, math.radians(0)),
-    DriveCoordinates("Waypoint4", WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, math.radians(0))]
+    DriveCoordinate("Waypoint1", WAYPOINT_BOX_X, WAYPOINT_BOX_Y, 0),
+    DriveCoordinate("Waypoint2", -WAYPOINT_BOX_X, WAYPOINT_BOX_Y, 0),
+    DriveCoordinate("Waypoint3", -WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, 0),
+    DriveCoordinate("Waypoint4", WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, 0)]
 
-def findWaypoints(targetCoord, robotX, robotY):
-    way1 = nearestWaypointOnBox(robotX, robotY)
-    way2 = nearestWaypointOnBox(targetCoord.x, targetCoord.y)
-    path = pathBetweenWaypoints(way1, way2)
+def findWaypoints(targetCoord, robotX, robotY, robotAngle):
+    robotCoord = DriveCoordinate("Robot", robotX, robotY, robotAngle)
+    way1 = nearestBoxCoord(robotCoord)
+    way2 = nearestBoxCoord(targetCoord)
+    path = pathAroundBox(way1, way2)
     path.append(targetCoord)
     return path
 
-def nearestWaypointOnBox(x, y):
+def nearestBoxCoord(coord):
+    x = coord.x
+    y = coord.y
     insideX = False
     if x > WAYPOINT_BOX_X:
         x = WAYPOINT_BOX_X
@@ -105,10 +112,11 @@ def nearestWaypointOnBox(x, y):
             x = xClosest
         else:
             y = yClosest
-    return DriveCoordinate("Waypoint", x, y, 0)
+    nearest90DegreeAngle = coord.orientation + sea.circleDistance(coord.orientation, 0, math.pi / 2)
+    return DriveCoordinate("Box point", x, y, nearest90DegreeAngle)
 
 
-def pathBetweenWaypoints(way1, way2):
+def pathAroundBox(way1, way2):
     nearestCWWaypoint = -1
     pointI = 0
     while True:
@@ -135,7 +143,7 @@ def pathBetweenWaypoints(way1, way2):
         waypoint = waypoints[pointI]
         clockwiseFromWaypoint = clockwise(waypoint.angle, way2.angle)
         if clockwiseFromWaypoint == moveClockwise:
-            path.append(waypoint)
+            path.append(waypoint.withOrientation(way1.orientation))
         else:
             break
         if moveClockwise:

@@ -231,7 +231,8 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_addNavigateAction(self, button):
         coord = self.app.selectedCoord
-        waypoints = coordinates.findWaypoints(coord, self.pathFollower.robotX, self.pathFollower.robotY)
+        waypoints = coordinates.findWaypoints(coord,
+            self.pathFollower.robotX, self.pathFollower.robotY, self.pathFollower.robotAngle)
         moveTime = float(self.app.waitTimeInput.get_value())
         for pt in waypoints:
             action = auto_actions.createDriveToPointAction(self.pathFollower, pt.x, pt.y, pt.orientation, moveTime)
