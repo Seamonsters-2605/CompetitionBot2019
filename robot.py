@@ -12,6 +12,8 @@ import auto_actions
 import coordinates
 from networktables import NetworkTables
 
+DISABLE_MOTORS_TIME = 50 # iterations
+
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
@@ -96,6 +98,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def joystickControl(self):
+        stoppedTime = 0
+
         while True:
             # GRABBER
 
@@ -161,7 +165,14 @@ class CompetitionBot2019(sea.GeneratorBot):
                 elif turn < -targetAVel:
                     turn = -targetAVel
 
+            if mag == 0 and turn == 0:
+                stoppedTime += 1
+            else:
+                stoppedTime = 0
             if self.joystick.getRawButton(9):
+                stoppedTime = DISABLE_MOTORS_TIME
+
+            if stoppedTime >= DISABLE_MOTORS_TIME:
                 self.disableMotors()
                 self.superDrive.drive(0, 0, 0)
             else:
