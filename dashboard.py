@@ -92,7 +92,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initWheelControlls(robot))
 
         root.append(self.initFieldMap(robot))
-        self.selectedCoord = coordinates.DriveCoordinates("Center", 0, 0, 0)
+        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, 0)
         self.updateCursorPosition()
 
         root.append(self.initScheduler(robot))
@@ -211,7 +211,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         cursorBox.append(setCursorBtn)
 
         def setCursor(button):
-            self.selectedCoord = coordinates.DriveCoordinates("Entered",
+            self.selectedCoord = coordinates.DriveCoordinate("Entered",
                 float(self.cursorXInput.get_value()),
                 float(self.cursorYInput.get_value()),
                 math.radians(float(self.cursorAngleInput.get_value())))
@@ -248,7 +248,7 @@ class CompetitionBotDashboard(sea.Dashboard):
     
     def mouse_down_listener(self,widget,x,y):
         x, y = svgToFieldCoordinates(x, y)
-        self.selectedCoord = coordinates.DriveCoordinates("Selected",
+        self.selectedCoord = coordinates.DriveCoordinate("Selected",
             x, y, self.selectedCoord.orientation)
         for point in self.target_points:
             if math.hypot(x - point.x, y - point.y) < 1:

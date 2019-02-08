@@ -8,7 +8,7 @@ WALL_MARGIN = 19 / 12
 def clockwise(a, b):
     return sea.circleDistance(a, b) < 0
 
-class DriveCoordinates:
+class DriveCoordinate:
 
     def __init__(self, name, x, y, orientation):
         self.name = name
@@ -34,23 +34,23 @@ class DriveCoordinates:
         if quadrant == 2 or quadrant == 3:
             newY = -newY
             newOrient = math.pi - newOrient
-        return DriveCoordinates(self.name + " quad " + str(quadrant),
+        return DriveCoordinate(self.name + " quad " + str(quadrant),
             newX, newY, newOrient)
     
     def moveAwayFromWall(self):
-        return DriveCoordinates(self.name,
+        return DriveCoordinate(self.name,
             self.x + math.sin(self.orientation) * WALL_MARGIN,
             self.y - math.cos(self.orientation) * WALL_MARGIN,
             self.orientation)
 
-rocket1 = DriveCoordinates("Rocket1", 6.2, 11.6, math.radians(-60)).moveAwayFromWall()
-rocket2 = DriveCoordinates("Rocket2", 7.9, 10.6, math.radians(0)).moveAwayFromWall()
-rocket3 = DriveCoordinates("Rocket3", 9.6, 11.6, math.radians(60)).moveAwayFromWall()
-humanstation = DriveCoordinates("Human", 27, 11.2, math.radians(-90)).moveAwayFromWall()
-cargo1 = DriveCoordinates("Cargo1", 1.7, 2.2, math.radians(180)).moveAwayFromWall()
-cargo2 = DriveCoordinates("Cargo2", 3.5, 2.2, math.radians(180)).moveAwayFromWall()
-cargo3 = DriveCoordinates("Cargo3", 5.3, 2.2, math.radians(180)).moveAwayFromWall()
-cargo4 = DriveCoordinates("Cargo4", 8.4, 1.0, math.radians(90)).moveAwayFromWall()
+rocket1 = DriveCoordinate("Rocket1", 6.2, 11.6, math.radians(-60)).moveAwayFromWall()
+rocket2 = DriveCoordinate("Rocket2", 7.9, 10.6, math.radians(0)).moveAwayFromWall()
+rocket3 = DriveCoordinate("Rocket3", 9.6, 11.6, math.radians(60)).moveAwayFromWall()
+humanstation = DriveCoordinate("Human", 27, 11.2, math.radians(-90)).moveAwayFromWall()
+cargo1 = DriveCoordinate("Cargo1", 1.7, 2.2, math.radians(180)).moveAwayFromWall()
+cargo2 = DriveCoordinate("Cargo2", 3.5, 2.2, math.radians(180)).moveAwayFromWall()
+cargo3 = DriveCoordinate("Cargo3", 5.3, 2.2, math.radians(180)).moveAwayFromWall()
+cargo4 = DriveCoordinate("Cargo4", 8.4, 1.0, math.radians(90)).moveAwayFromWall()
 
 quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3, cargo4]
 targetPoints = []
@@ -105,7 +105,7 @@ def nearestWaypointOnBox(x, y):
             x = xClosest
         else:
             y = yClosest
-    return DriveCoordinates("Waypoint", x, y, 0)
+    return DriveCoordinate("Waypoint", x, y, 0)
 
 
 def pathBetweenWaypoints(way1, way2):
