@@ -97,7 +97,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def joystickControl(self):
         while True:
-            # grabber
+            # GRABBER
 
             if self.joystick.getRawButton(1):
                 self.grabberArm.grabBall()
@@ -109,7 +109,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.setOuterPiston(False)
             else:
                 self.grabberArm.stopIntake()
-                
+
             if self.joystick.getRawButton(4):
                 self.grabberArm.clawOpen()
                 self.grabberArm.setInnerPiston(False)
@@ -118,7 +118,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.clawBack()
                 self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(False)
-            
+
             if self.joystick.getRawButton(5):
                 self.grabberArm.setInnerPiston(True)
                 self.grabberArm.setOuterPiston(False)
@@ -131,6 +131,10 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(False)
                 self.grabberArm.clawHatch()
+
+            self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+
+            # DRIVING
 
             self.pathFollower.updateRobotPosition()
 
@@ -148,8 +152,6 @@ class CompetitionBot2019(sea.GeneratorBot):
                 + 0.5 * self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
             turn *= self.drivegear.turnScale # maximum radians per second
 
-            self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
-
             if not self.joystick.getPOV() == -1:
                 aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) + math.pi, self.pathFollower.robotAngle)
                 turn = aDiff / 0.1 # seconds
@@ -165,9 +167,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             else:
                 self.enableMotors()
                 self.superDrive.drive(mag, direction, turn)
-            
-            if self.app != None:
-                self.app.updateBrokenEncoderButton(self)
 
             yield
 
@@ -184,6 +183,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             for wheel in self.superDrive.wheels:
                 encoderString += '%.3f ' % math.degrees(wheel._getCurrentSteeringAngle())
             self.app.encoderLbl.set_text(encoderString)
+
+            self.app.updateBrokenEncoderButton(self)
 
     def toggleAutoScheduler(self):
         if self.autoScheduler.isPaused():
