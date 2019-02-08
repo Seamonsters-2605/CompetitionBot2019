@@ -6,15 +6,22 @@ import auto_vision
 def createWaitAction(time):
     return Action("Wait " + str(time), lambda: sea.wait(int(time * 50)))
 
-def createDriveToPointAction(pathFollower, x, y, angle, time):
-    def generator():
-        newAngle = sea.circleDistance(pathFollower.robotAngle, angle) + pathFollower.robotAngle
-        yield from sea.ensureTrue(
-            pathFollower.driveToPointGenerator(x, y, newAngle, time,
-                math.radians(1), 1, math.radians(2)),
-            25)
-    return Action("Drive to (%f, %f, %f) for %f" % (x, y, math.degrees(angle), time),
-        generator, coords=[(x, y)])
+def driveToPoint(pathFollower, x, y, angle, speed):
+    angle = sea.circleDistance(pathFollower.robotAngle, angle) + pathFollower.robotAngle
+    dist = math.hypot(x - pathFollower.robotX, y - pathFollower.robotY)
+    if dist < 0.1:
+        time = 1
+    else:
+        time = dist / speed
+    yield from sea.ensureTrue(
+        pathFollower.driveToPointGenerator(x, y, angle, time,
+            math.radians(1), 1, math.radians(2)),
+        25)
+
+def createDriveToPointAction(pathFollower, x, y, angle, speed):
+    return Action("Drive to (%f, %f, %f) at %f" % (x, y, math.degrees(angle), speed),
+        lambda: driveToPoint(pathFollower, x, y, angle, speed),
+        coords=[(x, y)])
 
 def createVisionAlignAction(drive, vision):
     return Action("Vision align", lambda: auto_vision.strafeAlign(drive, vision))
