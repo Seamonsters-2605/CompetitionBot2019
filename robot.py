@@ -212,20 +212,13 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
-    def c_addWaitAction(self, button):
-        waitTime = float(self.app.waitTimeInput.get_value())
-        self.autoScheduler.actionList.append(
-            auto_actions.createWaitAction(waitTime))
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
     def c_addDriveToPointAction(self, button):
         pointX = self.app.selectedCoord.x
         pointY = self.app.selectedCoord.y
         pointAngle = self.app.selectedCoord.orientation
-        moveTime = float(self.app.waitTimeInput.get_value())
+        speed = float(self.app.speedInput.get_value())
         self.autoScheduler.actionList.append(
-            auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
+            auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, speed))
         self.updateScheduler()
 
     @sea.queuedDashboardEvent
@@ -233,9 +226,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         coord = self.app.selectedCoord
         waypoints = coordinates.findWaypoints(coord,
             self.pathFollower.robotX, self.pathFollower.robotY, self.pathFollower.robotAngle)
-        moveTime = float(self.app.waitTimeInput.get_value())
+        speed = float(self.app.speedInput.get_value())
         for pt in waypoints:
-            action = auto_actions.createDriveToPointAction(self.pathFollower, pt.x, pt.y, pt.orientation, moveTime)
+            action = auto_actions.createDriveToPointAction(self.pathFollower, pt.x, pt.y, pt.orientation, speed)
             self.autoScheduler.actionList.append(action)
         self.updateScheduler()
 

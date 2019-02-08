@@ -3,9 +3,6 @@ import seamonsters as sea
 from auto_scheduler import Action
 import auto_vision
 
-def createWaitAction(time):
-    return Action("Wait " + str(time), lambda: sea.wait(int(time * 50)))
-
 def driveToPoint(pathFollower, x, y, angle, speed):
     angle = sea.circleDistance(pathFollower.robotAngle, angle) + pathFollower.robotAngle
     dist = math.hypot(x - pathFollower.robotX, y - pathFollower.robotY)

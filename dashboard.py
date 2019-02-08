@@ -269,14 +269,12 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         # BEGIN ADD ACTION BUTTONS
 
-        waitActionBox = gui.HBox()
-        addActionBox.append(waitActionBox)
-        addWaitActionBtn = gui.Button('Wait')
-        addWaitActionBtn.onclick.connect(robot.c_addWaitAction)
-        waitActionBox.append(addWaitActionBtn)
-        self.waitTimeInput = gui.Input()
-        self.waitTimeInput.set_value("2")
-        waitActionBox.append(self.waitTimeInput)
+        speedBox = gui.HBox()
+        addActionBox.append(speedBox)
+        speedBox.append(gui.Label("Speed:"))
+        self.speedInput = gui.Input()
+        self.speedInput.set_value("5")
+        speedBox.append(self.speedInput)
 
         driveToPointActionBox = gui.HBox()
         addActionBox.append(driveToPointActionBox)
