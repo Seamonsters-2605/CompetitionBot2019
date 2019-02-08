@@ -84,6 +84,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         zeroSteeringBtn.onclick.connect(robot.c_wheelsToZero)
         root.append(zeroSteeringBtn)
 
+        self.fieldOrientedLbl = gui.Label("[field oriented state]")
+        root.append(self.fieldOrientedLbl)
+
         root.append(self.initGearSelector(robot))
 
         self.encoderLbl = gui.Label("[encoder values]")

@@ -74,7 +74,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel.angledWheel.driveMode = self.drivegear.mode
 
     def teleop(self):
-        self.setGear(drivetrain.mediumPositionGear)
+        self.setGear(drivetrain.fastPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
         yield from sea.parallel(self.joystickControl(),
@@ -98,6 +98,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def joystickControl(self):
+        self.setHeadless(True)
         stoppedTime = 0
 
         while True:
@@ -139,6 +140,13 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
 
             # DRIVING
+
+            if self.joystick.getRawButton(11):
+                self.setGear(drivetrain.slowPositionGear)
+                self.setHeadless(False)
+            if self.joystick.getRawButton(12):
+                self.setGear(drivetrain.fastPositionGear)
+                self.setHeadless(True)
 
             self.pathFollower.updateRobotPosition()
 
@@ -203,15 +211,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         else:
             self.autoScheduler.pause()
 
-    # button functions
-
-    def switchHeadless(self):
-        if self.headless_mode == False:
-            self.headless_mode = True
-            print("Headless Mode On")
-        else:
-            self.headless_mode = False
-            print("Headless Mode Off")
+    def setHeadless(self, on):
+        self.headless_mode = on
+        if self.app is not None:
+            self.app.fieldOrientedLbl.set_text("Field oriented: " + ("On" if on else "Off"))
 
     # dashboard callbacks
 
