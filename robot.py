@@ -21,14 +21,12 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.superDrive = drivetrain.initDrivetrain()
         self.drivegear = None
-        self.headless_mode = False
+        self.headless_mode = True
         
         self.ahrs = navx.AHRS.create_spi()
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
 
         self.joystick = wpilib.Joystick(0)
-        self.button = Buttons(self.joystick)
-        self.button.addPreset(3,Buttons.SINGLE_CLICK, self.switchHeadless, [])
 
         self.pdp = wpilib.PowerDistributionPanel(50)
         self.testDIO = wpilib.DigitalInput(0)
@@ -42,18 +40,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
-
-        self.button = Buttons(self.joystick) 
-        self.button.addPreset(1,Buttons.HELD, self.grabberArm.grabBall, [1,1])
-        self.button.addPreset(1,Buttons.NOT_HELD,self.grabberArm.stop,[])
-        self.button.addPreset(4,Buttons.SINGLE_CLICK, self.switchHeadless, [])
-        self.button.addPreset(2,Buttons.HELD,self.grabberArm.releaseBall,[1,1])
-        self.button.addPreset(2,Buttons.NOT_HELD,self.grabberArm.stop,[])
-        self.button.addPreset(6,Buttons.HELD,self.grabberArm.pull,[])
-        self.button.addPreset(6,Buttons.NOT_HELD,self.grabberArm.stopPulling,[])
-        self.button.addPreset(7,Buttons.HELD,self.grabberArm.push,[])
-        self.button.addPreset(7,Buttons.NOT_HELD,self.grabberArm.stopPushing,[])
-
 
     def updateScheduler(self):
         if self.app is not None:
@@ -103,6 +89,41 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def joystickControl(self):
         while True:
+            # grabber
+
+            if self.joystick.getRawButton(1):
+                self.grabberArm.grabBall()
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+            elif self.joystick.getRawButton(2):
+                self.grabberArm.eject()
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+            else:
+                self.grabberArm.stopIntake()
+                
+            if self.joystick.getRawButton(4):
+                self.grabberArm.clawOpen()
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+            if self.joystick.getRawButton(3):
+                self.grabberArm.clawBack()
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+            
+            if self.joystick.getRawButton(5):
+                self.grabberArm.setInnerPiston(True)
+                self.grabberArm.setOuterPiston(False)
+                self.grabberArm.clawHatch()
+            elif self.joystick.getRawButton(6):
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(True)
+                self.grabberArm.clawHatch()
+            elif self.joystick.getRawButton(7):
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+                self.grabberArm.clawHatch()
+
             self.pathFollower.updateRobotPosition()
 
             x = self.joystick.getX()
@@ -134,8 +155,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             
             if self.app != None:
                 self.app.updateBrokenEncoderButton(self)
-
-            self.button.update()
 
             yield
 

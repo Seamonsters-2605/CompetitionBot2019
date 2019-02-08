@@ -2,13 +2,23 @@ import wpilib
 import ctre
 import seamonsters as sea
 
+DEFENSE_POSITION = 0
+HATCH_POSITION = -300
+OPEN_POSITION = -2841
+CLOSED_POSITION = -3800
+
 class GrabberArm():
 
     def __init__(self):
         self.leftSpinner = ctre.WPI_TalonSRX(20)
         self.rightSpinner = ctre.WPI_TalonSRX(21)
         self.leftPivot = ctre.WPI_TalonSRX(22)
+        self.leftPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
         self.rightPivot = ctre.WPI_TalonSRX(23)
+        self.rightPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
+        self.rightPivot.setSensorPhase(True)
         self.hatchGrabberOut1 = wpilib.Solenoid(0)
         self.hatchGrabberIn1 = wpilib.Solenoid(1)
         self.hatchGrabberOut2 = wpilib.Solenoid(2)
@@ -17,58 +27,49 @@ class GrabberArm():
         self.slideMotor = ctre.WPI_TalonSRX(30)
 
     #takes in the ball at the speed "speed"
-    def intake(self, speed):
-        self.leftSpinner.set(speed)
-        self.rightSpinner.set(-speed)
+    def intake(self):
+        self.leftSpinner.set(0.35)
+        self.rightSpinner.set(-0.35)
 
     #shoots out the ball at the speed "speed"
-    def eject(self, speed):
-        self.leftSpinner.set(-speed)
-        self.rightSpinner.set(speed)
+    def eject(self):
+        self.leftSpinner.set(-1)
+        self.rightSpinner.set(1)
+
+    def stopIntake(self):
+        self.leftSpinner.set(0)
+        self.rightSpinner.set(0)
 
     #clamps the grabber arms at the speed "speed"
-    def clamp(self, speed):
-        self.leftPivot.set(speed)
-        self.rightPivot.set(-speed)
+    def clawClosed(self):
+        self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + CLOSED_POSITION)
+        self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - CLOSED_POSITION)
 
     #releases the grabber arms at the speed "speed"
-    def release(self, speed):
-        self.leftPivot.set(-speed)
-        self.rightPivot.set(speed)
+    def clawOpen(self):
+        self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + OPEN_POSITION)
+        self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - OPEN_POSITION)
 
-    #pushes out the hatch grabber
-    def push(self):
-        self.hatchGrabberOut1.set(True)
-        self.hatchGrabberOut2.set(True)
+    def clawBack(self):
+        self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + DEFENSE_POSITION)
+        self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - DEFENSE_POSITION)
 
-    #stops pushing the hatch grabber
-    def stopPushing(self):
-        self.hatchGrabberOut1.set(False)
-        self.hatchGrabberOut2.set(False)
-
-    #pulls in the hatch grabber
-    def pull(self):
-        self.hatchGrabberIn1.set(True)
-        self.hatchGrabberIn2.set(True)
-
-    #stops pulling in the hatch grabber
-    def stopPulling(self):
-        self.hatchGrabberIn1.set(False)
-        self.hatchGrabberIn2.set(False)
+    def clawHatch(self):
+        self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + HATCH_POSITION)
+        self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - HATCH_POSITION)
 
     #clamps the arms while running the intake wheels to grab the ball
-    def grabBall(self, clampSpeed, intakeSpeed):
-        self.clamp(clampSpeed)
-        self.intake(intakeSpeed)
+    def grabBall(self):
+        self.clawClosed()
+        self.intake()
 
-    #releases the arms and ejects the ball
-    def releaseBall(self, releaseSpeed, ejectSpeed):
-        self.eject(1)
-        self.release(1)
+    def setInnerPiston(self, value):
+        self.hatchGrabberOut1.set(not value)
+        self.hatchGrabberIn1.set(value)
 
-    def stop(self):
-        self.clamp(0)
-        self.intake(0)
+    def setOuterPiston(self, value):
+        self.hatchGrabberOut2.set(value)
+        self.hatchGrabberIn2.set(not value)
 
     #grabber slides up
     def slide(self, speed):
