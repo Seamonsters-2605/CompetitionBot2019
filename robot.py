@@ -63,6 +63,14 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
 
+    def disableMotors(self):
+        for wheel in self.superDrive.wheels:
+            wheel.angledWheel.driveMode = ctre.ControlMode.Disabled
+
+    def enableMotors(self):
+        for wheel in self.superDrive.wheels:
+            wheel.angledWheel.driveMode = self.drivegear.mode
+
     def teleop(self):
         self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
@@ -151,7 +159,12 @@ class CompetitionBot2019(sea.GeneratorBot):
                 elif turn < -targetAVel:
                     turn = -targetAVel
 
-            self.superDrive.drive(mag, direction, turn)
+            if self.joystick.getRawButton(9):
+                self.disableMotors()
+                self.superDrive.drive(0, 0, 0)
+            else:
+                self.enableMotors()
+                self.superDrive.drive(mag, direction, turn)
             
             if self.app != None:
                 self.app.updateBrokenEncoderButton(self)
