@@ -70,6 +70,16 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.currentLbl = gui.Label("[current]")
         root.append(self.currentLbl)
 
+        compressorBox = gui.HBox()
+        root.append(compressorBox)
+        compressorBox.append(gui.Label("Compressor:"))
+        startCompressorBtn = gui.Button("Start")
+        startCompressorBtn.onclick.connect(robot.c_startCompressor)
+        compressorBox.append(startCompressorBtn)
+        stopCompressorBtn = gui.Button("Stop")
+        stopCompressorBtn.onclick.connect(robot.c_stopCompressor)
+        compressorBox.append(stopCompressorBtn)
+
         zeroSteeringBtn = gui.Button("Reset swerve rotations")
         zeroSteeringBtn.onclick.connect(robot.c_wheelsToZero)
         root.append(zeroSteeringBtn)

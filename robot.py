@@ -15,10 +15,7 @@ from networktables import NetworkTables
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
-
         self.grabberArm = grabber.GrabberArm()
-
-        self.grabberArm.startCompressor()
 
         self.joystick = wpilib.Joystick(0)
 
@@ -173,6 +170,14 @@ class CompetitionBot2019(sea.GeneratorBot):
             print("Headless Mode Off")
 
     # dashboard callbacks
+
+    @sea.queuedDashboardEvent
+    def c_startCompressor(self, button):
+        self.grabberArm.startCompressor()
+
+    @sea.queuedDashboardEvent
+    def c_stopCompressor(self, button):
+        self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
     def c_addWaitAction(self, button):

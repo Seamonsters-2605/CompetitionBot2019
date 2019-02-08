@@ -76,3 +76,6 @@ class GrabberArm():
 
     def startCompressor(self):
         self.compressor.start()
+
+    def stopCompressor(self):
+        self.compressor.stop()
