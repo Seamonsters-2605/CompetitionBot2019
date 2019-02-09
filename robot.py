@@ -43,6 +43,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
+        self.cargoMode = False
+        self.defenseMode = True
+        self.hatchMode = False
+
     def updateScheduler(self):
         if self.app is not None:
             self.app.updateScheduler()
@@ -103,40 +107,45 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         while True:
             # GRABBER
+            # Cargo Mode
+            if self.cargoMode:
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+                               
+                if self.joystick.getRawButton(1):
+                    self.grabberArm.clawOpen()
+                elif self.joystick.getRawButtonReleased(1):
+                    def releasedAction():
+                        self.grabberArm.intake()
+                        yield from sea.wait(30)
+                        self.grabberArm.stopIntake()
+                    yield sea.AddParallelSignal(releasedAction())
+                elif self.joystick.getRawButton(2):
+                    self.grabberArm.eject()
+                elif self.joystick.getRawButtonReleased(2):
+                    self.grabberArm.stopIntake()
+                else:
+                    self.grabberArm.clawClosed()
 
-            if self.joystick.getRawButton(1):
-                self.grabberArm.grabBall()
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(False)
-            elif self.joystick.getRawButton(2):
-                self.grabberArm.eject()
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(False)
-            else:
+            elif self.hatchMode:
+                self.grabberArm.clawHatch()
                 self.grabberArm.stopIntake()
-
-            if self.joystick.getRawButton(4):
-                self.grabberArm.clawOpen()
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(False)
-            if self.joystick.getRawButton(3):
+                
+                if self.joystick.getRawButton(2):
+                    self.grabberArm.setInnerPiston(False)
+                    self.grabberArm.setOuterPiston(True)
+                if self.joystick.getRawButton(1):
+                    self.grabberArm.setInnerPiston(True)
+                    self.grabberArm.setOuterPiston(False)
+                if self.joystick.getRawButton(10):
+                    self.grabberArm.setInnerPiston(False)
+                    self.grabberArm.setOuterPiston(False)
+            elif self.defenseMode:
                 self.grabberArm.clawBack()
+                self.grabberArm.stopIntake()
                 self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(False)
-
-            if self.joystick.getRawButton(5):
-                self.grabberArm.setInnerPiston(True)
-                self.grabberArm.setOuterPiston(False)
-                self.grabberArm.clawHatch()
-            elif self.joystick.getRawButton(6):
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(True)
-                self.grabberArm.clawHatch()
-            elif self.joystick.getRawButton(7):
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(False)
-                self.grabberArm.clawHatch()
-
+                
             self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
 
             # DRIVING
@@ -310,6 +319,24 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_cancelRunningAction(self, button):
         self.autoScheduler.cancelRunningAction()
+    
+    @sea.queuedDashboardEvent
+    def c_defenseMode(self, button):
+        self.defenseMode = True
+        self.hatchMode = False
+        self.cargoMode = False
+
+    @sea.queuedDashboardEvent
+    def c_cargoMode(self, button):
+        self.defenseMode = False
+        self.hatchMode = False
+        self.cargoMode = True
+    
+    @sea.queuedDashboardEvent
+    def c_hatchMode(self, button):
+        self.defenseMode = False
+        self.hatchMode = True
+        self.cargoMode = False
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)

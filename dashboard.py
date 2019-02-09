@@ -64,6 +64,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         closeButton.onclick.connect(self.c_closeApp)
         root.append(closeButton)
 
+        defenseButton = gui.Button("Defense Mode")
+        defenseButton.onclick.connect(robot.c_defenseMode)
+        root.append(defenseButton)
+
+        cargoButton = gui.Button("Cargo Mode")
+        cargoButton.onclick.connect(robot.c_cargoMode)
+        root.append(cargoButton)
+        
+        hatchButton = gui.Button("Hatch Mode")
+        hatchButton.onclick.connect(robot.c_hatchMode)
+        root.append(hatchButton)
+        
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
