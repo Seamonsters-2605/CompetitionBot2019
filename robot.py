@@ -42,6 +42,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
+        self.lbl_current = "no"
+        self.lbl_encoder = 'no'
 
         self.cargoMode = False
         self.defenseMode = True
@@ -104,32 +106,37 @@ class CompetitionBot2019(sea.GeneratorBot):
     def joystickControl(self):
         self.setHeadless(True)
         stoppedTime = 0
+        currentMode = None
 
         while True:
             # GRABBER
             # Cargo Mode
             if self.cargoMode:
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(False)
+                if currentMode != "cargo":
+                    self.grabberArm.setInnerPiston(False)
+                    self.grabberArm.setOuterPiston(False)
+                    self.grabberArm.clawClosed()
+                    currentMode = "cargo"
                                
-                if self.joystick.getRawButton(1):
+                if self.joystick.getRawButtonPressed(1):
                     self.grabberArm.clawOpen()
-                elif self.joystick.getRawButtonReleased(1):
+                if self.joystick.getRawButtonReleased(1):
+                    self.grabberArm.clawClosed()
                     def releasedAction():
                         self.grabberArm.intake()
                         yield from sea.wait(30)
                         self.grabberArm.stopIntake()
                     yield sea.AddParallelSignal(releasedAction())
-                elif self.joystick.getRawButton(2):
+                if self.joystick.getRawButton(2):
                     self.grabberArm.eject()
-                elif self.joystick.getRawButtonReleased(2):
+                if self.joystick.getRawButtonReleased(2):
                     self.grabberArm.stopIntake()
-                else:
-                    self.grabberArm.clawClosed()
 
             elif self.hatchMode:
-                self.grabberArm.clawHatch()
-                self.grabberArm.stopIntake()
+                if currentMode != "hatch":
+                    self.grabberArm.clawHatch()
+                    self.grabberArm.stopIntake()
+                    currentMode = "hatch"
                 
                 if self.joystick.getRawButton(2):
                     self.grabberArm.setInnerPiston(False)
@@ -140,13 +147,17 @@ class CompetitionBot2019(sea.GeneratorBot):
                 if self.joystick.getRawButton(10):
                     self.grabberArm.setInnerPiston(False)
                     self.grabberArm.setOuterPiston(False)
+
             elif self.defenseMode:
-                self.grabberArm.clawBack()
-                self.grabberArm.stopIntake()
-                self.grabberArm.setInnerPiston(False)
-                self.grabberArm.setOuterPiston(False)
+                if currentMode != "defense":
+                    self.grabberArm.clawBack()
+                    self.grabberArm.stopIntake()
+                    self.grabberArm.setInnerPiston(False)
+                    self.grabberArm.setOuterPiston(False)
+                    currentMode = "defense"
                 
-            self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+            elevatorSlide = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+            self.grabberArm.slide(elevatorSlide)
 
             # DRIVING
 
@@ -199,20 +210,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def updateDashboardLabels(self):
-        if self.app != None:
-            self.app.updateRobotPosition(
-                self.pathFollower.robotX, self.pathFollower.robotY,
-                self.pathFollower.robotAngle)
-            self.app.realTimeRatioLbl.set_text(
-                '%.3f' % (self.timingMonitor.realTimeRatio,))
-            self.app.currentLbl.set_text(str(self.pdp.getTotalCurrent()))
-
-            encoderString = ''
-            for wheel in self.superDrive.wheels:
-                encoderString += '%.3f ' % math.degrees(wheel._getCurrentSteeringAngle())
-            self.app.encoderLbl.set_text(encoderString)
-
-            self.app.updateBrokenEncoderButton(self)
+        #self.lbl_current = str(self.pdp.getTotalCurrent())
+        self.lbl_current = "no"
+        self.lbl_encoder = ''
+        for wheel in self.superDrive.wheels:
+            self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
 
     def toggleAutoScheduler(self):
         if self.autoScheduler.isPaused():

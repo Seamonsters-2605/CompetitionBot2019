@@ -116,6 +116,16 @@ class CompetitionBotDashboard(sea.Dashboard):
         appCallback(self)
         return root
 
+    def idle(self):
+        pf = self.robot.pathFollower
+        self.updateRobotPosition(
+            pf.robotX, pf.robotY, pf.robotAngle)
+        self.realTimeRatioLbl.set_text(
+            '%.3f' % (self.robot.timingMonitor.realTimeRatio,))
+        self.currentLbl.set_text(self.robot.lbl_current)
+        self.encoderLbl.set_text(self.robot.lbl_encoder)
+        self.updateBrokenEncoderButton(self.robot)
+
     def initGearSelector(self, robot):
         gearSelectorBox = gui.VBox()
         self.groupStyle(gearSelectorBox)
