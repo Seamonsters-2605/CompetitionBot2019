@@ -90,9 +90,16 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.setGear(drivetrain.mediumPositionGear)
         self.resetPositions()
         self.pathFollower.setPosition(0, 0, 0)
-        self.superDrive.drive(0,0,0)
+        self.enableMotors()
         yield from sea.parallel(self.autoScheduler.updateGenerator(),
-            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
+            self.basicUpdateLoop(), self.timingMonitor.updateGenerator(),
+            self.driveIfDoingNothingElse())
+
+    def driveIfDoingNothingElse(self):
+        while True:
+            if self.autoScheduler.runningAction is None:
+                self.superDrive.drive(0, 0, 0)
+            yield
 
     def basicUpdateLoop(self):
         if self.app is not None:
