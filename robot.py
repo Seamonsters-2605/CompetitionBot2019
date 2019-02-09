@@ -190,20 +190,10 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def updateDashboardLabels(self):
-        if self.app != None:
-            self.app.updateRobotPosition(
-                self.pathFollower.robotX, self.pathFollower.robotY,
-                self.pathFollower.robotAngle)
-            self.app.realTimeRatioLbl.set_text(
-                '%.3f' % (self.timingMonitor.realTimeRatio,))
-            self.app.currentLbl.set_text(str(self.pdp.getTotalCurrent()))
-
-            encoderString = ''
-            for wheel in self.superDrive.wheels:
-                encoderString += '%.3f ' % math.degrees(wheel.getRealDirection())
-            self.app.encoderLbl.set_text(encoderString)
-
-            self.app.updateBrokenEncoderButton(self)
+        #self.lbl_current = str(self.pdp.getTotalCurrent())
+        self.lbl_encoder = ''
+        for wheel in self.superDrive.wheels:
+            self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
 
     def toggleAutoScheduler(self):
         if self.autoScheduler.isPaused():
