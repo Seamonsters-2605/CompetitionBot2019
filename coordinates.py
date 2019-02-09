@@ -155,21 +155,36 @@ def pathAroundBox(way1, way2):
     path.append(way2)
     return path
 
-class Obstacle:
+class Obstacle:#will take in the actual coords of the corners of the obstacles and then account for the size of the robot for collision detection
 
     def __init__(self, x1, y1, x2, y2):#1 = bottom left 2 = top right
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
+        self.robotSize = drivetrain.ROBOT_LENGTH/2 #1/2 the longest length on the robot which will be added to all the obstacles so the robot won't crash
+        if drivetrain.ROBOT_WIDTH/2 > self.robotSize:
+            self.robotSize = drivetrain.ROBOT_WIDTH/2
+        elif math.sqrt(((drivetrain.ROBOT_LENGTH ** 2) + (drivetrain.ROBOT_WIDTH ** 2)))/2 > self.robotSize:
+            self.robotSize = math.sqrt(drivetrain.ROBOT_LENGTH ** 2 + drivetrain.ROBOT_WIDTH ** 2)/2
+        self.x1 = self.accountForRobotSize(x1, x2)[0]
+        self.y1 = self.accountForRobotSize(y1, y2)[0]
+        self.x2 = self.accountForRobotSize(x1, x2)[1]
+        self.y2 = self.accountForRobotSize(y1, y2)[1]
         #makes a square out of 4 line segments make a box representing an obstacle
         self.sides = [LineSegment(x1, y1, x1, y2), LineSegment(x1, y2, x2, y2), LineSegment(x2, y1, x2, y2), LineSegment(x1, y1, x2, y1)]
 
-    def detectCollision(self, LineSegment):
+    def detectCollision(self, LineSegment):#if collide -> return true, else -> return false
         for side in self.sides:
             if LineSegment.collision(side):
                 return True
         return False
+
+    def accountForRobotSize(self, p1, p2):#the larger of the 2 x or y values will be added to and the smaller will be subtracted from by the number robotSize
+        ps = [p1, p2]
+        if p1 < p2:
+            ps[0] = p1 - self.robotSize
+            ps[1] = p2 + self.robotSize 
+        else:
+            ps[0] = p1 + self.robotSize
+            ps[1] = p2 - self.robotSize 
+        return ps
 
 class LineSegment:
 
