@@ -154,3 +154,56 @@ def pathAroundBox(way1, way2):
 
     path.append(way2)
     return path
+
+class Obstacle:
+
+    def __init__(self, x1, y1, x2, y2):#1 = bottom left 2 = top right
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        #makes a square out of 4 line segments make a box representing an obstacle
+        self.sides = [LineSegment(x1, y1, x1, y2), LineSegment(x1, y2, x2, y2), LineSegment(x2, y1, x2, y2), LineSegment(x1, y1, x2, y1)]
+
+    def detectCollision(self, LineSegment):
+        for side in self.sides:
+            if LineSegment.collision(side):
+                return True
+        return False
+
+class LineSegment:
+
+    def __init__(self, x1, y1, x2, y2):
+        self.x1 = x1
+        self.x2 = x2
+        self.y1 = y1
+        self.y2 = y2
+        if x1 - x2 != 0:
+            self.m = (y1 - y2) / (x1 - x2)
+            self.b = self.m * x1 - y1
+        else:
+            self.m = None
+            self.b = None
+
+    def collision(self, LineSegment):
+        if self.m == LineSegment.m:#if lines are parallel
+            return False
+        elif self.m == None and self.isBetween(LineSegment.x1, LineSegment.x2, self.x1) and self.isBetween(self.y1, self.y2, (LineSegment.y1 + LineSegment.m * (self.x1 - LineSegment.x1))):#if one line is straight up
+            return True
+        elif LineSegment.m == None and self.isBetween(self.x1, self.x2, LineSegment.x1) and self.isBetween(LineSegment.y1, LineSegment.y2, (self.y1 + self.m * (LineSegment.x1 - self.x1))):#if the other line is straight up, figured out by finding the change in x from an end on the non vertical line to the x value of the vertical one. this is then multiplied by the slope of the non vertical one and then added to the y value of the same end on the non vertical one as before, to get the y value on the non vertical line that has the same x as the vertical one. if that is between the y values on the vertical line, they intersect.
+            return True
+        elif self.isBetween(self.x1, self.x2, ((self.b - LineSegment.b) / (self.m - LineSegment.m))) and self.isBetween(self.y1, self.y2, ((self.b - LineSegment.b) / (self.m - LineSegment.m)) * self.m + self.b):
+            return True
+        return False
+
+
+    def isBetween(self, end1, end2, find):
+        bigger = end2
+        smaller = end1
+        if end1 > end2:
+            bigger = end1
+            smaller = end2
+        if find < bigger and find > smaller:
+            return True
+        return False
+
