@@ -1,8 +1,8 @@
 import seamonsters as sea
 
-ALIGN_EXPONENT = 0.8
-ALIGN_SCALE = 1 / 2
-ALIGN_MAX_VEL = 6 # feet per second
+ALIGN_EXPONENT = 1
+ALIGN_SCALE = 1 / 3
+ALIGN_MAX_VEL = 2 # feet per second
 ALIGN_TOLERANCE = 2 # degrees
 
 def strafeAlign(drive,vision):
