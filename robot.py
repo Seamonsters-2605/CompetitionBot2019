@@ -108,11 +108,14 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.grabBall()
                 self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(False)
-            elif self.joystick.getRawButton(2):
+            if self.joystick.getRawButtonReleased(1):
+                self.grabberArm.stopIntake()
+
+            if self.joystick.getRawButton(2):
                 self.grabberArm.eject()
                 self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(False)
-            else:
+            if self.joystick.getRawButtonReleased(2):
                 self.grabberArm.stopIntake()
 
             if self.joystick.getRawButton(4):
@@ -137,7 +140,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.setOuterPiston(False)
                 self.grabberArm.clawHatch()
 
-            self.grabberArm.slide(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+            elevatorSlide = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+            self.grabberArm.slide(elevatorSlide)
 
             # DRIVING
 
