@@ -200,7 +200,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             encoderString = ''
             for wheel in self.superDrive.wheels:
-                encoderString += '%.3f ' % math.degrees(wheel._getCurrentSteeringAngle())
+                encoderString += '%.3f ' % math.degrees(wheel.getRealDirection())
             self.app.encoderLbl.set_text(encoderString)
 
             self.app.updateBrokenEncoderButton(self)
