@@ -42,6 +42,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
+        self.lbl_current = "no"
+        self.lbl_encoder = 'no'
 
     def updateScheduler(self):
         if self.app is not None:
@@ -195,6 +197,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def updateDashboardLabels(self):
         #self.lbl_current = str(self.pdp.getTotalCurrent())
+        self.lbl_current = "no"
         self.lbl_encoder = ''
         for wheel in self.superDrive.wheels:
             self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
