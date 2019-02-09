@@ -19,11 +19,11 @@ def strafeAlign(drive,vision):
             continue
 
         xOffset = vision.getNumber('tx', None)
-        print(xOffset, "degrees")
 
         speed = abs(xOffset) ** ALIGN_EXPONENT * ALIGN_SCALE
-        if speed > .25:
-            speed = .25
+        print("%.3f degrees %.3f speed" % (xOffset, speed))
+        if speed > ALIGN_MAX_VEL:
+            speed = ALIGN_MAX_VEL
         if xOffset < 0:
             drive.drive(-speed,0,0)
         else:
