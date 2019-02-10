@@ -9,6 +9,7 @@ import grabber
 from buttons import Buttons
 import auto_scheduler
 import auto_actions
+import auto_vision
 import coordinates
 from networktables import NetworkTables
 
@@ -176,6 +177,11 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.setHeadless(True)
 
             self.pathFollower.updateRobotPosition()
+
+            if self.joystick.getRawButton(4):
+                self.enableMotors()
+                yield from sea.parallel(auto_vision.strafeAlign(self.superDrive, self.vision),
+                    sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
 
             x = self.joystick.getX()
             y = self.joystick.getY()
