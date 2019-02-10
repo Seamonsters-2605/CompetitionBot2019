@@ -264,12 +264,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel._setSteering(0)
 
     @sea.queuedDashboardEvent
-    def c_resetPosition(self, button):
-        coord = self.app.selectedCoord
-        self.pathFollower.setPosition(
-            coord.x, coord.y, coord.orientation)
-
-    @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
         self.setGear(drivetrain.slowVoltageGear)
 

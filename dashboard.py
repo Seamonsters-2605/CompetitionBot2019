@@ -230,9 +230,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox.append(self.robotPositionLbl)
         posBox.append(self.spaceBox())
 
-        resetPositionBtn = gui.Button("Set robot")
-        resetPositionBtn.onclick.connect(robot.c_resetPosition)
-        posBox.append(resetPositionBtn)
+        setPositionBtn = gui.Button("Set robot")
+        setPositionBtn.onclick.connect(self.c_setRobotPosition)
+        posBox.append(setPositionBtn)
 
         cursorBox = gui.HBox()
         fieldBox.append(cursorBox)
@@ -407,6 +407,11 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_closeApp(self, button):
         self.close()
+
+    def c_setRobotPosition(self, button):
+        coord = self.selectedCoord
+        self.robot.pathFollower.setPosition(
+            coord.x, coord.y, coord.orientation)
 
     def c_actionDriveToPoint(self, button):
         speed = float(self.speedInput.get_value())
