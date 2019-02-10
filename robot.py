@@ -32,10 +32,12 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.joystick = wpilib.Joystick(0)
 
         self.pdp = wpilib.PowerDistributionPanel(50)
-        self.testDIO = wpilib.DigitalInput(0)
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
+        self.controlModeMachine = sea.StateMachine()
+        self.autoState = sea.State(self.autoScheduler.runSchedule)
+        self.manualState = sea.State(self.joystickControl)
 
         self.timingMonitor = sea.TimingMonitor()
 
@@ -52,7 +54,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def updateScheduler(self):
         if self.app is not None:
-            self.app.updateScheduler()
+            self.app.updateSchedulerFlag = True
 
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
@@ -81,28 +83,43 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel.angledWheel.driveMode = self.drivegear.mode
 
     def teleop(self):
-        self.setGear(drivetrain.fastPositionGear)
-        self.resetPositions()
+        self.manualMode()
         self.pathFollower.setPosition(0, 0, 0)
-        yield from sea.parallel(self.joystickControl(),
-            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
+        yield from self.mainGenerator()
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumPositionGear)
-        self.resetPositions()
+        self.autoMode()
         self.pathFollower.setPosition(0, 0, 0)
-        self.enableMotors()
-        yield from sea.parallel(self.autoScheduler.updateGenerator(),
-            self.basicUpdateLoop(), self.timingMonitor.updateGenerator(),
-            self.driveIfDoingNothingElse())
+        yield from self.mainGenerator()
+
+    def mainGenerator(self):
+        self.resetPositions()
+        yield from sea.parallel(
+            self.controlModeMachine.updateGenerator(),
+            self.dashboardUpdateGenerator(),
+            self.timingMonitor.updateGenerator(),
+            self.driveIfDoingNothingElse()
+        )
 
     def driveIfDoingNothingElse(self):
+        # TODO: use state machines
         while True:
-            if self.autoScheduler.runningAction is None:
+            if self.controlModeMachine.currentState() == self.autoState \
+                    and not self.autoScheduler.runningAction:
                 self.superDrive.drive(0, 0, 0)
             yield
 
-    def basicUpdateLoop(self):
+    def autoMode(self):
+        self.controlModeMachine.replace(self.autoState)
+        self.setGear(drivetrain.mediumPositionGear)
+        self.enableMotors()
+        self.updateScheduler()
+
+    def manualMode(self):
+        self.controlModeMachine.replace(self.manualState)
+        self.updateScheduler()
+
+    def dashboardUpdateGenerator(self):
         if self.app is not None:
             self.app.clearEvents()
         while True:
@@ -112,7 +129,9 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def joystickControl(self):
+        self.setGear(drivetrain.fastPositionGear)
         self.setHeadless(True)
+        self.resetPositions()
         stoppedTime = 0
         currentMode = None
 
@@ -224,12 +243,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
 
-    def toggleAutoScheduler(self):
-        if self.autoScheduler.isPaused():
-            self.autoScheduler.unpause()
-        else:
-            self.autoScheduler.pause()
-
     def setHeadless(self, on):
         self.headless_mode = on
         if self.app is not None:
@@ -268,14 +281,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_addVisionAlignAction(self, button):
         self.autoScheduler.actionList.append(auto_actions.createVisionAlignAction(self.superDrive, self.vision))
         self.updateScheduler()
-
-    @sea.queuedDashboardEvent
-    def c_pauseScheduler(self, button):
-        self.autoScheduler.pause()
-
-    @sea.queuedDashboardEvent
-    def c_resumeScheduler(self, button):
-        self.autoScheduler.unpause()
 
     @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
@@ -317,18 +322,18 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.app.switchDeadWheelText(button)
 
     @sea.queuedDashboardEvent
-    def c_toggleAutoScheduler(self, button):
-        self.app.toggleAutoScheduler(button)
-        self.toggleAutoScheduler()
+    def c_manualMode(self, button):
+        self.manualMode()
+
+    @sea.queuedDashboardEvent
+    def c_autoMode(self, button):
+        self.autoMode()
 
     @sea.queuedDashboardEvent
     def c_clearAll(self, button):
-        self.autoScheduler.clearActions()
-        self.app.updateScheduler()
-    
-    @sea.queuedDashboardEvent
-    def c_cancelRunningAction(self, button):
-        self.autoScheduler.cancelRunningAction()
+        self.autoScheduler.actionList.clear()
+        self.manualMode()
+        self.updateScheduler()
     
     @sea.queuedDashboardEvent
     def c_defenseMode(self, button):

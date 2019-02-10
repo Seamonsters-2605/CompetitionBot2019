@@ -115,6 +115,7 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root.append(self.initScheduler(robot))
         self.updateScheduler()
+        self.updateSchedulerFlag = False
 
         appCallback(self)
         return root
@@ -128,6 +129,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.currentLbl.set_text(self.robot.lbl_current)
         self.encoderLbl.set_text(self.robot.lbl_encoder)
         self.updateBrokenEncoderButton(self.robot)
+
+        if self.updateSchedulerFlag:
+            self.updateScheduler()
+            self.updateSchedulerFlag = False
 
     def initGearSelector(self, robot):
         gearSelectorBox = gui.VBox()
@@ -322,15 +327,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
 
-        pauseResumeButton = gui.Button('Start')
-        pauseResumeButton.onclick.connect(robot.c_toggleAutoScheduler)
-        controlBox.append(pauseResumeButton)
+        manualModeBtn = gui.Button("Manual")
+        manualModeBtn.onclick.connect(robot.c_manualMode)
+        controlBox.append(manualModeBtn)
+        autoModeBtn = gui.Button("Auto")
+        autoModeBtn.onclick.connect(robot.c_autoMode)
+        controlBox.append(autoModeBtn)
         clearAllButton = gui.Button("Clear All")
         clearAllButton.onclick.connect(robot.c_clearAll)
         controlBox.append(clearAllButton)
-        cancelCurrentActionBtn = gui.Button("Cancel Current Action")
-        cancelCurrentActionBtn.onclick.connect(robot.c_cancelRunningAction)
-        controlBox.append(cancelCurrentActionBtn)
 
         schedulerBox.append(gui.Label("Schedule:"))
 
@@ -357,12 +362,11 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPathLines.clear()
         lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
 
-        if scheduler.runningAction is not None:
-            runningItem = gui.ListItem('* ' + scheduler.runningAction.name)
-            self.schedulerList.append(runningItem)
-            lineX, lineY = self.actionLines(lineX, lineY, scheduler.runningAction)
         for action in scheduler.actionList:
-            listItem = gui.ListItem(action.name)
+            name = action.name
+            if action == scheduler.runningAction:
+                name = "* " + name
+            listItem = gui.ListItem(name)
             self.schedulerList.append(listItem)
             lineX, lineY = self.actionLines(lineX, lineY, action)
 
@@ -387,12 +391,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         for button in self.wheelBtns:
             if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
                 button.style["background"] = "red"
-
-    def toggleAutoScheduler(self, button):
-        if button.get_text() == "Pause":
-            button.set_text("Resume")
-        else:
-            button.set_text("Pause")
 
     def c_closeApp(self, button):
         self.close()
