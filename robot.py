@@ -183,9 +183,9 @@ class CompetitionBot2019(sea.GeneratorBot):
                 yield from sea.parallel(auto_vision.strafeAlign(self.superDrive, self.vision),
                     sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
 
-            x = self.joystick.getX()
-            y = self.joystick.getY()
-            mag = sea.deadZone(math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5))
+            x = sea.deadZone(self.joystick.getX())
+            y = sea.deadZone(self.joystick.getY())
+            mag = math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5)
             mag *= self.drivegear.moveScale
 
             direction = -self.joystick.getDirectionRadians() + math.pi/2
@@ -193,8 +193,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.headless_mode:
                 direction -= self.pathFollower.robotAngle
             
-            turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)
-                + 0.5 * self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
+            turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)) \
+                - 0.5 * sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
