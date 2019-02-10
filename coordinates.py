@@ -219,7 +219,7 @@ class LineSegment:
         elif LineSegment.m == None:
             if self.isBetween(self.x1, self.x2, LineSegment.x1) and self.isBetween(LineSegment.y1, LineSegment.y2, (self.y1 + self.m * (LineSegment.x1 - self.x1))):#if the other line is straight up, figured out by finding the change in x from an end on the non vertical line to the x value of the vertical one. this is then multiplied by the slope of the non vertical one and then added to the y value of the same end on the non vertical one as before, to get the y value on the non vertical line that has the same x as the vertical one. if that is between the y values on the vertical line, they intersect.
                 return True
-        elif self.isBetween(self.x1, self.x2, ((self.b - LineSegment.b) / (self.m - LineSegment.m))): #and self.isBetween(self.y1, self.y2, ((self.b - LineSegment.b) / (self.m - LineSegment.m)) * self.m + self.b):
+        elif self.isBetween(self.x1, self.x2, ((self.b - LineSegment.b) / (self.m - LineSegment.m))) and self.isBetween(self.y1, self.y2, ((self.b - LineSegment.b) / (self.m - LineSegment.m)) * self.m + self.b):
             return True
         return False
 

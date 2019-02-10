@@ -28,7 +28,7 @@ def navigateToPoint(pathFollower, coord, speed):
         for pt in waypoints:
             yield from driveToPoint(pathFollower, pt, speed)
     else:
-        driveToPoint(pathFollower, coord, speed)
+        yield from driveToPoint(pathFollower, coord, speed)
 
 def createNavigateToPointAction(pathFollower, coord, speed):
     return Action("Navigate to " + coord.name,
