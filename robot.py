@@ -131,6 +131,27 @@ class CompetitionBot2019(sea.GeneratorBot):
             auto_actions.createDriveToPointAction(self.pathFollower, pointX, pointY, pointAngle, moveTime))
         self.updateScheduler()
 
+    def c_addActionAtIndex(self,button):
+        if self.app.pointXInput.get_value() != '':
+            print(self.app.pointXInput.get_value())
+            self.c_addDriveToPointAction(button)
+        else:
+            self.c_addWaitAction(button)
+        actionList = self.autoScheduler.actionList
+        indexInputValue = self.app.indexInput.get_value() 
+        if  indexInputValue == '':
+            indexInputValue = len(actionList)
+        else:
+            indexInputValue = int(indexInputValue)
+        action = actionList.pop(len(actionList) - 1)
+        try:
+            actionList.insert(indexInputValue,action)
+        except IndexError:
+            actionList.append(action)
+        
+
+        self.updateScheduler()
+            
     def c_pauseScheduler(self, button):
         self.autoScheduler.paused = True
 
