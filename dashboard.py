@@ -3,6 +3,7 @@ import remi.gui as gui
 import seamonsters as sea
 import coordinates
 import drivetrain
+import auto_actions
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
@@ -54,6 +55,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         widget.style['border-radius'] = '0.5em'
         widget.style['margin'] = '0.5em'
         widget.style['padding'] = '0.2em'
+
+    def spaceBox(self):
+        return gui.HBox(width=10)
 
     def main(self, robot, appCallback):
         self.robot = robot
@@ -110,11 +114,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initWheelControlls(robot))
 
         root.append(self.initFieldMap(robot))
-        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, 0)
+        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
         self.updateCursorPosition()
 
         root.append(self.initScheduler(robot))
         self.updateScheduler()
+        self.updateSchedulerFlag = False
 
         appCallback(self)
         return root
@@ -128,6 +133,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.currentLbl.set_text(self.robot.lbl_current)
         self.encoderLbl.set_text(self.robot.lbl_encoder)
         self.updateBrokenEncoderButton(self.robot)
+
+        if self.updateSchedulerFlag:
+            self.updateScheduler()
+            self.updateSchedulerFlag = False
 
     def initGearSelector(self, robot):
         gearSelectorBox = gui.VBox()
@@ -215,36 +224,40 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox = gui.HBox()
         fieldBox.append(posBox)
 
-        self.target_points = coordinates.targetPoints
-
-        self.robotPositionLbl = gui.Label("[robot position]")
+        posBox.append(gui.Label("Robot:"))
+        posBox.append(self.spaceBox())
+        self.robotPositionLbl = gui.Label('')
         posBox.append(self.robotPositionLbl)
+        posBox.append(self.spaceBox())
 
-        resetPositionBtn = gui.Button("Reset position")
-        resetPositionBtn.onclick.connect(robot.c_resetPosition)
-        posBox.append(resetPositionBtn)
+        setPositionBtn = gui.Button("Set robot")
+        setPositionBtn.onclick.connect(self.c_setRobotPosition)
+        posBox.append(setPositionBtn)
 
         cursorBox = gui.HBox()
         fieldBox.append(cursorBox)
-        self.cursorXInput = gui.Input()
-        self.cursorXInput.set_value("0")
-        cursorBox.append(self.cursorXInput)
-        self.cursorYInput = gui.Input()
-        self.cursorYInput.set_value("0")
-        cursorBox.append(self.cursorYInput)
-        self.cursorAngleInput = gui.Input()
-        self.cursorAngleInput.set_value("0")
-        cursorBox.append(self.cursorAngleInput)
-        setCursorBtn = gui.Button("Set cursor")
-        cursorBox.append(setCursorBtn)
 
-        def setCursor(button):
-            self.selectedCoord = coordinates.DriveCoordinate("Entered",
-                float(self.cursorXInput.get_value()),
-                float(self.cursorYInput.get_value()),
-                math.radians(float(self.cursorAngleInput.get_value())))
+        cursorBox.append(gui.Label("Cursor:"))
+        cursorBox.append(self.spaceBox())
+        self.cursorPositionLbl = gui.Label('')
+        cursorBox.append(self.cursorPositionLbl)
+        cursorBox.append(self.spaceBox())
+
+        def setCursorAngle(button, angle):
+            self.selectedCoord = self.selectedCoord.withOrientation(angle)
             self.updateCursorPosition()
-        setCursorBtn.onclick.connect(setCursor)
+        leftBtn = gui.Button('<')
+        leftBtn.onclick.connect(setCursorAngle, math.radians(90))
+        cursorBox.append(leftBtn)
+        rightBtn = gui.Button('>')
+        rightBtn.onclick.connect(setCursorAngle, math.radians(-90))
+        cursorBox.append(rightBtn)
+        upBtn = gui.Button('^')
+        upBtn.onclick.connect(setCursorAngle, 0)
+        cursorBox.append(upBtn)
+        downBtn = gui.Button('v')
+        downBtn.onclick.connect(setCursorAngle, math.radians(180))
+        cursorBox.append(downBtn)
 
         self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
@@ -258,7 +271,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.image.attributes['xlink:href'] = '/res:frcField.PNG'
         self.fieldSvg.append(self.image)
 
-        for point in self.target_points:
+        self.targetPoints = coordinates.targetPoints
+        for point in self.targetPoints:
             point = fieldToSvgCoordinates(point.x,point.y)
             wp_dot = gui.SvgCircle(point[0], point[1], 5)
             wp_dot.attributes['fill'] = 'blue'
@@ -278,14 +292,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         x, y = svgToFieldCoordinates(x, y)
         self.selectedCoord = coordinates.DriveCoordinate("Selected",
             x, y, self.selectedCoord.orientation)
-        for point in self.target_points:
+        for point in self.targetPoints:
             if math.hypot(x - point.x, y - point.y) < 1:
                 self.selectedCoord = point
         self.updateCursorPosition()
-        self.cursorXInput.set_value(str(self.selectedCoord.x))
-        self.cursorYInput.set_value(str(self.selectedCoord.y))
-        self.cursorAngleInput.set_value(str(math.degrees(self.selectedCoord.orientation)))
-        print(x,y)
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
@@ -304,37 +314,38 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.speedInput.set_value("5")
         speedBox.append(self.speedInput)
 
-        driveToPointActionBox = gui.HBox()
-        addActionBox.append(driveToPointActionBox)
-        addDriveToPointActionBtn = gui.Button('Drive to Point')
-        addDriveToPointActionBtn.onclick.connect(robot.c_addDriveToPointAction)
-        driveToPointActionBox.append(addDriveToPointActionBtn)
-        addNavigateActionBtn = gui.Button('Navigate to Point')
-        addNavigateActionBtn.onclick.connect(robot.c_addNavigateAction)
-        driveToPointActionBox.append(addNavigateActionBtn)
+        navigationBox = gui.HBox()
+        addActionBox.append(navigationBox)
+        actionDriveToPointBtn = gui.Button('Drive to Point')
+        actionDriveToPointBtn.onclick.connect(self.c_actionDriveToPoint)
+        navigationBox.append(actionDriveToPointBtn)
+        actionNavigateBtn = gui.Button('Navigate to Point')
+        actionNavigateBtn.onclick.connect(self.c_actionNavigate)
+        navigationBox.append(actionNavigateBtn)
 
-        addVisionAlignActionBtn = gui.Button('Vision Align')
-        addVisionAlignActionBtn.onclick.connect(robot.c_addVisionAlignAction)
-        addActionBox.append(addVisionAlignActionBtn)
+        actionVisionAlignBtn = gui.Button('Vision Align')
+        actionVisionAlignBtn.onclick.connect(self.c_actionVisionAlign)
+        addActionBox.append(actionVisionAlignBtn)
 
         # END ADD ACTION BUTTONS
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
 
-        pauseResumeButton = gui.Button('Start')
-        pauseResumeButton.onclick.connect(robot.c_toggleAutoScheduler)
-        controlBox.append(pauseResumeButton)
-        clearAllButton = gui.Button("Clear All")
-        clearAllButton.onclick.connect(robot.c_clearAll)
-        controlBox.append(clearAllButton)
-        cancelCurrentActionBtn = gui.Button("Cancel Current Action")
-        cancelCurrentActionBtn.onclick.connect(robot.c_cancelRunningAction)
-        controlBox.append(cancelCurrentActionBtn)
+        manualModeBtn = gui.Button("Manual")
+        manualModeBtn.onclick.connect(robot.c_manualMode)
+        controlBox.append(manualModeBtn)
+        autoModeBtn = gui.Button("Auto")
+        autoModeBtn.onclick.connect(robot.c_autoMode)
+        controlBox.append(autoModeBtn)
+        clearScheduleBtn = gui.Button("Clear")
+        clearScheduleBtn.onclick.connect(self.c_clearSchedule)
+        controlBox.append(clearScheduleBtn)
 
         schedulerBox.append(gui.Label("Schedule:"))
 
         self.schedulerList = gui.ListView()
+        self.schedulerList.onselection.connect(self.c_removeAction)
         schedulerBox.append(self.schedulerList)
 
         return schedulerBox
@@ -345,8 +356,11 @@ class CompetitionBotDashboard(sea.Dashboard):
             (robotX, robotY, math.degrees(robotAngle)))
 
     def updateCursorPosition(self):
+        coord = self.selectedCoord
         self.cursorArrow.setPosition(
-            self.selectedCoord.x, self.selectedCoord.y, self.selectedCoord.orientation)
+            coord.x, coord.y, coord.orientation)
+        self.cursorPositionLbl.set_text('%.3f, %.3f, %.3f' %
+            (coord.x, coord.y, math.degrees(coord.orientation)))
 
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
@@ -357,14 +371,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPathLines.clear()
         lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
 
-        if scheduler.runningAction is not None:
-            runningItem = gui.ListItem('* ' + scheduler.runningAction.name)
-            self.schedulerList.append(runningItem)
-            lineX, lineY = self.actionLines(lineX, lineY, scheduler.runningAction)
+        index = 0
         for action in scheduler.actionList:
-            listItem = gui.ListItem(action.name)
-            self.schedulerList.append(listItem)
+            name = action.name
+            if action == scheduler.runningAction:
+                name = "* " + name
+            listItem = gui.ListItem(name)
+            self.schedulerList.append(listItem, str(index))
             lineX, lineY = self.actionLines(lineX, lineY, action)
+            index += 1
 
     def actionLines(self, lineX, lineY, action):
         for coord in action.coords:
@@ -388,11 +403,43 @@ class CompetitionBotDashboard(sea.Dashboard):
             if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
                 button.style["background"] = "red"
 
-    def toggleAutoScheduler(self, button):
-        if button.get_text() == "Pause":
-            button.set_text("Resume")
-        else:
-            button.set_text("Pause")
+    # WIDGET CALLBACKS
 
     def c_closeApp(self, button):
         self.close()
+
+    def c_setRobotPosition(self, button):
+        coord = self.selectedCoord
+        self.robot.pathFollower.setPosition(
+            coord.x, coord.y, coord.orientation)
+
+    def c_actionDriveToPoint(self, button):
+        speed = float(self.speedInput.get_value())
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createDriveToPointAction(
+                self.robot.pathFollower, self.selectedCoord, speed))
+        self.updateScheduler()
+
+    def c_actionNavigate(self, button):
+        speed = float(self.speedInput.get_value())
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createNavigateToPointAction(
+                self.robot.pathFollower, self.selectedCoord, speed))
+        self.updateScheduler()
+
+    def c_actionVisionAlign(self, button):
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createVisionAlignAction(
+                self.robot.superDrive, self.robot.vision))
+        self.updateScheduler()
+
+    def c_clearSchedule(self, button):
+        self.robot.autoScheduler.actionList.clear()
+        self.updateScheduler()
+
+    def c_removeAction(self, listview, key):
+        index = int(key)
+        actionList = self.robot.autoScheduler.actionList
+        if index < len(actionList):
+            del actionList[index]
+        self.updateScheduler()
