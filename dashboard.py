@@ -56,6 +56,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         widget.style['margin'] = '0.5em'
         widget.style['padding'] = '0.2em'
 
+    def spaceBox(self):
+        return gui.HBox(width=10)
+
     def main(self, robot, appCallback):
         self.robot = robot
 
@@ -221,36 +224,40 @@ class CompetitionBotDashboard(sea.Dashboard):
         posBox = gui.HBox()
         fieldBox.append(posBox)
 
-        self.target_points = coordinates.targetPoints
-
-        self.robotPositionLbl = gui.Label("[robot position]")
+        posBox.append(gui.Label("Robot:"))
+        posBox.append(self.spaceBox())
+        self.robotPositionLbl = gui.Label('')
         posBox.append(self.robotPositionLbl)
+        posBox.append(self.spaceBox())
 
-        resetPositionBtn = gui.Button("Set robot position")
+        resetPositionBtn = gui.Button("Set robot")
         resetPositionBtn.onclick.connect(robot.c_resetPosition)
         posBox.append(resetPositionBtn)
 
         cursorBox = gui.HBox()
         fieldBox.append(cursorBox)
-        self.cursorXInput = gui.Input()
-        self.cursorXInput.set_value("0")
-        cursorBox.append(self.cursorXInput)
-        self.cursorYInput = gui.Input()
-        self.cursorYInput.set_value("0")
-        cursorBox.append(self.cursorYInput)
-        self.cursorAngleInput = gui.Input()
-        self.cursorAngleInput.set_value("0")
-        cursorBox.append(self.cursorAngleInput)
-        setCursorBtn = gui.Button("Set cursor")
-        cursorBox.append(setCursorBtn)
 
-        def setCursor(button):
-            self.selectedCoord = coordinates.DriveCoordinate("Entered",
-                float(self.cursorXInput.get_value()),
-                float(self.cursorYInput.get_value()),
-                math.radians(float(self.cursorAngleInput.get_value())))
+        cursorBox.append(gui.Label("Cursor:"))
+        cursorBox.append(self.spaceBox())
+        self.cursorPositionLbl = gui.Label('')
+        cursorBox.append(self.cursorPositionLbl)
+        cursorBox.append(self.spaceBox())
+
+        def setCursorAngle(button, angle):
+            self.selectedCoord = self.selectedCoord.withOrientation(angle)
             self.updateCursorPosition()
-        setCursorBtn.onclick.connect(setCursor)
+        leftBtn = gui.Button('<')
+        leftBtn.onclick.connect(setCursorAngle, math.radians(90))
+        cursorBox.append(leftBtn)
+        rightBtn = gui.Button('>')
+        rightBtn.onclick.connect(setCursorAngle, math.radians(-90))
+        cursorBox.append(rightBtn)
+        upBtn = gui.Button('^')
+        upBtn.onclick.connect(setCursorAngle, 0)
+        cursorBox.append(upBtn)
+        downBtn = gui.Button('v')
+        downBtn.onclick.connect(setCursorAngle, math.radians(180))
+        cursorBox.append(downBtn)
 
         self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
@@ -264,7 +271,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.image.attributes['xlink:href'] = '/res:frcField.PNG'
         self.fieldSvg.append(self.image)
 
-        for point in self.target_points:
+        self.targetPoints = coordinates.targetPoints
+        for point in self.targetPoints:
             point = fieldToSvgCoordinates(point.x,point.y)
             wp_dot = gui.SvgCircle(point[0], point[1], 5)
             wp_dot.attributes['fill'] = 'blue'
@@ -284,13 +292,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         x, y = svgToFieldCoordinates(x, y)
         self.selectedCoord = coordinates.DriveCoordinate("Selected",
             x, y, self.selectedCoord.orientation)
-        for point in self.target_points:
+        for point in self.targetPoints:
             if math.hypot(x - point.x, y - point.y) < 1:
                 self.selectedCoord = point
         self.updateCursorPosition()
-        self.cursorXInput.set_value(str(self.selectedCoord.x))
-        self.cursorYInput.set_value(str(self.selectedCoord.y))
-        self.cursorAngleInput.set_value(str(math.degrees(self.selectedCoord.orientation)))
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
@@ -351,8 +356,11 @@ class CompetitionBotDashboard(sea.Dashboard):
             (robotX, robotY, math.degrees(robotAngle)))
 
     def updateCursorPosition(self):
+        coord = self.selectedCoord
         self.cursorArrow.setPosition(
-            self.selectedCoord.x, self.selectedCoord.y, self.selectedCoord.orientation)
+            coord.x, coord.y, coord.orientation)
+        self.cursorPositionLbl.set_text('%.3f, %.3f, %.3f' %
+            (coord.x, coord.y, math.degrees(coord.orientation)))
 
     def updateScheduler(self):
         scheduler = self.robot.autoScheduler
