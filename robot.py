@@ -105,6 +105,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             if self.controlModeMachine.currentState() == self.autoState \
                     and not self.autoScheduler.runningAction:
+                self.pathFollower.updateRobotPosition()
                 self.superDrive.drive(0, 0, 0)
             yield
 
