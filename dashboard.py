@@ -3,6 +3,7 @@ import remi.gui as gui
 import seamonsters as sea
 import coordinates
 import drivetrain
+import auto_actions
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
@@ -290,7 +291,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.cursorXInput.set_value(str(self.selectedCoord.x))
         self.cursorYInput.set_value(str(self.selectedCoord.y))
         self.cursorAngleInput.set_value(str(math.degrees(self.selectedCoord.orientation)))
-        print(x,y)
 
     def initScheduler(self, robot):
         schedulerBox = gui.VBox()
@@ -309,18 +309,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.speedInput.set_value("5")
         speedBox.append(self.speedInput)
 
-        driveToPointActionBox = gui.HBox()
-        addActionBox.append(driveToPointActionBox)
-        addDriveToPointActionBtn = gui.Button('Drive to Point')
-        addDriveToPointActionBtn.onclick.connect(robot.c_addDriveToPointAction)
-        driveToPointActionBox.append(addDriveToPointActionBtn)
-        addNavigateActionBtn = gui.Button('Navigate to Point')
-        addNavigateActionBtn.onclick.connect(robot.c_addNavigateAction)
-        driveToPointActionBox.append(addNavigateActionBtn)
+        navigationBox = gui.HBox()
+        addActionBox.append(navigationBox)
+        actionDriveToPointBtn = gui.Button('Drive to Point')
+        actionDriveToPointBtn.onclick.connect(self.c_actionDriveToPoint)
+        navigationBox.append(actionDriveToPointBtn)
+        actionNavigateBtn = gui.Button('Navigate to Point')
+        actionNavigateBtn.onclick.connect(self.c_actionNavigate)
+        navigationBox.append(actionNavigateBtn)
 
-        addVisionAlignActionBtn = gui.Button('Vision Align')
-        addVisionAlignActionBtn.onclick.connect(robot.c_addVisionAlignAction)
-        addActionBox.append(addVisionAlignActionBtn)
+        actionVisionAlignBtn = gui.Button('Vision Align')
+        actionVisionAlignBtn.onclick.connect(self.c_actionVisionAlign)
+        addActionBox.append(actionVisionAlignBtn)
 
         # END ADD ACTION BUTTONS
 
@@ -333,9 +333,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         autoModeBtn = gui.Button("Auto")
         autoModeBtn.onclick.connect(robot.c_autoMode)
         controlBox.append(autoModeBtn)
-        clearAllButton = gui.Button("Clear All")
-        clearAllButton.onclick.connect(robot.c_clearAll)
-        controlBox.append(clearAllButton)
+        clearScheduleBtn = gui.Button("Clear")
+        clearScheduleBtn.onclick.connect(self.c_clearSchedule)
+        controlBox.append(clearScheduleBtn)
 
         schedulerBox.append(gui.Label("Schedule:"))
 
@@ -392,5 +392,34 @@ class CompetitionBotDashboard(sea.Dashboard):
             if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
                 button.style["background"] = "red"
 
+    # WIDGET CALLBACKS
+
     def c_closeApp(self, button):
         self.close()
+
+    def c_actionDriveToPoint(self, button):
+        speed = float(self.speedInput.get_value())
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createDriveToPointAction(
+                self.robot.pathFollower, self.selectedCoord, speed))
+        self.updateScheduler()
+
+    def c_actionNavigate(self, button):
+        pathFollower = self.robot.pathFollower
+        waypoints = coordinates.findWaypoints(self.selectedCoord,
+            pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
+        speed = float(self.speedInput.get_value())
+        for pt in waypoints:
+            action = auto_actions.createDriveToPointAction(pathFollower, pt, speed)
+            self.robot.autoScheduler.actionList.append(action)
+        self.updateScheduler()
+
+    def c_actionVisionAlign(self, button):
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createVisionAlignAction(
+                self.robot.superDrive, self.robot.vision))
+        self.updateScheduler()
+
+    def c_clearSchedule(self, button):
+        self.robot.autoScheduler.actionList.clear()
+        self.updateScheduler()

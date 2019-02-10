@@ -8,7 +8,6 @@ import dashboard
 import grabber
 from buttons import Buttons
 import auto_scheduler
-import auto_actions
 import auto_vision
 import coordinates
 from networktables import NetworkTables
@@ -259,38 +258,15 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
-    def c_addDriveToPointAction(self, button):
-        speed = float(self.app.speedInput.get_value())
-        self.autoScheduler.actionList.append(
-            auto_actions.createDriveToPointAction(
-                self.pathFollower, self.app.selectedCoord, speed))
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
-    def c_addNavigateAction(self, button):
-        coord = self.app.selectedCoord
-        waypoints = coordinates.findWaypoints(coord,
-            self.pathFollower.robotX, self.pathFollower.robotY, self.pathFollower.robotAngle)
-        speed = float(self.app.speedInput.get_value())
-        for pt in waypoints:
-            action = auto_actions.createDriveToPointAction(self.pathFollower, pt, speed)
-            self.autoScheduler.actionList.append(action)
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
-    def c_addVisionAlignAction(self, button):
-        self.autoScheduler.actionList.append(auto_actions.createVisionAlignAction(self.superDrive, self.vision))
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
         for wheel in self.superDrive.wheels:
             wheel._setSteering(0)
 
     @sea.queuedDashboardEvent
     def c_resetPosition(self, button):
+        coord = self.app.selectedCoord
         self.pathFollower.setPosition(
-            self.app.selectedCoord.x, self.app.selectedCoord.y, self.app.selectedCoord.orientation)
+            coord.x, coord.y, coord.orientation)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
@@ -328,12 +304,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_autoMode(self, button):
         self.autoMode()
-
-    @sea.queuedDashboardEvent
-    def c_clearAll(self, button):
-        self.autoScheduler.actionList.clear()
-        self.manualMode()
-        self.updateScheduler()
     
     @sea.queuedDashboardEvent
     def c_defenseMode(self, button):
