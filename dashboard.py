@@ -226,7 +226,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPositionLbl = gui.Label("[robot position]")
         posBox.append(self.robotPositionLbl)
 
-        resetPositionBtn = gui.Button("Reset position")
+        resetPositionBtn = gui.Button("Set robot position")
         resetPositionBtn.onclick.connect(robot.c_resetPosition)
         posBox.append(resetPositionBtn)
 
