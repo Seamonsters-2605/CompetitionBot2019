@@ -236,7 +236,7 @@ class LineSegment:
 
 obstacles = [Obstacle(-26.8,-6.2,-18.8,6.2), Obstacle(-26.8,-7.5,-22.8,7.5), Obstacle(-10.3,-13.3,-5.5,-10.7), Obstacle(-10.3,10.7,-5.5,13.3), Obstacle(-8.6,-2.2,8.6,2.2), Obstacle(5.5,-13.3,10.3,-10.7), Obstacle(5.5,10.7,10.3,13.3), Obstacle(18.8,-6.2,26.8,6.2), Obstacle(22.8,-7.5,26.8,7.5)]
 
-def testCollision(self, x1, y1, x2, y2):
+def testCollision(x1, y1, x2, y2):
     robotPath = LineSegment(x1,y1,x2,y2)
     for obstacle in obstacles:
         if obstacle.detectCollision(robotPath):

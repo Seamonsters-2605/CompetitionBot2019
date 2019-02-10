@@ -22,10 +22,13 @@ def createDriveToPointAction(pathFollower, coord, speed):
         coords=[(coord.x, coord.y)])
 
 def navigateToPoint(pathFollower, coord, speed):
-    waypoints = coordinates.findWaypoints(coord,
-        pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
-    for pt in waypoints:
-        yield from driveToPoint(pathFollower, pt, speed)
+    if coordinates.testCollision(pathFollower.robotX, pathFollower.robotY, coord.x, coord.y):
+        waypoints = coordinates.findWaypoints(coord,
+            pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
+        for pt in waypoints:
+            yield from driveToPoint(pathFollower, pt, speed)
+    else:
+        driveToPoint(pathFollower, coord, speed)
 
 def createNavigateToPointAction(pathFollower, coord, speed):
     return Action("Navigate to " + coord.name,
