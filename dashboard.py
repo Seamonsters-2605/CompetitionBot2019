@@ -408,13 +408,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.updateScheduler()
 
     def c_actionNavigate(self, button):
-        pathFollower = self.robot.pathFollower
-        waypoints = coordinates.findWaypoints(self.selectedCoord,
-            pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
         speed = float(self.speedInput.get_value())
-        for pt in waypoints:
-            action = auto_actions.createDriveToPointAction(pathFollower, pt, speed)
-            self.robot.autoScheduler.actionList.append(action)
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createNavigateToPointAction(
+                self.robot.pathFollower, self.selectedCoord, speed))
         self.updateScheduler()
 
     def c_actionVisionAlign(self, button):
