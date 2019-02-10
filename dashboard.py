@@ -340,6 +340,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox.append(gui.Label("Schedule:"))
 
         self.schedulerList = gui.ListView()
+        self.schedulerList.onselection.connect(self.c_removeAction)
         schedulerBox.append(self.schedulerList)
 
         return schedulerBox
@@ -362,13 +363,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPathLines.clear()
         lineX, lineY = fieldToSvgCoordinates(self.robotArrow.x, self.robotArrow.y)
 
+        index = 0
         for action in scheduler.actionList:
             name = action.name
             if action == scheduler.runningAction:
                 name = "* " + name
             listItem = gui.ListItem(name)
-            self.schedulerList.append(listItem)
+            self.schedulerList.append(listItem, str(index))
             lineX, lineY = self.actionLines(lineX, lineY, action)
+            index += 1
 
     def actionLines(self, lineX, lineY, action):
         for coord in action.coords:
@@ -422,4 +425,11 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_clearSchedule(self, button):
         self.robot.autoScheduler.actionList.clear()
+        self.updateScheduler()
+
+    def c_removeAction(self, listview, key):
+        index = int(key)
+        actionList = self.robot.autoScheduler.actionList
+        if index < len(actionList):
+            del actionList[index]
         self.updateScheduler()
