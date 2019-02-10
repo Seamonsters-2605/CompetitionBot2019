@@ -64,6 +64,21 @@ class CompetitionBotDashboard(sea.Dashboard):
         closeButton.onclick.connect(self.c_closeApp)
         root.append(closeButton)
 
+        clawModeBox = gui.HBox()
+        root.append(clawModeBox)
+
+        defenseButton = gui.Button("Defense Mode")
+        defenseButton.onclick.connect(robot.c_defenseMode)
+        clawModeBox.append(defenseButton)
+
+        cargoButton = gui.Button("Cargo Mode")
+        cargoButton.onclick.connect(robot.c_cargoMode)
+        clawModeBox.append(cargoButton)
+        
+        hatchButton = gui.Button("Hatch Mode")
+        hatchButton.onclick.connect(robot.c_hatchMode)
+        clawModeBox.append(hatchButton)
+        
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
@@ -103,6 +118,16 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         appCallback(self)
         return root
+
+    def idle(self):
+        pf = self.robot.pathFollower
+        self.updateRobotPosition(
+            pf.robotX, pf.robotY, pf.robotAngle)
+        self.realTimeRatioLbl.set_text(
+            '%.3f' % (self.robot.timingMonitor.realTimeRatio,))
+        self.currentLbl.set_text(self.robot.lbl_current)
+        self.encoderLbl.set_text(self.robot.lbl_encoder)
+        self.updateBrokenEncoderButton(self.robot)
 
     def initGearSelector(self, robot):
         gearSelectorBox = gui.VBox()

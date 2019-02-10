@@ -30,6 +30,8 @@ class GrabberArm():
         self.compressor = wpilib.Compressor(0)
         self.slideMotor = ctre.WPI_TalonSRX(30)
 
+        self.slideSpeed = 0
+
     #takes in the ball
     def intake(self):
         self.leftSpinner.set(0.35)
@@ -75,7 +77,9 @@ class GrabberArm():
 
     #grabber slides up
     def slide(self, speed):
-        self.slideMotor.set(speed)
+        if speed != self.slideSpeed:
+            self.slideMotor.set(speed)
+            self.slideSpeed = speed
 
     def startCompressor(self):
         self.compressor.start()

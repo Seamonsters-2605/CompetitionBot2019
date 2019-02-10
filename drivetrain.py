@@ -20,6 +20,7 @@ def initDrivetrain():
 
 def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     driveTalon = ctre.WPI_TalonSRX(driveTalonNum)
+    driveTalon._use_notifier = False # speed up position mode in simulator by a lot
     rotateTalon = ctre.WPI_TalonSRX(rotateTalonNum)
     driveTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     rotateTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
@@ -81,5 +82,5 @@ mediumPositionGear = DriveGear("Medium Position", ctre.ControlMode.Position,
     moveScale=6, turnScale=math.radians(180),
     p=0.07, i=0.0, d=12.0, f=0.0)
 fastPositionGear = DriveGear("Fast Position", ctre.ControlMode.Position,
-    moveScale=15, turnScale=math.radians(360),
+    moveScale=12, turnScale=math.radians(360),
     p=0.032, i=0.0, d=6.0, f=0.0)

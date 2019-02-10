@@ -1,9 +1,9 @@
 import seamonsters as sea
 
-ALIGN_EXPONENT = 0.8
-ALIGN_SCALE = 1 / 2
-ALIGN_MAX_VEL = 6 # feet per second
-ALIGN_TOLERANCE = 2 # degrees
+ALIGN_EXPONENT = 1
+ALIGN_SCALE = 1 / 3
+ALIGN_MAX_VEL = 2 # feet per second
+ALIGN_TOLERANCE = 1 # degrees
 
 def strafeAlign(drive,vision):
     while True:
@@ -19,17 +19,12 @@ def strafeAlign(drive,vision):
             continue
 
         xOffset = vision.getNumber('tx', None)
-        print(xOffset, "degrees")
+        speed = sea.feedbackLoopScale(xOffset, ALIGN_SCALE, ALIGN_EXPONENT, ALIGN_MAX_VEL)
+        print("%.3f degrees %.3f speed" % (xOffset, speed))
+        
+        drive.drive(speed,0,0)
 
-        speed = abs(xOffset) ** ALIGN_EXPONENT * ALIGN_SCALE
-        if speed > .25:
-            speed = .25
-        if xOffset < 0:
-            drive.drive(-speed,0,0)
-        else:
-            drive.drive(speed,0,0)
         if abs(xOffset) <= ALIGN_TOLERANCE:
-            #Original tolerance: 1
             yield True
         else:
             yield False
