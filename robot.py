@@ -27,6 +27,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         
         self.ahrs = navx.AHRS.create_spi()
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
+        startPosition = coordinates.startCenter.inQuadrant(1)
+        self.pathFollower.setPosition(startPosition.x, startPosition.y, startPosition.orientation)
 
         self.joystick = wpilib.Joystick(0)
 
@@ -83,12 +85,10 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def teleop(self):
         self.manualMode()
-        self.pathFollower.setPosition(0, 0, 0)
         yield from self.mainGenerator()
     
     def autonomous(self):
         self.autoMode()
-        self.pathFollower.setPosition(0, 0, 0)
         yield from self.mainGenerator()
 
     def mainGenerator(self):
@@ -210,7 +210,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             direction = -self.joystick.getDirectionRadians() + math.pi/2
 
             if self.headless_mode:
-                direction -= self.pathFollower.robotAngle
+                direction -= self.pathFollower.robotAngle + math.pi/2
             
             turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)) \
                 - 0.5 * sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))

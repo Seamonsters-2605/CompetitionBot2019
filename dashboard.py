@@ -114,7 +114,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initWheelControlls(robot))
 
         root.append(self.initFieldMap(robot))
-        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, 0)
+        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
         self.updateCursorPosition()
 
         root.append(self.initScheduler(robot))
