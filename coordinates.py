@@ -255,15 +255,15 @@ class LineSegment:
         return False
 
 obstacles = [
-    Obstacle(-26.8,-6.2,-18.8,6.2),
-    Obstacle(-26.8,-7.5,-22.8,7.5),
-    Obstacle(-10.3,-13.3,-5.5,-10.7),
-    Obstacle(-10.3,10.7,-5.5,13.3),
-    Obstacle(-8.6,-2.2,8.6,2.2),
-    Obstacle(5.5,-13.3,10.3,-10.7),
-    Obstacle(5.5,10.7,10.3,13.3),
-    Obstacle(18.8,-6.2,26.8,6.2),
-    Obstacle(22.8,-7.5,26.8,7.5) ]
+    Obstacle(-26.8,-6.2,-18.8,6.2), # left hab
+    Obstacle(-26.8,-7.5,-22.8,7.5), # left depot
+    Obstacle(-10.3,-13.3,-5.5,-10.7), # bottom left rocket
+    Obstacle(-10.3,10.7,-5.5,13.3), # top left rocket
+    Obstacle(-8.6,-2.2,8.6,2.2), # cargo ship
+    Obstacle(5.5,-13.3,10.3,-10.7), # bottom right rocket
+    Obstacle(5.5,10.7,10.3,13.3), # top right rocket
+    Obstacle(18.8,-6.2,26.8,6.2), # right hab
+    Obstacle(22.8,-7.5,26.8,7.5) ] # right depot
 
 def testCollision(x1, y1, x2, y2):
     robotPath = LineSegment(x1,y1,x2,y2)
