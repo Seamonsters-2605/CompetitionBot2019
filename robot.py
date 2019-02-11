@@ -209,7 +209,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) - math.pi/2, self.pathFollower.robotAngle)
                 turn = sea.feedbackLoopScale(-aDiff, 10, 2, drivetrain.mediumPositionGear.turnScale)
 
-            if self.joystick.getRawButton(9):
+            if self.joystick.getRawButton(9) or wpilib.RobotController.isBrownedOut():
                 self.superDrive.disable()
             else:
                 self.superDrive.drive(mag, direction, turn)
