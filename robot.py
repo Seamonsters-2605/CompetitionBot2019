@@ -75,14 +75,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
 
-    def disableMotors(self):
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = ctre.ControlMode.Disabled
-
-    def enableMotors(self):
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = self.drivegear.mode
-
     def teleop(self):
         self.manualMode()
         yield from self.mainGenerator()
@@ -112,7 +104,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     def autoMode(self):
         self.controlModeMachine.replace(self.autoState)
         self.setGear(drivetrain.mediumPositionGear)
-        self.enableMotors()
         self.updateScheduler()
 
     def manualMode(self):
@@ -198,7 +189,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.pathFollower.updateRobotPosition()
 
             if self.joystick.getRawButton(4):
-                self.enableMotors()
                 yield from sea.parallel(auto_vision.strafeAlign(self.superDrive, self.vision),
                     sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
 
@@ -228,10 +218,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                 stoppedTime = DISABLE_MOTORS_TIME
 
             if stoppedTime >= DISABLE_MOTORS_TIME:
-                self.disableMotors()
-                self.superDrive.drive(0, 0, 0)
+                self.superDrive.disable()
             else:
-                self.enableMotors()
                 self.superDrive.drive(mag, direction, turn)
 
             yield
