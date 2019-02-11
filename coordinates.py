@@ -53,17 +53,17 @@ class DriveCoordinate:
         return DriveCoordinate(self.name, self.x, self.y, orientation)
 
 
-rocket1 = DriveCoordinate("Rocket1", 6.2, 11.6, math.radians(-60)).moveAwayFromWall()
-rocket2 = DriveCoordinate("Rocket2", 7.9, 10.6, math.radians(0)).moveAwayFromWall()
-rocket3 = DriveCoordinate("Rocket3", 9.6, 11.6, math.radians(60)).moveAwayFromWall()
-humanstation = DriveCoordinate("Human", 27, 11.2, math.radians(-90)).moveAwayFromWall()
-cargo1 = DriveCoordinate("Cargo1", 1.7, 2.2, math.radians(180)).moveAwayFromWall()
-cargo2 = DriveCoordinate("Cargo2", 3.5, 2.2, math.radians(180)).moveAwayFromWall()
-cargo3 = DriveCoordinate("Cargo3", 5.3, 2.2, math.radians(180)).moveAwayFromWall()
-cargo4 = DriveCoordinate("Cargo4", 8.4, 1.0, math.radians(90)).moveAwayFromWall()
-startLevel1 = DriveCoordinate("Start level 1", 22.9, 3.6, math.radians(90)).moveTowardsWall()
-startLevel2 = DriveCoordinate("Start level 2", 26.6, 3.6, math.radians(90)).moveTowardsWall()
-startCenter = DriveCoordinate("Start center", 22.9, 0, math.radians(90)).moveTowardsWall()
+rocket1 = DriveCoordinate("Rocket1", 6.7, 11.9, math.radians(-60)).moveAwayFromWall() # from image
+rocket2 = DriveCoordinate("Rocket2", 8.0, 134.56 / 12, math.radians(0)).moveAwayFromWall() # from diagram
+rocket3 = DriveCoordinate("Rocket3", 9.3, 11.9, math.radians(60)).moveAwayFromWall() # from image
+humanstation = DriveCoordinate("Human", 27, 11.3, math.radians(-90)).moveAwayFromWall() # from image
+cargo1 = DriveCoordinate("Cargo1", 20.85 / 12, 27.75 / 12, math.radians(180)).moveAwayFromWall() # x diagram, y manual
+cargo2 = DriveCoordinate("Cargo2", 42.6 / 12, 27.75 / 12, math.radians(180)).moveAwayFromWall()
+cargo3 = DriveCoordinate("Cargo3", 64.35 / 12, 27.75 / 12, math.radians(180)).moveAwayFromWall()
+cargo4 = DriveCoordinate("Cargo4", 8.7, 10.875 / 12, math.radians(90)).moveAwayFromWall() # x image, y diagram
+startLevel1 = DriveCoordinate("Start level 1", 277.0 / 12, 3.6, math.radians(90)).moveTowardsWall() # x diagram, y image
+startLevel2 = DriveCoordinate("Start level 2", 27.0, 3.6, math.radians(90)).moveTowardsWall() # from image
+startCenter = DriveCoordinate("Start center", 277.0 / 12, 0, math.radians(90)).moveTowardsWall() # from diagram
 
 quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation,
     cargo1, cargo2, cargo3, cargo4, startLevel1, startLevel2, startCenter]
