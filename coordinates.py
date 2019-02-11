@@ -43,6 +43,12 @@ class DriveCoordinate:
             self.y - math.cos(self.orientation) * WALL_MARGIN,
             self.orientation)
 
+    def moveTowardsWall(self):
+        return DriveCoordinate(self.name,
+            self.x - math.sin(self.orientation) * WALL_MARGIN,
+            self.y + math.cos(self.orientation) * WALL_MARGIN,
+            self.orientation)
+
     def withOrientation(self, orientation):
         return DriveCoordinate(self.name, self.x, self.y, orientation)
 
@@ -55,8 +61,12 @@ cargo1 = DriveCoordinate("Cargo1", 1.7, 2.2, math.radians(180)).moveAwayFromWall
 cargo2 = DriveCoordinate("Cargo2", 3.5, 2.2, math.radians(180)).moveAwayFromWall()
 cargo3 = DriveCoordinate("Cargo3", 5.3, 2.2, math.radians(180)).moveAwayFromWall()
 cargo4 = DriveCoordinate("Cargo4", 8.4, 1.0, math.radians(90)).moveAwayFromWall()
+startLevel1 = DriveCoordinate("Start level 1", 22.9, 3.6, math.radians(90)).moveTowardsWall()
+startLevel2 = DriveCoordinate("Start level 2", 26.6, 3.6, math.radians(90)).moveTowardsWall()
+startCenter = DriveCoordinate("Start center", 22.9, 0, math.radians(90)).moveTowardsWall()
 
-quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation, cargo1, cargo2, cargo3, cargo4]
+quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation,
+    cargo1, cargo2, cargo3, cargo4, startLevel1, startLevel2, startCenter]
 targetPoints = []
 for quadrant in range(0, 4):
     for point in quadrantTargetPoints:

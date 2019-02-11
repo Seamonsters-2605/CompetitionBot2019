@@ -3,11 +3,11 @@ import ctre
 import seamonsters as sea
 
 # distance between center of wheels
-WHEELBASE_WIDTH = 21.9950 / 12 # feet
-WHEELBASE_LENGTH = 21.9950 / 12
+WHEELBASE_WIDTH = 22.375 / 12 # feet
+WHEELBASE_LENGTH = 22.375 / 12
 # size of robot frame
-ROBOT_WIDTH = 29.0 / 12
-ROBOT_LENGTH = 29.0 / 12
+ROBOT_WIDTH = 35.0 / 12
+ROBOT_LENGTH = 35.0 / 12
 
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
@@ -20,7 +20,6 @@ def initDrivetrain():
 
 def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     driveTalon = ctre.WPI_TalonSRX(driveTalonNum)
-    driveTalon._use_notifier = False # speed up position mode in simulator by a lot
     rotateTalon = ctre.WPI_TalonSRX(rotateTalonNum)
     driveTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     rotateTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
@@ -82,5 +81,5 @@ mediumPositionGear = DriveGear("Medium Position", ctre.ControlMode.Position,
     moveScale=6, turnScale=math.radians(180),
     p=0.07, i=0.0, d=12.0, f=0.0)
 fastPositionGear = DriveGear("Fast Position", ctre.ControlMode.Position,
-    moveScale=12, turnScale=math.radians(360),
+    moveScale=12, turnScale=math.radians(270),
     p=0.032, i=0.0, d=6.0, f=0.0)

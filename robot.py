@@ -8,7 +8,6 @@ import dashboard
 import grabber
 from buttons import Buttons
 import auto_scheduler
-import auto_actions
 import auto_vision
 import coordinates
 from networktables import NetworkTables
@@ -28,14 +27,18 @@ class CompetitionBot2019(sea.GeneratorBot):
         
         self.ahrs = navx.AHRS.create_spi()
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
+        startPosition = coordinates.startCenter.inQuadrant(1)
+        self.pathFollower.setPosition(startPosition.x, startPosition.y, startPosition.orientation)
 
         self.joystick = wpilib.Joystick(0)
 
         self.pdp = wpilib.PowerDistributionPanel(50)
-        self.testDIO = wpilib.DigitalInput(0)
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
+        self.controlModeMachine = sea.StateMachine()
+        self.autoState = sea.State(self.autoScheduler.runSchedule)
+        self.manualState = sea.State(self.joystickControl)
 
         self.timingMonitor = sea.TimingMonitor()
 
@@ -52,7 +55,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def updateScheduler(self):
         if self.app is not None:
-            self.app.updateScheduler()
+            self.app.updateSchedulerFlag = True
 
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
@@ -72,37 +75,42 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
 
-    def disableMotors(self):
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = ctre.ControlMode.Disabled
-
-    def enableMotors(self):
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = self.drivegear.mode
-
     def teleop(self):
-        self.setGear(drivetrain.fastPositionGear)
-        self.resetPositions()
-        self.pathFollower.setPosition(0, 0, 0)
-        yield from sea.parallel(self.joystickControl(),
-            self.basicUpdateLoop(), self.timingMonitor.updateGenerator())
+        self.manualMode()
+        yield from self.mainGenerator()
     
     def autonomous(self):
-        self.setGear(drivetrain.mediumPositionGear)
+        self.autoMode()
+        yield from self.mainGenerator()
+
+    def mainGenerator(self):
         self.resetPositions()
-        self.pathFollower.setPosition(0, 0, 0)
-        self.enableMotors()
-        yield from sea.parallel(self.autoScheduler.updateGenerator(),
-            self.basicUpdateLoop(), self.timingMonitor.updateGenerator(),
-            self.driveIfDoingNothingElse())
+        yield from sea.parallel(
+            self.controlModeMachine.updateGenerator(),
+            self.dashboardUpdateGenerator(),
+            self.timingMonitor.updateGenerator(),
+            self.driveIfDoingNothingElse()
+        )
 
     def driveIfDoingNothingElse(self):
+        # TODO: use state machines
         while True:
-            if self.autoScheduler.runningAction is None:
+            if self.controlModeMachine.currentState() == self.autoState \
+                    and not self.autoScheduler.runningAction:
+                self.pathFollower.updateRobotPosition()
                 self.superDrive.drive(0, 0, 0)
             yield
 
-    def basicUpdateLoop(self):
+    def autoMode(self):
+        self.controlModeMachine.replace(self.autoState)
+        self.setGear(drivetrain.mediumPositionGear)
+        self.updateScheduler()
+
+    def manualMode(self):
+        self.controlModeMachine.replace(self.manualState)
+        self.updateScheduler()
+
+    def dashboardUpdateGenerator(self):
         if self.app is not None:
             self.app.clearEvents()
         while True:
@@ -112,8 +120,9 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def joystickControl(self):
+        self.setGear(drivetrain.fastPositionGear)
         self.setHeadless(True)
-        stoppedTime = 0
+        self.resetPositions()
         currentMode = None
 
         while True:
@@ -179,7 +188,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.pathFollower.updateRobotPosition()
 
             if self.joystick.getRawButton(4):
-                self.enableMotors()
                 yield from sea.parallel(auto_vision.strafeAlign(self.superDrive, self.vision),
                     sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
 
@@ -191,7 +199,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             direction = -self.joystick.getDirectionRadians() + math.pi/2
 
             if self.headless_mode:
-                direction -= self.pathFollower.robotAngle
+                direction -= self.pathFollower.robotAngle + math.pi/2
             
             turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)) \
                 - 0.5 * sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
@@ -207,21 +215,12 @@ class CompetitionBot2019(sea.GeneratorBot):
                     pov = 210
                 elif pov == 315:
                     pov = 330
-                aDiff = sea.circleDistance(-math.radians(pov) + math.pi, self.pathFollower.robotAngle)
-                turn = sea.feedbackLoopScale(aDiff, 10, maxValue=drivetrain.fastPositionGear.turnScale)
+                aDiff = sea.circleDistance(-math.radians(pov) - math.pi/2, self.pathFollower.robotAngle)
+                turn = sea.feedbackLoopScale(-aDiff, 10, 2, drivetrain.mediumPositionGear.turnScale)
 
-            if mag == 0 and turn == 0:
-                stoppedTime += 1
+            if self.joystick.getRawButton(9) or wpilib.RobotController.isBrownedOut():
+                self.superDrive.disable()
             else:
-                stoppedTime = 0
-            if self.joystick.getRawButton(9):
-                stoppedTime = DISABLE_MOTORS_TIME
-
-            if stoppedTime >= DISABLE_MOTORS_TIME:
-                self.disableMotors()
-                self.superDrive.drive(0, 0, 0)
-            else:
-                self.enableMotors()
                 self.superDrive.drive(mag, direction, turn)
 
             yield
@@ -232,12 +231,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.lbl_encoder = ''
         for wheel in self.superDrive.wheels:
             self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
-
-    def toggleAutoScheduler(self):
-        if self.autoScheduler.isPaused():
-            self.autoScheduler.unpause()
-        else:
-            self.autoScheduler.pause()
 
     def setHeadless(self, on):
         self.headless_mode = on
@@ -255,46 +248,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
-    def c_addDriveToPointAction(self, button):
-        speed = float(self.app.speedInput.get_value())
-        self.autoScheduler.actionList.append(
-            auto_actions.createDriveToPointAction(
-                self.pathFollower, self.app.selectedCoord, speed))
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
-    def c_addNavigateAction(self, button):
-        coord = self.app.selectedCoord
-        waypoints = coordinates.findWaypoints(coord,
-            self.pathFollower.robotX, self.pathFollower.robotY, self.pathFollower.robotAngle)
-        speed = float(self.app.speedInput.get_value())
-        for pt in waypoints:
-            action = auto_actions.createDriveToPointAction(self.pathFollower, pt, speed)
-            self.autoScheduler.actionList.append(action)
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
-    def c_addVisionAlignAction(self, button):
-        self.autoScheduler.actionList.append(auto_actions.createVisionAlignAction(self.superDrive, self.vision))
-        self.updateScheduler()
-
-    @sea.queuedDashboardEvent
-    def c_pauseScheduler(self, button):
-        self.autoScheduler.pause()
-
-    @sea.queuedDashboardEvent
-    def c_resumeScheduler(self, button):
-        self.autoScheduler.unpause()
-
-    @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
         for wheel in self.superDrive.wheels:
             wheel._setSteering(0)
-
-    @sea.queuedDashboardEvent
-    def c_resetPosition(self, button):
-        self.pathFollower.setPosition(
-            self.app.selectedCoord.x, self.app.selectedCoord.y, self.app.selectedCoord.orientation)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
@@ -326,18 +282,12 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.app.switchDeadWheelText(button)
 
     @sea.queuedDashboardEvent
-    def c_toggleAutoScheduler(self, button):
-        self.app.toggleAutoScheduler(button)
-        self.toggleAutoScheduler()
+    def c_manualMode(self, button):
+        self.manualMode()
 
     @sea.queuedDashboardEvent
-    def c_clearAll(self, button):
-        self.autoScheduler.clearActions()
-        self.app.updateScheduler()
-    
-    @sea.queuedDashboardEvent
-    def c_cancelRunningAction(self, button):
-        self.autoScheduler.cancelRunningAction()
+    def c_autoMode(self, button):
+        self.autoMode()
     
     @sea.queuedDashboardEvent
     def c_defenseMode(self, button):

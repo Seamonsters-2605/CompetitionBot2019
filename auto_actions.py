@@ -2,6 +2,7 @@ import math
 import seamonsters as sea
 from auto_scheduler import Action
 import auto_vision
+import coordinates
 
 def driveToPoint(pathFollower, coord, speed):
     angle = sea.circleDistance(pathFollower.robotAngle, coord.orientation) + pathFollower.robotAngle
@@ -12,7 +13,7 @@ def driveToPoint(pathFollower, coord, speed):
         time = dist / speed
     yield from sea.ensureTrue(
         pathFollower.driveToPointGenerator(coord.x, coord.y, angle, time,
-            math.radians(1), 1, math.radians(2)),
+            math.radians(1), 1),
         25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
@@ -20,5 +21,16 @@ def createDriveToPointAction(pathFollower, coord, speed):
         lambda: driveToPoint(pathFollower, coord, speed),
         coords=[(coord.x, coord.y)])
 
+def navigateToPoint(pathFollower, coord, speed):
+    waypoints = coordinates.findWaypoints(coord,
+        pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
+    for pt in waypoints:
+        yield from driveToPoint(pathFollower, pt, speed)
+
+def createNavigateToPointAction(pathFollower, coord, speed):
+    return Action("Navigate to " + coord.name,
+        lambda: navigateToPoint(pathFollower, coord, speed),
+        coords=[(coord.x, coord.y)])
+
 def createVisionAlignAction(drive, vision):
-    return Action("Vision align", lambda: auto_vision.strafeAlign(drive, vision))
+    return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision), 50))

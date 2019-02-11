@@ -1,6 +1,7 @@
 import math
 import ctre
 import seamonsters as sea
+import time
 
 TWO_PI = math.pi * 2
 
@@ -52,6 +53,11 @@ class Wheel:
     def stop(self):
         """
         Stop driving.
+        """
+
+    def disable(self):
+        """
+        Disable motors. Calling drive() will enable them again.
         """
 
     def resetPosition(self):
@@ -178,6 +184,7 @@ class AngledWheel(Wheel):
         self.reverse = reverse
 
         self.driveMode = ctre.ControlMode.PercentOutput
+        self.realTime = False
         self.encoderWorking = True
 
         self._motorState = None
@@ -185,6 +192,7 @@ class AngledWheel(Wheel):
         self._encoderCheckCount = 0
         self._oldPosition = 0
         self._positionOccurence = 0
+        self._prevTime = time.time()
 
     def limitMagnitude(self, magnitude, direction):
         # TODO: check position error in this function instead, and factor it
@@ -219,15 +227,22 @@ class AngledWheel(Wheel):
         magnitude *= math.cos(direction - self.angle)
         if self.reverse:
             magnitude = -magnitude
-        
+
         if self.driveMode == ctre.ControlMode.Position \
                 and self._motorState != self.driveMode:
             self._positionTarget = self.motor.getSelectedSensorPosition(0)
 
+        curTime = time.time()
+        if self.realTime and self._motorState == self.driveMode:
+            tDiff = curTime - self._prevTime
+        else:
+            tDiff = 1 / sea.ITERATIONS_PER_SECOND
+        self._prevTime = curTime
+
         encoderCountsPerSecond = magnitude * self.encoderCountsPerFoot
         # always incremented, even if not in position mode
         # used by getTargetPosition
-        self._positionTarget += encoderCountsPerSecond / sea.ITERATIONS_PER_SECOND
+        self._positionTarget += encoderCountsPerSecond * tDiff
 
         if self.driveMode == ctre.ControlMode.Disabled:
             if self._motorState != self.driveMode:
@@ -253,8 +268,13 @@ class AngledWheel(Wheel):
     def stop(self):
         self.drive(0, 0)
 
+    def disable(self):
+        if self._motorState != ctre.ControlMode.Disabled:
+            self.motor.disable()
+            self._motorState = ctre.ControlMode.Disabled
+
     def resetPosition(self):
-        self._motorState = ctre.ControlMode.Disabled
+        self._motorState = None
     
     def _sensorPositionToDistance(self, pos):
         if self.reverse:
@@ -330,11 +350,13 @@ class SwerveWheel(Wheel):
         self.angledWheel = angledWheel
         self.steerMotor = steerMotor
         self.encoderCountsPerRev = encoderCountsPerRev
-        self.reverseSteerMotor = reverseSteerMotor
-        self.zeroSteering()
-        self._targetDirection = angledWheel.angle
         self.offsetX = offsetX
         self.offsetY = offsetY
+        self.reverseSteerMotor = reverseSteerMotor
+
+        self.zeroSteering()
+        self._targetDirection = angledWheel.angle
+        self._disabled = False
 
     def zeroSteering(self):
         """
@@ -358,6 +380,7 @@ class SwerveWheel(Wheel):
         if self.reverseSteerMotor:
             pos = -pos
         self.steerMotor.set(ctre.ControlMode.Position, pos + self._steerOrigin)
+        self._disabled = False
 
     def drive(self, magnitude, direction):
         currentAngle = self._getCurrentSteeringAngle()
@@ -373,6 +396,12 @@ class SwerveWheel(Wheel):
 
     def stop(self):
         self.angledWheel.stop()
+
+    def disable(self):
+        self.angledWheel.disable()
+        if not self._disabled:
+            self.steerMotor.disable()
+            self._disabled = True
 
     def resetPosition(self):
         self.angledWheel.resetPosition()
@@ -397,6 +426,8 @@ class SuperHolonomicDrive:
 
     def __init__(self):
         self.wheels = []
+        self.autoDisableTime = sea.ITERATIONS_PER_SECOND # 1 second
+        self._disableCounter = 0
 
     def addWheel(self, wheel):
         """
@@ -409,12 +440,23 @@ class SuperHolonomicDrive:
         """
         Drive the robot. This should be called 50 times per second.
 
+        If drive is called with a magnitude/turn of 0 for more than
+        ``autoDisableTime`` iterations, all wheels will be disabled.
+
         :param magnitude: feet per second
         :param direction: radians. 0 is right, positive counter-clockwise
         :param turn: radians per second. positive counter-clockwise
         :return: the scale of the actual output speed, as a fraction of the
             input magnitude and turn components
         """
+        if magnitude == 0 and turn == 0:
+            self._disableCounter += 1
+        else:
+            self._disableCounter = 0
+        if self._disableCounter > self.autoDisableTime:
+            self.disable()
+            return 1.0
+
         moveX = math.cos(direction) * magnitude
         moveY = math.sin(direction) * magnitude
 
@@ -453,6 +495,15 @@ class SuperHolonomicDrive:
             if wheelVectorX != 0 and wheelVectorY != 0:
                 wheelDir = math.atan2(wheelVectorY, wheelVectorX)
                 wheel.drive(0, wheelDir)
+
+    def disable(self):
+        """
+        Disable all motors. Calling drive() will enable them again.
+        """
+        # calling drive(0,x,0) after this will keep motors disabled
+        self._disableCounter = self.autoDisableTime + 1
+        for wheel in self.wheels:
+            wheel.disable()
 
     def _calcWheelVector(self, wheel, moveX, moveY, turn):
         return moveX - wheel.y * turn, moveY + wheel.x * turn
