@@ -217,8 +217,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             turn *= self.drivegear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
-                aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) + math.pi, self.pathFollower.robotAngle)
-                turn = sea.feedbackLoopScale(aDiff, 10, maxValue=drivetrain.fastPositionGear.turnScale)
+                aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) - math.pi/2, self.pathFollower.robotAngle)
+                turn = sea.feedbackLoopScale(-aDiff, 10, 2, drivetrain.mediumPositionGear.turnScale)
 
             if mag == 0 and turn == 0:
                 stoppedTime += 1
