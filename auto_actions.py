@@ -33,4 +33,4 @@ def createNavigateToPointAction(pathFollower, coord, speed):
         coords=[(coord.x, coord.y)])
 
 def createVisionAlignAction(drive, vision):
-    return Action("Vision align", lambda: auto_vision.strafeAlign(drive, vision))
+    return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision), 50))
