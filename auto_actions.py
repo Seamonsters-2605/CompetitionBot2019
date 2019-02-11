@@ -13,7 +13,7 @@ def driveToPoint(pathFollower, coord, speed):
         time = dist / speed
     yield from sea.ensureTrue(
         pathFollower.driveToPointGenerator(coord.x, coord.y, angle, time,
-            math.radians(1), 1, math.radians(2)),
+            math.radians(1), 1),
         25)
 
 def createDriveToPointAction(pathFollower, coord, speed):
