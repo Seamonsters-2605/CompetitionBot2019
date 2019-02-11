@@ -123,7 +123,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.setGear(drivetrain.fastPositionGear)
         self.setHeadless(True)
         self.resetPositions()
-        stoppedTime = 0
         currentMode = None
 
         while True:
@@ -210,14 +209,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 aDiff = sea.circleDistance(-math.radians(self.joystick.getPOV()) - math.pi/2, self.pathFollower.robotAngle)
                 turn = sea.feedbackLoopScale(-aDiff, 10, 2, drivetrain.mediumPositionGear.turnScale)
 
-            if mag == 0 and turn == 0:
-                stoppedTime += 1
-            else:
-                stoppedTime = 0
             if self.joystick.getRawButton(9):
-                stoppedTime = DISABLE_MOTORS_TIME
-
-            if stoppedTime >= DISABLE_MOTORS_TIME:
                 self.superDrive.disable()
             else:
                 self.superDrive.drive(mag, direction, turn)
