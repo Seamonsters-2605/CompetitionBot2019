@@ -13,6 +13,7 @@ class AutoScheduler:
         self.actionList = []
         self.runningAction = None
         self.updateCallback = lambda: None
+        self.idleFunction = lambda: None
 
     def runSchedule(self):
         try:
@@ -21,6 +22,7 @@ class AutoScheduler:
                     self.runningAction = None
                     self.updateCallback()
                     while len(self.actionList) == 0:
+                        self.idleFunction()
                         yield
                         continue
                 self.runningAction = self.actionList[0]

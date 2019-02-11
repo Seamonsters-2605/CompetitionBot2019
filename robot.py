@@ -36,6 +36,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
+        self.autoScheduler.idleFunction = self.autoIdle
         self.controlModeMachine = sea.StateMachine()
         self.autoState = sea.State(self.autoScheduler.runSchedule)
         self.manualState = sea.State(self.joystickControl)
@@ -88,18 +89,13 @@ class CompetitionBot2019(sea.GeneratorBot):
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(),
             self.dashboardUpdateGenerator(),
-            self.timingMonitor.updateGenerator(),
-            self.driveIfDoingNothingElse()
+            self.timingMonitor.updateGenerator()
         )
 
-    def driveIfDoingNothingElse(self):
-        # TODO: use state machines
-        while True:
-            if self.controlModeMachine.currentState() == self.autoState \
-                    and not self.autoScheduler.runningAction:
-                self.pathFollower.updateRobotPosition()
-                self.superDrive.drive(0, 0, 0)
-            yield
+    def autoIdle(self):
+        # runs in auto mode when no Actions are running
+        self.pathFollower.updateRobotPosition()
+        self.superDrive.drive(0, 0, 0)
 
     def autoMode(self):
         self.controlModeMachine.replace(self.autoState)
