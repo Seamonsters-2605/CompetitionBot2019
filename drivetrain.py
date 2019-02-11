@@ -3,11 +3,11 @@ import ctre
 import seamonsters as sea
 
 # distance between center of wheels
-WHEELBASE_WIDTH = 21.9950 / 12 # feet
-WHEELBASE_LENGTH = 21.9950 / 12
+WHEELBASE_WIDTH = 22.375 / 12 # feet
+WHEELBASE_LENGTH = 22.375 / 12
 # size of robot frame
-ROBOT_WIDTH = 29.0 / 12
-ROBOT_LENGTH = 29.0 / 12
+ROBOT_WIDTH = 35.0 / 12
+ROBOT_LENGTH = 35.0 / 12
 
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
