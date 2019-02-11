@@ -1,7 +1,7 @@
 import seamonsters as sea
 
-ALIGN_EXPONENT = 1
-ALIGN_SCALE = 1 / 3
+ALIGN_EXPONENT = 1.5
+ALIGN_SCALE = 0.1
 ALIGN_MAX_VEL = 2 # feet per second
 ALIGN_TOLERANCE = 1 # degrees
 
