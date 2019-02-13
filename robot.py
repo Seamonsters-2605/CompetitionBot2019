@@ -13,6 +13,7 @@ import coordinates
 from networktables import NetworkTables
 
 DISABLE_MOTORS_TIME = 50 # iterations
+OPTICAL_SENSOR_THRESHOLD = 1.0 # volts
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -24,6 +25,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.superDrive = drivetrain.initDrivetrain()
         self.drivegear = None
         self.headless_mode = True
+
+        self.opticalSensors = [
+            wpilib.AnalogInput(0), wpilib.AnalogInput(1),
+            wpilib.AnalogInput(2), wpilib.AnalogInput(3)]
         
         self.ahrs = navx.AHRS.create_spi()
         self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
@@ -75,6 +80,29 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheelMotor.config_kF(0, self.drivegear.f, 0)
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
+
+    def test(self):
+        yield from self.homeSwerveWheel(self.superDrive.wheels[0], self.opticalSensors[0])
+
+    def homeSwerveWheel(self, swerveWheel, sensor):
+        motor = swerveWheel.steerMotor
+        initialPos = motor.getSelectedSensorPosition(0)
+        motor.set(ctre.ControlMode.PercentOutput, 0.5)
+        i = 0
+        while True:
+            i += 1
+            if i == 50:
+                print("Couldn't home wheel!")
+                motor.set(ctre.ControlMode.Position, initialPos)
+                break
+            voltage = sensor.getVoltage()
+            print(voltage)
+            if voltage < OPTICAL_SENSOR_THRESHOLD:
+                motor.set(0)
+                break
+            yield
+        swerveWheel.zeroSteering()
+
 
     def teleop(self):
         self.manualMode()
