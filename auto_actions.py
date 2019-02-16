@@ -2,6 +2,7 @@ import math
 import seamonsters as sea
 from auto_scheduler import Action
 import auto_vision
+import auto_grabber
 import coordinates
 import drivetrain
 
@@ -39,3 +40,9 @@ def createNavigateToPointAction(pathFollower, coord, speed):
 
 def createVisionAlignAction(drive, vision):
     return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision), 50))
+
+def createPickUpHatchAction(drive, grabber):
+    return Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber))
+
+def createDepositHatchAction(drive, grabber, pos):
+    return Action("Deposit hatch", lambda: auto_grabber.depositHatch(drive, grabber, pos))
