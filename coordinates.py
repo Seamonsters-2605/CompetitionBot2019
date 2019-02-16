@@ -218,6 +218,9 @@ class LineSegment:
         else:
             self.m = None
             self.b = None
+        lineAngle = math.degrees(math.atan2((y1 - y2), (x1 - x2)))
+        if (lineAngle < 5 or lineAngle > 355) or (lineAngle < 185 and lineAngle > 175):
+            self.x2 = self.x1
 
     def collision(self, LineSegment):
         if self.m == LineSegment.m:# if lines are parallel
