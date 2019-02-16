@@ -1,6 +1,7 @@
 import math
 import ctre
 import seamonsters as sea
+from gear import DriveGear
 
 # distance between center of wheels
 WHEELBASE_WIDTH = 22.375 / 12 # feet
@@ -52,21 +53,6 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     swerveWheel = sea.SwerveWheel(angledWheel, rotateTalon, 1612.8, 0, -0.06883518, reverseSteerMotor=True)
 
     superDrive.addWheel(swerveWheel)
-class DriveGear:
-
-    def __init__(self, name, mode, moveScale, turnScale,
-                 p=0.0, i=0.0, d=0.0, f=0.0):
-        self.name = name
-        self.mode = mode
-        self.moveScale = moveScale
-        self.turnScale = turnScale
-        self.p = p
-        self.i = i
-        self.d = d
-        self.f = f
-
-    def __repr__(self):
-        return self.name
 
 
 slowVoltageGear = DriveGear("Slow Voltage", ctre.ControlMode.PercentOutput,
@@ -85,3 +71,10 @@ mediumPositionGear = DriveGear("Medium Position", ctre.ControlMode.Position,
 fastPositionGear = DriveGear("Fast Position", ctre.ControlMode.Position,
     moveScale=12, turnScale=math.radians(270),
     p=0.032, i=0.0, d=6.0, f=0.0)
+
+autoPositionGear = DriveGear("Auto Position", ctre.ControlMode.Position,
+    moveScale=12, turnScale=math.radians(270),
+    p=0.07, i=0.0, d=12.0, f=0.0, realTime=False)
+autoVelocityGear = DriveGear("Auto Velocity", ctre.ControlMode.Velocity,
+    moveScale=12, turnScale=math.radians(270),
+    p=0.07, i=0.0, d=12.0, f=0.0, realTime=False)

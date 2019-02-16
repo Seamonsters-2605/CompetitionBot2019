@@ -66,13 +66,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         if gear == self.drivegear:
             return
         self.drivegear = gear
-        for wheel in self.superDrive.wheels:
-            wheel.angledWheel.driveMode = gear.mode
-            wheelMotor = wheel.angledWheel.motor
-            wheelMotor.config_kP(0, self.drivegear.p, 0)
-            wheelMotor.config_kI(0, self.drivegear.i, 0)
-            wheelMotor.config_kD(0, self.drivegear.d, 0)
-            wheelMotor.config_kF(0, self.drivegear.f, 0)
+        gear.applyGear(self.superDrive)
         if self.app is not None:
             self.app.driveGearLbl.set_text("Gear: " + str(gear))
 
