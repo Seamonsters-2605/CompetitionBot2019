@@ -342,6 +342,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         actionDepositHatchBtn.onclick.connect(self.c_actionDepositHatch)
         hatchBox.append(actionDepositHatchBtn)
 
+        cargoBox = gui.HBox()
+        addActionBox.append(cargoBox)
+        actionPickUpCargoBtn = gui.Button('Pick up Cargo')
+        actionPickUpCargoBtn.onclick.connect(self.c_actionPickUpCargo)
+        cargoBox.append(actionPickUpCargoBtn)
+        actionDepositCargoBtn = gui.Button('Deposit Cargo')
+        actionDepositCargoBtn.onclick.connect(self.c_actionDepositCargo)
+        cargoBox.append(actionDepositCargoBtn)
+
         # END ADD ACTION BUTTONS
 
         controlBox = gui.HBox()
@@ -458,6 +467,19 @@ class CompetitionBotDashboard(sea.Dashboard):
         pos = int(self.elevatorPosInput.get_value())
         self.robot.autoScheduler.actionList.append(
             auto_actions.createDepositHatchAction(
+                self.robot.superDrive, self.robot.grabberArm, pos))
+        self.updateScheduler()
+
+    def c_actionPickUpCargo(self, button):
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createPickUpCargoAction(
+                self.robot.superDrive, self.robot.grabberArm))
+        self.updateScheduler()
+
+    def c_actionDepositCargo(self, button):
+        pos = int(self.elevatorPosInput.get_value())
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createDepositCargoAction(
                 self.robot.superDrive, self.robot.grabberArm, pos))
         self.updateScheduler()
 

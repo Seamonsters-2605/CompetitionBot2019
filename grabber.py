@@ -88,7 +88,8 @@ class GrabberArm():
             self.slideSpeed = speed
 
     def elevatorPosition(self, pos):
-        self.slideMotor.set(ctre.ControlMode.Position, self.slideOrigin + ELEVATOR_POSITIONS[pos])
+        self.slideMotor.set(ctre.ControlMode.Position,
+            self.slideOrigin + ELEVATOR_POSITIONS[pos-1])
         self.slideSpeed = None
 
     def startCompressor(self):

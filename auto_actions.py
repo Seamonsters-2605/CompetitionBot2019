@@ -46,3 +46,9 @@ def createPickUpHatchAction(drive, grabber):
 
 def createDepositHatchAction(drive, grabber, pos):
     return Action("Deposit hatch", lambda: auto_grabber.depositHatch(drive, grabber, pos))
+
+def createPickUpCargoAction(drive, grabber):
+    return Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber))
+
+def createDepositCargoAction(drive, grabber, pos):
+    return Action("Deposit cargo", lambda: auto_grabber.depositCargo(drive, grabber, pos))
