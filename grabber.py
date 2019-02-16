@@ -6,7 +6,8 @@ DEFENSE_POSITION = 0
 HATCH_POSITION = -300
 OPEN_POSITION = -2841
 CLOSED_POSITION = -3800
-ELEVATOR_POSITIONS = [0, 100, 200] # TODO TODO TODO!
+ELEVATOR_CARGO_POSITIONS = [0, 100, 200] # TODO TODO TODO!
+ELEVATOR_HATCH_POSITIONS = [0, 100, 200]
 
 class GrabberArm():
 
@@ -87,9 +88,14 @@ class GrabberArm():
             self.slideMotor.set(speed)
             self.slideSpeed = speed
 
-    def elevatorPosition(self, pos):
+    def elevatorCargoPosition(self, pos):
         self.slideMotor.set(ctre.ControlMode.Position,
-            self.slideOrigin + ELEVATOR_POSITIONS[pos-1])
+            self.slideOrigin + ELEVATOR_CARGO_POSITIONS[pos-1])
+        self.slideSpeed = None
+
+    def elevatorHatchPosition(self, pos):
+        self.slideMotor.set(ctre.ControlMode.Position,
+            self.slideOrigin + ELEVATOR_HATCH_POSITIONS[pos-1])
         self.slideSpeed = None
 
     def startCompressor(self):

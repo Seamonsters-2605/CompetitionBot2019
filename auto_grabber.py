@@ -24,22 +24,22 @@ def driveBackFromWall(drive):
         yield
 
 def pickUpHatch(drive, grabber):                    # PICK UP HATCH
-    grabber.elevatorPosition(1)                     # elevator position 1
+    grabber.elevatorHatchPosition(1)                     # elevator position 1
     grabber.setInnerPiston(True)                    # extend inner piston
     grabber.setOuterPiston(False)
     grabber.clawHatch()                             # claw in hatch position
 
     yield from driveIntoWall(drive)                 # drive into wall
-    grabber.elevatorPosition(2)                     # elevator lift up
+    grabber.elevatorHatchPosition(2)                     # elevator lift up
     yield from driveWait(drive, 25)                 # wait for elevator
     yield from driveBackFromWall(drive)             # drive backward
-    grabber.elevatorPosition(1)                     # elevator down
+    grabber.elevatorHatchPosition(1)                     # elevator down
     grabber.setInnerPiston(False)                   # retract inner piston
     drive.drive(0, 0, 0)
     yield                                           # END
 
 def pickUpCargo(drive, grabber):                    # PICK UP CARGO
-    grabber.elevatorPosition(1)                     # elevator position 1
+    grabber.elevatorCargoPosition(1)                     # elevator position 1
     grabber.setInnerPiston(False)
     grabber.setOuterPiston(False)
     grabber.clawOpen()                              # claw open
@@ -53,25 +53,25 @@ def pickUpCargo(drive, grabber):                    # PICK UP CARGO
     yield                                           # END
 
 def depositHatch(drive, grabber, pos):              # DEPOSIT HATCH
-    grabber.elevatorPosition(pos)                   # move elevator to position
+    grabber.elevatorHatchPosition(pos)                   # move elevator to position
     yield from driveWait(drive, 25)                 # wait for elevator
     yield from driveIntoWall(drive)                 # drive into wall
     grabber.setOuterPiston(True)                    # extend outer pistons
     yield from driveWait(drive, 25)                 # wait for pistons
     yield from driveBackFromWall(drive)             # drive backward
-    grabber.elevatorPosition(1)                     # elevator down
+    grabber.elevatorHatchPosition(1)                     # elevator down
     grabber.setOuterPiston(False)                   # retract outer pistons
     drive.drive(0, 0, 0)
     yield                                           # END
 
 def depositCargo(drive, grabber, pos):              # DEPOSIT CARGO
-    grabber.elevatorPosition(pos)                   # move elevator to position
+    grabber.elevatorCargoPosition(pos)                   # move elevator to position
     yield from driveWait(drive, 25)                 # wait for elevator
     yield from driveIntoWall(drive)                 # drive into wall
     grabber.eject()                                 # eject cargo
     yield from driveWait(drive, 25)                 # wait for eject
     grabber.stopIntake()                            # stop intake
     yield from driveBackFromWall(drive)             # drive backward
-    grabber.elevatorPosition(1)                     # elevator down
+    grabber.elevatorCargoPosition(1)                     # elevator down
     drive.drive(0, 0, 0)
     yield                                           # END
