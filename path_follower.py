@@ -1,13 +1,13 @@
-field = [[0, 1, 0, 0, 0, 0],#1's are obstacles, 0's are free spaces
-        [0, 0, 1, 0, 0, 0],
-        [0, 0, 1, 0, 1, 0],
-        [0, 0, 0, 0, 1, 0],
-        [1, 0, 0, 0, 1, 0]]
+import numpy
+from PIL import Image
+
+pic = Image.open("test.png")
+field = numpy.array(pic.getdata(), numpy.uint8).reshape(pic.size[1], pic.size[0], 3)
 
 #TODO: allow user to input picture of feild with all obstacles shaded in that becomes converted to the field list
 
-initPos = [0, 0]#TODO: get location of robot and put here
-targetPos = [len(field)-1, len(field[0])-1]#TODO: get the location of cursor and put here
+initPos = [9, 9]#TODO: get location of robot and put here
+targetPos = [0, 0]#TODO: get the location of cursor and put here
 cost = 1
 
 #has the cost of the robot going away from the goal mapped out so it will only check high cost stuff if there are no other options
@@ -15,7 +15,7 @@ heuristic = [[0 for row in range(len(field[0]))] for col in range(len(field))]
 for i in range(len(field)):    
     for j in range(len(field[0])):            
         heuristic[i][j] = abs(i - targetPos[0]) + abs(j - targetPos[1])
-        if field[i][j] == 1:
+        if field[i][j][0] != 255:
             heuristic[i][j] = 100 #if there is an obstacle in the spot on the field, adds a very high cost to going over that spot so it will be navigated around
 
 #moves we can go for navigating
@@ -57,7 +57,7 @@ def search(field,initPos,targetPos,cost,heuristic):
                 x2 = x + moves[i][0]
                 y2 = y + moves[i][1]
                 if x2 >= 0 and x2 < len(field) and y2 >=0 and y2 < len(field[0]):
-                    if refField[x2][y2] == 0 and field[x2][y2] == 0:
+                    if refField[x2][y2] == 0 and field[x2][y2][0] == 255:
                         g2 = g + cost
                         f2 = g2 + heuristic[x2][y2]
                         cell.append([f2, g2, x2, y2])
@@ -78,10 +78,10 @@ def search(field,initPos,targetPos,cost,heuristic):
     path = []
     for i in range(len(revPath)):
     	path.append(revPath[len(revPath) - 1 - i])
-    for i in range(len(actField)):
-        print(actField[i])
-                  
+
     return path
 
 def navigate():
     return search(field, initPos, targetPos, cost, heuristic)
+
+print(navigate())
