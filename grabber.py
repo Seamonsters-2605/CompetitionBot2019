@@ -16,9 +16,11 @@ class GrabberArm():
 
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.leftPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.leftPivot.setSensorPhase(False)
         self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.rightPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.rightPivot.setSensorPhase(False)
         self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
         self.rightPivot.setSensorPhase(True)
 
@@ -32,6 +34,7 @@ class GrabberArm():
 
         self.slideMotor = ctre.WPI_TalonSRX(30)
         self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.slideMotor.setSensorPhase(False)
         self.slideOrigin = self.slideMotor.getSelectedSensorPosition(0)
         self.slideSpeed = None
 
