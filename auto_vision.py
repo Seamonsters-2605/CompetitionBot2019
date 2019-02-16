@@ -1,4 +1,5 @@
 import seamonsters as sea
+import drivetrain
 
 ALIGN_EXPONENT = 1.5
 ALIGN_SCALE = 0.1
@@ -6,6 +7,7 @@ ALIGN_MAX_VEL = 2 # feet per second
 ALIGN_TOLERANCE = 1 # degrees
 
 def strafeAlign(drive,vision):
+    drivetrain.mediumPositionGear.applyGear(drive)
     while True:
         hasTarget = vision.getNumber('tv', None) # 1 if target, 0 if none
 

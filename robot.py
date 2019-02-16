@@ -22,7 +22,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.joystick = wpilib.Joystick(0)
 
         self.superDrive = drivetrain.initDrivetrain()
-        self.drivegear = None
+        self.superDrive.gear = None
+        self.manualGear = None
         self.headless_mode = True
         
         self.ahrs = navx.AHRS.create_spi()
@@ -62,14 +63,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.resetPosition()
 
-    def setGear(self, gear):
-        if gear == self.drivegear:
-            return
-        self.drivegear = gear
-        gear.applyGear(self.superDrive)
-        if self.app is not None:
-            self.app.driveGearLbl.set_text("Gear: " + str(gear))
-
     def teleop(self):
         self.manualMode()
         yield from self.mainGenerator()
@@ -93,7 +86,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def autoMode(self):
         self.controlModeMachine.replace(self.autoState)
-        self.setGear(drivetrain.mediumPositionGear)
         self.updateScheduler()
 
     def manualMode(self):
@@ -110,7 +102,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def joystickControl(self):
-        self.setGear(drivetrain.fastPositionGear)
+        self.manualGear = drivetrain.fastPositionGear
         self.setHeadless(True)
         self.resetPositions()
         currentMode = None
@@ -169,10 +161,10 @@ class CompetitionBot2019(sea.GeneratorBot):
             # DRIVING
 
             if self.joystick.getRawButton(11):
-                self.setGear(drivetrain.slowPositionGear)
+                self.manualGear = drivetrain.slowPositionGear
                 self.setHeadless(False)
             if self.joystick.getRawButton(12):
-                self.setGear(drivetrain.fastPositionGear)
+                self.manualGear = drivetrain.fastPositionGear
                 self.setHeadless(True)
 
             self.pathFollower.updateRobotPosition()
@@ -184,7 +176,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             x = sea.deadZone(self.joystick.getX())
             y = sea.deadZone(self.joystick.getY())
             mag = math.hypot(x * (1 - 0.5*y**2) ** 0.5,y * (1 - 0.5*x**2) ** 0.5)
-            mag *= self.drivegear.moveScale
+            mag *= self.manualGear.moveScale
 
             direction = -self.joystick.getDirectionRadians() + math.pi/2
 
@@ -193,7 +185,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             
             turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)) \
                 - 0.5 * sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
-            turn *= self.drivegear.turnScale # maximum radians per second
+            turn *= self.manualGear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
                 pov = self.joystick.getPOV()
@@ -207,6 +199,10 @@ class CompetitionBot2019(sea.GeneratorBot):
                     pov = 330
                 aDiff = sea.circleDistance(-math.radians(pov) - math.pi/2, self.pathFollower.robotAngle)
                 turn = sea.feedbackLoopScale(-aDiff, 10, 2, drivetrain.mediumPositionGear.turnScale)
+
+            if self.manualGear.applyGear(self.superDrive):
+                if self.app is not None:
+                    self.app.driveGearLbl.set_text("Gear: " + str(self.manualGear))
 
             if self.joystick.getRawButton(9) or wpilib.RobotController.isBrownedOut():
                 self.superDrive.disable()
@@ -244,27 +240,27 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
-        self.setGear(drivetrain.slowVoltageGear)
+        self.manualGear = drivetrain.slowVoltageGear
 
     @sea.queuedDashboardEvent
     def c_mediumVoltageGear(self, button):
-        self.setGear(drivetrain.mediumVoltageGear)
+        self.manualGear = drivetrain.mediumVoltageGear
 
     @sea.queuedDashboardEvent
     def c_fastVoltageGear(self, button):
-        self.setGear(drivetrain.fastVoltageGear)
+        self.manualGear = drivetrain.fastVoltageGear
 
     @sea.queuedDashboardEvent
     def c_slowPositionGear(self, button):
-        self.setGear(drivetrain.slowPositionGear)
+        self.manualGear = drivetrain.slowPositionGear
 
     @sea.queuedDashboardEvent
     def c_mediumPositionGear(self, button):
-        self.setGear(drivetrain.mediumPositionGear)
+        self.manualGear = drivetrain.mediumPositionGear
 
     @sea.queuedDashboardEvent
     def c_fastPositionGear(self, button):
-        self.setGear(drivetrain.fastPositionGear)
+        self.manualGear = drivetrain.fastPositionGear
 
     @sea.queuedDashboardEvent
     def c_disableWheel(self, button):

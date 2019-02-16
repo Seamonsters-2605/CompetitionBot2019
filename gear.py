@@ -16,6 +16,10 @@ class DriveGear:
         return self.name
 
     def applyGear(self, superDrive):
+        if superDrive.gear == self:
+            return False
+        print("Set gear to", self)
+        superDrive.gear = self # not a normal property of the superDrive
         for wheel in superDrive.wheels:
             wheel.angledWheel.driveMode = self.mode
             wheel.angledWheel.realTime = self.realTime
@@ -24,3 +28,4 @@ class DriveGear:
             wheelMotor.config_kI(0, self.i, 0)
             wheelMotor.config_kD(0, self.d, 0)
             wheelMotor.config_kF(0, self.f, 0)
+        return True

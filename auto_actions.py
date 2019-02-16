@@ -3,8 +3,10 @@ import seamonsters as sea
 from auto_scheduler import Action
 import auto_vision
 import coordinates
+import drivetrain
 
 def driveToPoint(pathFollower, coord, speed):
+    drivetrain.autoPositionGear.applyGear(pathFollower.drive)
     angle = sea.circleDistance(pathFollower.robotAngle, coord.orientation) + pathFollower.robotAngle
     dist = math.hypot(coord.x - pathFollower.robotX, coord.y - pathFollower.robotY)
     if dist < 0.1:
