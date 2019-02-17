@@ -1,12 +1,14 @@
 import numpy
 from PIL import Image
 
-pic = Image.open("test.png")
+pic = Image.open("field.png")
 field = numpy.array(pic.getdata(), numpy.uint8).reshape(pic.size[1], pic.size[0], 3)
+
+#the field is 27 by 54 feet
 
 #TODO: allow user to input picture of feild with all obstacles shaded in that becomes converted to the field list
 
-initPos = [9, 9]#TODO: get location of robot and put here
+initPos = [9, 9]#TODO: get location of robot and put here, also shift all values over because this has origin in top left but feild in the middle
 targetPos = [0, 0]#TODO: get the location of cursor and put here
 cost = 1
 
