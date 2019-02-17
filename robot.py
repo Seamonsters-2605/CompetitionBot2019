@@ -14,7 +14,7 @@ from networktables import NetworkTables
 import climber
 
 DISABLE_MOTORS_TIME = 50 # iterations
-OPTICAL_SENSOR_THRESHOLD = 1.0 # volts
+OPTICAL_SENSOR_THRESHOLD = 0.5 # volts
 
 class CompetitionBot2019(sea.GeneratorBot):
 
@@ -71,12 +71,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel.resetPosition()
 
     def test(self):
-        yield from self.homeSwerveWheel(self.superDrive.wheels[0], self.opticalSensors[0])
+        # while True:
+        #     print("%.3f %.3f %.3f %.3f" % (self.opticalSensors[0].getVoltage(),
+        #                                    self.opticalSensors[1].getVoltage(),
+        #                                    self.opticalSensors[2].getVoltage(),
+        #                                    self.opticalSensors[3].getVoltage()))
+        #     yield
+        yield from sea.parallel(
+            self.homeSwerveWheel(self.superDrive.wheels[0], self.opticalSensors[0]),
+            self.homeSwerveWheel(self.superDrive.wheels[1], self.opticalSensors[1]),
+            self.homeSwerveWheel(self.superDrive.wheels[2], self.opticalSensors[2]),
+            self.homeSwerveWheel(self.superDrive.wheels[3], self.opticalSensors[3]))
 
     def homeSwerveWheel(self, swerveWheel, sensor):
         motor = swerveWheel.steerMotor
         initialPos = motor.getSelectedSensorPosition(0)
-        motor.set(ctre.ControlMode.PercentOutput, 0.5)
+        motor.set(ctre.ControlMode.PercentOutput, -0.2)
         i = 0
         while True:
             i += 1
