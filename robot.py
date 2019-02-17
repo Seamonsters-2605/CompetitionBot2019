@@ -84,6 +84,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.homeSwerveWheel(self.superDrive.wheels[3], self.opticalSensors[3]))
 
     def homeSwerveWheel(self, swerveWheel, sensor):
+        swerveWheel.zeroSteering()
         motor = swerveWheel.steerMotor
         initialPos = motor.getSelectedSensorPosition(0)
         motor.set(ctre.ControlMode.PercentOutput, -0.2)
@@ -100,7 +101,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 motor.set(0)
                 break
             yield
-        swerveWheel.zeroSteering()
+        print(math.degrees(swerveWheel._getCurrentSteeringAngle()))
 
 
     def teleop(self):
