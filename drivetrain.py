@@ -12,7 +12,7 @@ ROBOT_LENGTH = 35.0 / 12
 
 def initDrivetrain():
     superDrive = sea.SuperHolonomicDrive()
-    _makeSwerveWheel(superDrive, 1, 0,  WHEELBASE_WIDTH/2,  WHEELBASE_LENGTH/2)
+    _makeSwerveWheel(superDrive, 1, 8,  WHEELBASE_WIDTH/2,  WHEELBASE_LENGTH/2)
     _makeSwerveWheel(superDrive, 3, 2, -WHEELBASE_WIDTH/2,  WHEELBASE_LENGTH/2)
     _makeSwerveWheel(superDrive, 5, 4,  WHEELBASE_WIDTH/2, -WHEELBASE_LENGTH/2)
     _makeSwerveWheel(superDrive, 7, 6, -WHEELBASE_WIDTH/2, -WHEELBASE_LENGTH/2)
@@ -25,7 +25,7 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     driveTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     rotateTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     driveTalon.setSensorPhase(False)
-    rotateTalon.setSensorPhase(False)
+    rotateTalon.setSensorPhase(True)
 
     driveTalon.setNeutralMode(ctre.NeutralMode.Coast)
     rotateTalon.setNeutralMode(ctre.NeutralMode.Brake)
