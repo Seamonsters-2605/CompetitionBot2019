@@ -6,6 +6,8 @@ DEFENSE_POSITION = 0
 HATCH_POSITION = -300
 OPEN_POSITION = -2841
 CLOSED_POSITION = -3800
+ELEVATOR_CARGO_POSITIONS = [0, 100, 200] # TODO TODO TODO!
+ELEVATOR_HATCH_POSITIONS = [0, 100, 200]
 
 class GrabberArm():
 
@@ -15,6 +17,7 @@ class GrabberArm():
 
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.leftPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.leftPivot.setSensorPhase(True)
         self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.rightPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
@@ -28,9 +31,12 @@ class GrabberArm():
         self.hatchGrabberIn2 = wpilib.Solenoid(3)
 
         self.compressor = wpilib.Compressor(0)
-        self.slideMotor = ctre.WPI_TalonSRX(30)
 
-        self.slideSpeed = 0
+        self.slideMotor = ctre.WPI_TalonSRX(30)
+        self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.slideMotor.setSensorPhase(False)
+        self.slideOrigin = self.slideMotor.getSelectedSensorPosition(0)
+        self.slideSpeed = None
 
     #takes in the ball
     def intake(self):
@@ -77,9 +83,20 @@ class GrabberArm():
 
     #grabber slides up
     def slide(self, speed):
+        speed *= -1
         if speed != self.slideSpeed:
             self.slideMotor.set(speed)
             self.slideSpeed = speed
+
+    def elevatorCargoPosition(self, pos):
+        self.slideMotor.set(ctre.ControlMode.Position,
+            self.slideOrigin + ELEVATOR_CARGO_POSITIONS[pos-1])
+        self.slideSpeed = None
+
+    def elevatorHatchPosition(self, pos):
+        self.slideMotor.set(ctre.ControlMode.Position,
+            self.slideOrigin + ELEVATOR_HATCH_POSITIONS[pos-1])
+        self.slideSpeed = None
 
     def startCompressor(self):
         self.compressor.start()
