@@ -11,6 +11,7 @@ import auto_scheduler
 import auto_vision
 import coordinates
 from networktables import NetworkTables
+import climber
 
 DISABLE_MOTORS_TIME = 50 # iterations
 
@@ -18,6 +19,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
         self.grabberArm = grabber.GrabberArm()
+        self.climber = climber.Climber()
 
         self.joystick = wpilib.Joystick(0)
 
@@ -158,14 +160,25 @@ class CompetitionBot2019(sea.GeneratorBot):
             elevatorSlide = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
             self.grabberArm.slide(elevatorSlide)
 
+            # CLIMBER
+
+            if self.joystick.getRawButtonPressed(11):
+                self.climber.climb(1)
+            if self.joystick.getRawButtonReleased(11):
+                self.climber.climb(0)
+            if self.joystick.getRawButtonPressed(12):
+                self.climber.climb(-1)
+            if self.joystick.getRawButtonReleased(12):
+                self.climber.climb(0)
+
             # DRIVING
 
-            if self.joystick.getRawButton(11):
-                self.manualGear = drivetrain.slowPositionGear
-                self.setHeadless(False)
-            if self.joystick.getRawButton(12):
-                self.manualGear = drivetrain.fastPositionGear
-                self.setHeadless(True)
+            # if self.joystick.getRawButton(11):
+            #     self.manualGear = drivetrain.slowPositionGear
+            #     self.setHeadless(False)
+            # if self.joystick.getRawButton(12):
+            #     self.manualGear = drivetrain.fastPositionGear
+            #     self.setHeadless(True)
 
             self.pathFollower.updateRobotPosition()
 
