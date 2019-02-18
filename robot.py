@@ -162,13 +162,22 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         while True:
             # GRABBER
+
+            throttle = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+            if throttle > 0.5:
+                throttlePos = 3
+            elif throttle < -0.5:
+                throttlePos = 1
+            else:
+                throttlePos = 2
+
             # Cargo Mode
             if self.cargoMode:
                 if currentMode != "cargo":
+                    currentMode = "cargo"
                     self.grabberArm.setInnerPiston(False)
                     self.grabberArm.setOuterPiston(False)
                     self.grabberArm.clawClosed()
-                    currentMode = "cargo"
                                
                 if self.joystick.getRawButtonPressed(1):
                     self.grabberArm.clawOpen()
@@ -184,11 +193,13 @@ class CompetitionBot2019(sea.GeneratorBot):
                 if self.joystick.getRawButtonReleased(2):
                     self.grabberArm.stopIntake()
 
+                self.grabberArm.elevatorCargoPosition(throttlePos)
+
             elif self.hatchMode:
                 if currentMode != "hatch":
+                    currentMode = "hatch"
                     self.grabberArm.clawHatch()
                     self.grabberArm.stopIntake()
-                    currentMode = "hatch"
                 
                 if self.joystick.getRawButton(2):
                     self.grabberArm.setInnerPiston(False)
@@ -200,16 +211,18 @@ class CompetitionBot2019(sea.GeneratorBot):
                     self.grabberArm.setInnerPiston(False)
                     self.grabberArm.setOuterPiston(False)
 
+                self.grabberArm.elevatorHatchPosition(throttlePos)
+
             elif self.defenseMode:
                 if currentMode != "defense":
+                    currentMode = "defense"
                     self.grabberArm.clawBack()
                     self.grabberArm.stopIntake()
                     self.grabberArm.setInnerPiston(False)
                     self.grabberArm.setOuterPiston(False)
-                    currentMode = "defense"
-                
-            elevatorSlide = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
-            self.grabberArm.slide(elevatorSlide)
+                    self.grabberArm.elevatorSlide(0)
+
+            #self.grabberArm.elevatorSlide(throttle)
 
             # CLIMBER
 
