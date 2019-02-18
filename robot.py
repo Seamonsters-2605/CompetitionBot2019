@@ -156,6 +156,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.resetPositions()
         currentMode = None
 
+        self.joystick.getRawButtonPressed(1)
+        self.joystick.getRawButtonPressed(11)
+        self.joystick.getRawButtonPressed(12)
+
         while True:
             # GRABBER
             # Cargo Mode
