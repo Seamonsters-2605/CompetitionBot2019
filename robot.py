@@ -191,17 +191,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             #self.grabberArm.elevatorSlide(throttle)
 
-            # CLIMBER
-
-            if self.joystick.getRawButtonPressed(11):
-                self.climber.climb(1)
-            if self.joystick.getRawButtonReleased(11):
-                self.climber.climb(0)
-            if self.joystick.getRawButtonPressed(12):
-                self.climber.climb(-1)
-            if self.joystick.getRawButtonReleased(12):
-                self.climber.climb(0)
-
             # DRIVING
 
             # if self.joystick.getRawButton(11):
@@ -374,6 +363,18 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.defenseMode = False
         self.hatchMode = True
         self.cargoMode = False
+
+    @sea.queuedDashboardEvent
+    def c_climberFwd(self, *args, **kwargs):
+        self.climber.climb(1)
+
+    @sea.queuedDashboardEvent
+    def c_climberRev(self, *args, **kwargs):
+        self.climber.climb(-1)
+
+    @sea.queuedDashboardEvent
+    def c_climberStop(self, *args, **kwargs):
+        self.climber.climb(0)
 
     # TESTING
 

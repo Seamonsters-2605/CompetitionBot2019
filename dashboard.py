@@ -168,6 +168,21 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
         velocityModeBox.append(fastVelocityBtn)
 
+        climberBox = gui.HBox()
+        manualBox.append(climberBox)
+
+        climberRevBtn = gui.Button("Climber REV")
+        climberRevBtn.onmousedown.connect(robot.c_climberRev)
+        climberRevBtn.onmouseup.connect(robot.c_climberStop)
+        manualBox.append(climberRevBtn)
+        climberStopBtn = gui.Button("Climber STOP")
+        climberStopBtn.onclick.connect(robot.c_climberStop)
+        manualBox.append(climberStopBtn)
+        climberFwdBtn = gui.Button("Climber FWD")
+        climberFwdBtn.onmousedown.connect(robot.c_climberFwd)
+        climberFwdBtn.onmouseup.connect(robot.c_climberStop)
+        manualBox.append(climberFwdBtn)
+
         return manualBox
 
     def initWheelControlls(self, robot):

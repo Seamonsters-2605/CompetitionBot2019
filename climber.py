@@ -11,5 +11,5 @@ class Climber:
         self.motor2.setNeutralMode(ctre.NeutralMode.Brake)
 
     def climb(self, speed):
-        self.motor1.set(speed * -.5)
-        self.motor2.set(speed * -.5)
+        self.motor1.set(speed * .5)
+        self.motor2.set(speed * .5)
