@@ -19,16 +19,17 @@ OPTICAL_SENSOR_THRESHOLD = 0.5 # volts
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
+        self.joystick = wpilib.Joystick(0)
+        self.buttonBoard = wpilib.Joystick(1)
+
         self.grabberArm = grabber.GrabberArm()
         self.grabberArm.stopCompressor()
         self.climber = climber.Climber()
 
-        self.joystick = wpilib.Joystick(0)
-
         self.superDrive = drivetrain.initDrivetrain()
         self.superDrive.gear = None
         self.manualGear = None
-        self.headless_mode = True
+        self.fieldOriented = True
 
         self.opticalSensors = [
             wpilib.AnalogInput(0), wpilib.AnalogInput(1),
@@ -63,6 +64,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.defenseMode = True
         self.hatchMode = False
         self.elevatorFree = True
+
+        #wpilib.CameraServer.launch('camera.py:main')
 
     def updateScheduler(self):
         if self.app is not None:
@@ -119,8 +122,9 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield v
 
     def joystickControl(self):
-        self.manualGear = drivetrain.fastPositionGear
-        self.setHeadless(True)
+        self.manualGear = drivetrain.mediumPositionGear
+        self.fieldOriented = True
+
         self.elevatorFree = True
         self.resetPositions()
         currentMode = None
@@ -130,6 +134,18 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.joystick.getRawButtonPressed(12)
 
         while True:
+            # BUTTON BOARD
+
+            if self.buttonBoard.getRawButton(3):
+                self.manualGear = drivetrain.slowPositionGear
+                self.fieldOriented = False
+            if self.buttonBoard.getRawButton(4):
+                self.manualGear = drivetrain.mediumPositionGear
+                self.fieldOriented = True
+            if self.buttonBoard.getRawButton(5):
+                self.manualGear = drivetrain.fastPositionGear
+                self.fieldOriented = True
+
             # GRABBER
 
             throttle = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
@@ -204,7 +220,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             direction = -self.joystick.getDirectionRadians() + math.pi/2
 
-            if self.headless_mode:
+            if self.fieldOriented:
                 direction -= self.pathFollower.robotAngle + math.pi/2
             
             turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)) \
@@ -241,11 +257,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.lbl_encoder = ''
         for wheel in self.superDrive.wheels:
             self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
-
-    def setHeadless(self, on):
-        self.headless_mode = on
-        if self.app is not None:
-            self.app.fieldOrientedLbl.set_text("Field oriented: " + ("On" if on else "Off"))
 
     # TEST FUNCTIONS
 
@@ -299,14 +310,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_stopCompressor(self, button):
         self.grabberArm.stopCompressor()
-
-    @sea.queuedDashboardEvent
-    def c_fieldOrientedOn(self, button):
-        self.setHeadless(True)
-
-    @sea.queuedDashboardEvent
-    def c_fieldOrientedOff(self, button):
-        self.setHeadless(False)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
