@@ -78,12 +78,16 @@ class CompetitionBot2019(sea.GeneratorBot):
         #                                    self.opticalSensors[3].getVoltage()))
         #     yield
         yield from sea.parallel(
-            self.homeSwerveWheel(self.superDrive.wheels[0], self.opticalSensors[0]),
-            self.homeSwerveWheel(self.superDrive.wheels[1], self.opticalSensors[1]),
-            self.homeSwerveWheel(self.superDrive.wheels[2], self.opticalSensors[2]),
-            self.homeSwerveWheel(self.superDrive.wheels[3], self.opticalSensors[3]))
+            self.homeSwerveWheel(0, self.superDrive.wheels[0], self.opticalSensors[0],
+                math.radians(-180 + 82.589)),
+            self.homeSwerveWheel(1, self.superDrive.wheels[1], self.opticalSensors[1],
+                math.radians(20.759)),
+            self.homeSwerveWheel(2, self.superDrive.wheels[2], self.opticalSensors[2],
+                math.radians(-180 + 21.875)),
+            self.homeSwerveWheel(3, self.superDrive.wheels[3], self.opticalSensors[3],
+                math.radians(90 + 58.705)))
 
-    def homeSwerveWheel(self, swerveWheel, sensor):
+    def homeSwerveWheel(self, num, swerveWheel, sensor, angle):
         swerveWheel.zeroSteering()
         motor = swerveWheel.steerMotor
         initialPos = motor.getSelectedSensorPosition(0)
@@ -91,17 +95,19 @@ class CompetitionBot2019(sea.GeneratorBot):
         i = 0
         while True:
             i += 1
-            if i == 50:
+            if i == 150:
                 print("Couldn't home wheel!")
                 motor.set(ctre.ControlMode.Position, initialPos)
                 break
             voltage = sensor.getVoltage()
-            print(voltage)
+            #print(voltage)
             if voltage < OPTICAL_SENSOR_THRESHOLD:
                 motor.set(0)
                 break
             yield
-        print(math.degrees(swerveWheel._getCurrentSteeringAngle()))
+        print(num, math.degrees(swerveWheel._getCurrentSteeringAngle()))
+        swerveWheel.zeroSteering(angle)
+        swerveWheel._setSteering(0)
 
 
     def teleop(self):
