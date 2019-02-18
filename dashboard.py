@@ -138,9 +138,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         hatchButton.onclick.connect(robot.c_hatchMode)
         clawModeBox.append(hatchButton)
 
-        self.fieldOrientedLbl = gui.Label("[field oriented state]")
-        manualBox.append(self.fieldOrientedLbl)
-
         self.driveGearLbl = gui.Label("[drive gear]")
         manualBox.append(self.driveGearLbl)
 
@@ -167,6 +164,19 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn = gui.Button("Fast Position")
         fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
         velocityModeBox.append(fastVelocityBtn)
+
+        self.fieldOrientedLbl = gui.Label("[field oriented state]")
+        manualBox.append(self.fieldOrientedLbl)
+
+        fieldOrientedBox = gui.HBox()
+        manualBox.append(fieldOrientedBox)
+
+        fieldOrientedOnBtn = gui.Button("Field Oriented On")
+        fieldOrientedOnBtn.onclick.connect(robot.c_fieldOrientedOn)
+        fieldOrientedBox.append(fieldOrientedOnBtn)
+        fieldOrientedOffBtn = gui.Button("Off")
+        fieldOrientedOffBtn.onclick.connect(robot.c_fieldOrientedOff)
+        fieldOrientedBox.append(fieldOrientedOffBtn)
 
         elevatorBox = gui.HBox()
         manualBox.append(elevatorBox)

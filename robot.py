@@ -191,13 +191,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             # DRIVING
 
-            # if self.joystick.getRawButton(11):
-            #     self.manualGear = drivetrain.slowPositionGear
-            #     self.setHeadless(False)
-            # if self.joystick.getRawButton(12):
-            #     self.manualGear = drivetrain.fastPositionGear
-            #     self.setHeadless(True)
-
             self.pathFollower.updateRobotPosition()
 
             if self.joystick.getRawButton(4):
@@ -306,6 +299,14 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_stopCompressor(self, button):
         self.grabberArm.stopCompressor()
+
+    @sea.queuedDashboardEvent
+    def c_fieldOrientedOn(self, button):
+        self.setHeadless(True)
+
+    @sea.queuedDashboardEvent
+    def c_fieldOrientedOff(self, button):
+        self.setHeadless(False)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
