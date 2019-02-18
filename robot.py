@@ -71,46 +71,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         for wheel in self.superDrive.wheels:
             wheel.resetPosition()
 
-    def test(self):
-        # while True:
-        #     print("%.3f %.3f %.3f %.3f" % (self.opticalSensors[0].getVoltage(),
-        #                                    self.opticalSensors[1].getVoltage(),
-        #                                    self.opticalSensors[2].getVoltage(),
-        #                                    self.opticalSensors[3].getVoltage()))
-        #     yield
-        yield from sea.parallel(
-            self.homeSwerveWheel(0, self.superDrive.wheels[0], self.opticalSensors[0],
-                math.radians(-180 + 82.589)),
-            self.homeSwerveWheel(1, self.superDrive.wheels[1], self.opticalSensors[1],
-                math.radians(20.759)),
-            self.homeSwerveWheel(2, self.superDrive.wheels[2], self.opticalSensors[2],
-                math.radians(-180 + 21.875)),
-            self.homeSwerveWheel(3, self.superDrive.wheels[3], self.opticalSensors[3],
-                math.radians(90 + 58.705)))
-
-    def homeSwerveWheel(self, num, swerveWheel, sensor, angle):
-        swerveWheel.zeroSteering()
-        motor = swerveWheel.steerMotor
-        initialPos = motor.getSelectedSensorPosition(0)
-        motor.set(ctre.ControlMode.PercentOutput, -0.2)
-        i = 0
-        while True:
-            i += 1
-            if i == 150:
-                print("Couldn't home wheel!")
-                motor.set(ctre.ControlMode.Position, initialPos)
-                break
-            voltage = sensor.getVoltage()
-            #print(voltage)
-            if voltage < OPTICAL_SENSOR_THRESHOLD:
-                motor.set(0)
-                break
-            yield
-        print(num, math.degrees(swerveWheel._getCurrentSteeringAngle()))
-        swerveWheel.zeroSteering(angle)
-        swerveWheel._setSteering(0)
-
-
     def teleop(self):
         self.manualMode()
         self.grabberArm.resetAllSensors()
@@ -119,6 +79,12 @@ class CompetitionBot2019(sea.GeneratorBot):
     def autonomous(self):
         self.autoMode()
         yield from self.mainGenerator()
+
+    def test(self):
+        yield from sea.parallel(
+            self.dashboardUpdateGenerator(),
+            self.timingMonitor.updateGenerator()
+        )
 
     def mainGenerator(self):
         self.resetPositions()
@@ -145,10 +111,11 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.clearEvents()
         while True:
+            v = None
             if self.app is not None:
-                self.app.doEvents()
+                v = self.app.doEvents()
             self.updateDashboardLabels()
-            yield
+            yield v
 
     def joystickControl(self):
         self.manualGear = drivetrain.fastPositionGear
@@ -300,6 +267,49 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.fieldOrientedLbl.set_text("Field oriented: " + ("On" if on else "Off"))
 
+    # TEST FUNCTIONS
+
+    def logOpticalSensors(self):
+        while True:
+            print("%.3f %.3f %.3f %.3f" %
+                (self.opticalSensors[0].getVoltage(), self.opticalSensors[1].getVoltage(),
+                 self.opticalSensors[2].getVoltage(), self.opticalSensors[3].getVoltage()))
+            yield
+
+    def homeSwerveWheel(self, name, swerveWheel, sensor, angle):
+        swerveWheel.zeroSteering()
+        motor = swerveWheel.steerMotor
+        initialPos = motor.getSelectedSensorPosition(0)
+        motor.set(ctre.ControlMode.PercentOutput, -0.2)
+        i = 0
+        while True:
+            i += 1
+            if i == 150:
+                print("Couldn't home wheel!")
+                motor.set(ctre.ControlMode.Position, initialPos)
+                break
+            voltage = sensor.getVoltage()
+            #print(voltage)
+            if voltage < OPTICAL_SENSOR_THRESHOLD:
+                motor.set(0)
+                break
+            yield
+        print(name, math.degrees(swerveWheel._getCurrentSteeringAngle()))
+        swerveWheel.zeroSteering(angle)
+        swerveWheel._setSteering(0)
+
+    def homeAllSwerveWheels(self):
+        yield from sea.parallel(
+            self.homeSwerveWheel('A', self.superDrive.wheels[0], self.opticalSensors[0],
+                math.radians(-180 + 82.589)),
+            self.homeSwerveWheel('B', self.superDrive.wheels[1], self.opticalSensors[1],
+                math.radians(20.759)),
+            self.homeSwerveWheel('C', self.superDrive.wheels[2], self.opticalSensors[2],
+                math.radians(-180 + 21.875)),
+            self.homeSwerveWheel('D', self.superDrive.wheels[3], self.opticalSensors[3],
+                math.radians(90 + 58.705)))
+
+
     # dashboard callbacks
 
     @sea.queuedDashboardEvent
@@ -309,11 +319,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_stopCompressor(self, button):
         self.grabberArm.stopCompressor()
-
-    @sea.queuedDashboardEvent
-    def c_wheelsToZero(self, button):
-        for wheel in self.superDrive.wheels:
-            wheel._setSteering(0)
 
     @sea.queuedDashboardEvent
     def c_slowVoltageGear(self, button):
@@ -369,6 +374,22 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.defenseMode = False
         self.hatchMode = True
         self.cargoMode = False
+
+    # TESTING
+
+    @sea.queuedDashboardEvent
+    def c_wheelsToZero(self, button):
+        for wheel in self.superDrive.wheels:
+            wheel._setSteering(0)
+
+    @sea.queuedDashboardEvent
+    def c_homeSwerveWheels(self, button):
+        return sea.AddParallelSignal(self.homeAllSwerveWheels())
+
+    @sea.queuedDashboardEvent
+    def c_logOpticalSensors(self, button):
+        return sea.AddParallelSignal(self.logOpticalSensors())
+
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2019)

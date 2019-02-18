@@ -99,10 +99,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         stopCompressorBtn.onclick.connect(robot.c_stopCompressor)
         compressorBox.append(stopCompressorBtn)
 
-        zeroSteeringBtn = gui.Button("Reset swerve rotations")
-        zeroSteeringBtn.onclick.connect(robot.c_wheelsToZero)
-        root.append(zeroSteeringBtn)
-
         self.fieldOrientedLbl = gui.Label("[field oriented state]")
         root.append(self.fieldOrientedLbl)
 
@@ -120,6 +116,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initScheduler(robot))
         self.updateScheduler()
         self.updateSchedulerFlag = False
+
+        root.append(self.initTestControl(robot))
 
         appCallback(self)
         return root
@@ -373,6 +371,31 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox.append(self.schedulerList)
 
         return schedulerBox
+
+    def initTestControl(self, robot):
+        testBox = gui.VBox()
+        self.groupStyle(testBox)
+        testBox.append(gui.Label("TEST MODE"))
+
+        logBox = gui.HBox()
+        testBox.append(logBox)
+
+        logOpticalBtn = gui.Button("Log Optical")
+        logOpticalBtn.onclick.connect(robot.c_logOpticalSensors)
+        logBox.append(logOpticalBtn)
+
+        swerveBox = gui.HBox()
+        testBox.append(swerveBox)
+
+        homeSwerveBtn = gui.Button("Home swerve")
+        homeSwerveBtn.onclick.connect(robot.c_homeSwerveWheels)
+        swerveBox.append(homeSwerveBtn)
+
+        resetSwerveBtn = gui.Button("Wheels to zero")
+        resetSwerveBtn.onclick.connect(robot.c_wheelsToZero)
+        swerveBox.append(resetSwerveBtn)
+
+        return testBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
