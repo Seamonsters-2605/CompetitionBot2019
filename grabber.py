@@ -3,11 +3,12 @@ import ctre
 import seamonsters as sea
 
 DEFENSE_POSITION = 0
-HATCH_POSITION = -300
-OPEN_POSITION = -2841
-CLOSED_POSITION = -3800
-ELEVATOR_CARGO_POSITIONS = [0, 100, 200] # TODO TODO TODO!
-ELEVATOR_HATCH_POSITIONS = [0, 100, 200]
+HATCH_POSITION = -891
+OPEN_POSITION = -3104
+CLOSED_POSITION = -3634
+ELEVATOR_FLOOR = 3514
+ELEVATOR_CARGO_POSITIONS = [-21154, -89260, -149598] # TODO different
+ELEVATOR_HATCH_POSITIONS = [-21154, -89260, -149598]
 
 class GrabberArm():
 
@@ -82,21 +83,28 @@ class GrabberArm():
         self.hatchGrabberIn2.set(not value)
 
     #grabber slides up
-    def slide(self, speed):
+    def elevatorSlide(self, speed):
         speed *= -1
-        if speed != self.slideSpeed:
+        speed -= .05
+        if speed != self.slideValue:
             self.slideMotor.set(speed)
-            self.slideSpeed = speed
+            self.slideValue = speed
+
+    def _setElevatorPosition(self, pos):
+        print(self.slideMotor.getSelectedSensorPosition(0))
+        pos += self.slideOrigin
+        if pos != self.slideValue:
+            self.slideMotor.set(ctre.ControlMode.Position, pos)
+            self.slideValue = pos
+
+    def elevatorFloor(self):
+        self._setElevatorPosition(ELEVATOR_FLOOR)
 
     def elevatorCargoPosition(self, pos):
-        self.slideMotor.set(ctre.ControlMode.Position,
-            self.slideOrigin + ELEVATOR_CARGO_POSITIONS[pos-1])
-        self.slideSpeed = None
+        self._setElevatorPosition(ELEVATOR_CARGO_POSITIONS[pos-1])
 
     def elevatorHatchPosition(self, pos):
-        self.slideMotor.set(ctre.ControlMode.Position,
-            self.slideOrigin + ELEVATOR_HATCH_POSITIONS[pos-1])
-        self.slideSpeed = None
+        self._setElevatorPosition(ELEVATOR_HATCH_POSITIONS[pos-1])
 
     def startCompressor(self):
         self.compressor.start()
