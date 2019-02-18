@@ -20,6 +20,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
         self.grabberArm = grabber.GrabberArm()
+        self.grabberArm.stopCompressor()
         self.climber = climber.Climber()
 
         self.joystick = wpilib.Joystick(0)
