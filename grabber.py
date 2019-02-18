@@ -104,7 +104,6 @@ class GrabberArm():
             self.slideValue = speed
 
     def _setElevatorPosition(self, pos):
-        print(self.slideMotor.getSelectedSensorPosition(0))
         pos += self.slideOrigin
         if pos != self.slideValue:
             self.slideMotor.set(ctre.ControlMode.Position, pos)

@@ -62,6 +62,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.cargoMode = False
         self.defenseMode = True
         self.hatchMode = False
+        self.elevatorFree = True
 
     def updateScheduler(self):
         if self.app is not None:
@@ -120,6 +121,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     def joystickControl(self):
         self.manualGear = drivetrain.fastPositionGear
         self.setHeadless(True)
+        self.elevatorFree = True
         self.resetPositions()
         currentMode = None
 
@@ -160,8 +162,6 @@ class CompetitionBot2019(sea.GeneratorBot):
                 if self.joystick.getRawButtonReleased(2):
                     self.grabberArm.stopIntake()
 
-                self.grabberArm.elevatorCargoPosition(throttlePos)
-
             elif self.hatchMode:
                 if currentMode != "hatch":
                     currentMode = "hatch"
@@ -178,8 +178,6 @@ class CompetitionBot2019(sea.GeneratorBot):
                     self.grabberArm.setInnerPiston(False)
                     self.grabberArm.setOuterPiston(False)
 
-                self.grabberArm.elevatorHatchPosition(throttlePos)
-
             elif self.defenseMode:
                 if currentMode != "defense":
                     currentMode = "defense"
@@ -187,9 +185,9 @@ class CompetitionBot2019(sea.GeneratorBot):
                     self.grabberArm.stopIntake()
                     self.grabberArm.setInnerPiston(False)
                     self.grabberArm.setOuterPiston(False)
-                    self.grabberArm.elevatorSlide(0)
 
-            #self.grabberArm.elevatorSlide(throttle)
+            if self.elevatorFree:
+                self.grabberArm.elevatorSlide(throttle)
 
             # DRIVING
 
@@ -363,6 +361,33 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.defenseMode = False
         self.hatchMode = True
         self.cargoMode = False
+
+    def c_elevatorFree(self, button):
+        self.elevatorFree = True
+
+    @sea.queuedDashboardEvent
+    def c_elevatorG(self, button):
+        self.elevatorFree = False
+        self.grabberArm.elevatorFloor()
+
+    @sea.queuedDashboardEvent
+    def c_elevator1(self, button):
+        self.elevatorPosButton(1)
+
+    @sea.queuedDashboardEvent
+    def c_elevator2(self, button):
+        self.elevatorPosButton(2)
+
+    @sea.queuedDashboardEvent
+    def c_elevator3(self, button):
+        self.elevatorPosButton(3)
+
+    def elevatorPosButton(self, num):
+        self.elevatorFree = False
+        if self.cargoMode:
+            self.grabberArm.elevatorCargoPosition(num)
+        else:
+            self.grabberArm.elevatorHatchPosition(num)
 
     @sea.queuedDashboardEvent
     def c_climberFwd(self, *args, **kwargs):

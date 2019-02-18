@@ -168,20 +168,39 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
         velocityModeBox.append(fastVelocityBtn)
 
+        elevatorBox = gui.HBox()
+        manualBox.append(elevatorBox)
+
+        elevatorFreeBtn = gui.Button("Elevator Free")
+        elevatorFreeBtn.onclick.connect(robot.c_elevatorFree)
+        elevatorBox.append(elevatorFreeBtn)
+        elevatorGBtn = gui.Button("G")
+        elevatorGBtn.onclick.connect(robot.c_elevatorG)
+        elevatorBox.append(elevatorGBtn)
+        elevator1Btn = gui.Button("1")
+        elevator1Btn.onclick.connect(robot.c_elevator1)
+        elevatorBox.append(elevator1Btn)
+        elevator2Btn = gui.Button("2")
+        elevator2Btn.onclick.connect(robot.c_elevator2)
+        elevatorBox.append(elevator2Btn)
+        elevator3Btn = gui.Button("3")
+        elevator3Btn.onclick.connect(robot.c_elevator3)
+        elevatorBox.append(elevator3Btn)
+
         climberBox = gui.HBox()
         manualBox.append(climberBox)
 
         climberRevBtn = gui.Button("Climber REV")
         climberRevBtn.onmousedown.connect(robot.c_climberRev)
         climberRevBtn.onmouseup.connect(robot.c_climberStop)
-        manualBox.append(climberRevBtn)
+        climberBox.append(climberRevBtn)
         climberStopBtn = gui.Button("Climber STOP")
         climberStopBtn.onclick.connect(robot.c_climberStop)
-        manualBox.append(climberStopBtn)
+        climberBox.append(climberStopBtn)
         climberFwdBtn = gui.Button("Climber FWD")
         climberFwdBtn.onmousedown.connect(robot.c_climberFwd)
         climberFwdBtn.onmouseup.connect(robot.c_climberStop)
-        manualBox.append(climberFwdBtn)
+        climberBox.append(climberFwdBtn)
 
         return manualBox
 
