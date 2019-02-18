@@ -6,9 +6,9 @@ DEFENSE_POSITION = 0
 HATCH_POSITION = -891
 OPEN_POSITION = -3104
 CLOSED_POSITION = -3634
-ELEVATOR_FLOOR = 3514
-ELEVATOR_CARGO_POSITIONS = [-43508, -109364, -109364] # TODO level 3
-ELEVATOR_HATCH_POSITIONS = [-21154, -89260, -149598]
+ELEVATOR_FLOOR = -3514
+ELEVATOR_CARGO_POSITIONS = [43508, 109364, 109364] # TODO level 3
+ELEVATOR_HATCH_POSITIONS = [21154, 89260, 149598]
 
 class GrabberArm():
 
@@ -97,8 +97,7 @@ class GrabberArm():
 
     #grabber slides up
     def elevatorSlide(self, speed):
-        speed *= -1
-        speed -= .05
+        speed += .05
         if speed != self.slideValue:
             self.slideMotor.set(speed)
             self.slideValue = speed
