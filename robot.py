@@ -112,6 +112,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def teleop(self):
         self.manualMode()
+        self.grabberArm.resetAllSensors()
         yield from self.mainGenerator()
     
     def autonomous(self):
