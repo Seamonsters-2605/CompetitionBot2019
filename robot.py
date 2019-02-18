@@ -271,7 +271,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             voltage = sensor.getVoltage()
             #print(voltage)
             if voltage < OPTICAL_SENSOR_THRESHOLD:
-                motor.set(0)
+                motor.set(ctre.ControlMode.PercentOutput, 0)
                 break
             yield
         print(name, math.degrees(swerveWheel._getCurrentSteeringAngle()))
