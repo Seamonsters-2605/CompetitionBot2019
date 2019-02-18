@@ -24,10 +24,10 @@ class GrabberArm():
         self.rightPivot.setSensorPhase(True)
 
         # TODO fix names
-        self.hatchGrabberOut1 = wpilib.Solenoid(0)
-        self.hatchGrabberIn1 = wpilib.Solenoid(1)
-        self.hatchGrabberOut2 = wpilib.Solenoid(2)
-        self.hatchGrabberIn2 = wpilib.Solenoid(3)
+        self.solenoid0 = wpilib.Solenoid(0)
+        self.solenoid1 = wpilib.Solenoid(1)
+        self.solenoid2 = wpilib.Solenoid(2)
+        self.solenoid3 = wpilib.Solenoid(3)
 
         self.compressor = wpilib.Compressor(0)
 
@@ -79,12 +79,12 @@ class GrabberArm():
         self.intake()
 
     def setInnerPiston(self, value):
-        self.hatchGrabberOut1.set(not value)
-        self.hatchGrabberIn1.set(value)
+        self.solenoid1.set(value)
+        self.solenoid0.set(not value)
 
     def setOuterPiston(self, value):
-        self.hatchGrabberOut2.set(value)
-        self.hatchGrabberIn2.set(not value)
+        self.solenoid3.set(value)
+        self.solenoid2.set(not value)
 
     #grabber slides up
     def elevatorSlide(self, speed):
