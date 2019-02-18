@@ -17,26 +17,35 @@ class GrabberArm():
         self.rightSpinner = ctre.WPI_TalonSRX(21)
 
         self.leftPivot = ctre.WPI_TalonSRX(22)
-        self.leftPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.leftPivot.setSensorPhase(True)
+        self.setupPivotTalon(self.leftPivot)
         self.rightPivot = ctre.WPI_TalonSRX(23)
-        self.rightPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.rightPivot.setSensorPhase(True)
+        self.setupPivotTalon(self.rightPivot)
 
         # TODO fix names
         self.solenoid0 = wpilib.Solenoid(0)
         self.solenoid1 = wpilib.Solenoid(1)
         self.solenoid2 = wpilib.Solenoid(2)
         self.solenoid3 = wpilib.Solenoid(3)
-
         self.compressor = wpilib.Compressor(0)
 
         self.slideMotor = ctre.WPI_TalonSRX(30)
         self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.slideMotor.setSensorPhase(False)
+        self.slideMotor.config_kP(0, 0.3, 0)
+        self.slideMotor.config_kI(0, 0, 0)
+        self.slideMotor.config_kD(0, 3, 0)
+        self.slideMotor.config_kF(0, 0, 0)
         self.slideValue = None
 
         self.resetAllSensors()
+
+    def setupPivotTalon(self, talon):
+        talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        talon.setSensorPhase(True)
+        talon.config_kP(0, 1, 0)
+        talon.config_kI(0, 0, 0)
+        talon.config_kD(0, 3, 0)
+        talon.config_kF(0, 0, 0)
 
     def resetAllSensors(self):
         self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
