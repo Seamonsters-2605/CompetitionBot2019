@@ -57,3 +57,4 @@ def driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, superDrive, dist
             distTravelled += FWD_SPEED / sea.ITERATIONS_PER_SECOND # TODO not real time
             yield
         drive.drive(0, 0, 0)
+    superDrive.disable()
