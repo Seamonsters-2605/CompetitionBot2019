@@ -126,6 +126,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         clawModeBox = gui.HBox()
         manualBox.append(clawModeBox)
 
+        auxDisabledBtn = gui.Button("No Aux")
+        auxDisabledBtn.onclick.connect(robot.c_auxDisabledMode)
+        clawModeBox.append(auxDisabledBtn)
+
         defenseButton = gui.Button("Defense Mode")
         defenseButton.onclick.connect(robot.c_defenseMode)
         clawModeBox.append(defenseButton)
@@ -137,6 +141,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         hatchButton = gui.Button("Hatch Mode")
         hatchButton.onclick.connect(robot.c_hatchMode)
         clawModeBox.append(hatchButton)
+
+        climbBtn = gui.Button("Climb Mode")
+        climbBtn.onclick.connect(robot.c_climbMode)
+        clawModeBox.append(climbBtn)
 
         self.driveGearLbl = gui.Label("[drive gear]")
         manualBox.append(self.driveGearLbl)
@@ -164,25 +172,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn = gui.Button("Fast Position")
         fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
         velocityModeBox.append(fastVelocityBtn)
-
-        elevatorBox = gui.HBox()
-        manualBox.append(elevatorBox)
-
-        elevatorFreeBtn = gui.Button("Elevator Free")
-        elevatorFreeBtn.onclick.connect(robot.c_elevatorFree)
-        elevatorBox.append(elevatorFreeBtn)
-        elevatorGBtn = gui.Button("G")
-        elevatorGBtn.onclick.connect(robot.c_elevatorG)
-        elevatorBox.append(elevatorGBtn)
-        elevator1Btn = gui.Button("1")
-        elevator1Btn.onclick.connect(robot.c_elevator1)
-        elevatorBox.append(elevator1Btn)
-        elevator2Btn = gui.Button("2")
-        elevator2Btn.onclick.connect(robot.c_elevator2)
-        elevatorBox.append(elevator2Btn)
-        elevator3Btn = gui.Button("3")
-        elevator3Btn.onclick.connect(robot.c_elevator3)
-        elevatorBox.append(elevator3Btn)
 
         climberBox = gui.HBox()
         manualBox.append(climberBox)
@@ -399,6 +388,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         resetSwerveBtn = gui.Button("Wheels to zero")
         resetSwerveBtn.onclick.connect(robot.c_wheelsToZero)
         swerveBox.append(resetSwerveBtn)
+
+        resetClawBtn = gui.Button("Reset Claw")
+        resetClawBtn.onclick.connect(robot.c_resetClaw)
+        testBox.append(resetClawBtn)
 
         pidFrame = gui.HBox()
         testBox.append(pidFrame)
