@@ -9,18 +9,21 @@ ALIGN_TOLERANCE = 1 # degrees
 
 FWD_SPEED = 1
 
-def strafeAlign(drive,vision, superDrive):
+def driveIntoVisionTarget(drive, vision, superDrive, distance=None):
     drivetrain.mediumPositionGear.applyGear(superDrive)
+
+    distTravelled = 0
     while True:
         hasTarget = vision.getNumber('tv', None) # 1 if target, 0 if none
 
         if hasTarget == None:
             print("No limelight connection!")
-            yield
-            continue
+            drive.drive(0, 0, 0)
+            return False
         elif hasTarget == 0:
             print("No vision targets")
-            yield
+            drive.drive(0, 0, 0)
+            yield False
             continue
 
         xOffset = vision.getNumber('tx', None)
@@ -31,8 +34,26 @@ def strafeAlign(drive,vision, superDrive):
         d = math.atan2(FWD_SPEED, speed)
 
         drive.drive(mag,d,0)
+        distTravelled += FWD_SPEED / sea.ITERATIONS_PER_SECOND # TODO not real time
 
-        if abs(xOffset) <= ALIGN_TOLERANCE:
+        if distance is not None and distTravelled > distance:
+            drive(0, 0, 0)
+            return True
+        try:
             yield True
-        else:
-            yield False
+        except:
+            drive(0, 0, 0)
+            return False
+
+
+def driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, superDrive, distance):
+    success = yield from sea.ensureFalse(
+        driveIntoVisionTarget(drive, vision, superDrive, distance), 50)
+    if not success:
+        print("Giving up and driving forward")
+        distTravelled = 0
+        while distTravelled < distance:
+            drive.drive(FWD_SPEED, math.pi / 2, 0)
+            distTravelled += FWD_SPEED / sea.ITERATIONS_PER_SECOND # TODO not real time
+            yield
+        drive.drive(0, 0, 0)

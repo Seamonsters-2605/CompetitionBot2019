@@ -37,7 +37,8 @@ def createNavigateToPointAction(pathFollower, coord, speed):
 
 def createGenericAutoActions(drive, grabber, vision):
     return [
-        Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision, drive), 50)),
+        Action("Vision align", lambda:
+            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 2)),
         Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber)),
         Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1)),
         Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2)),

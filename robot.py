@@ -168,7 +168,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             if self.joystick.getRawButtonPressed(4):
                 yield sea.AddParallelSignal(
-                    sea.parallel(auto_vision.strafeAlign(self.multiDrive, self.vision, self.superDrive),
+                    sea.parallel(auto_vision.driveIntoVisionTarget(self.multiDrive, self.vision, self.superDrive),
                     sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4))))
 
             x = sea.deadZone(self.joystick.getX())
