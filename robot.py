@@ -412,18 +412,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     def c_climbMode(self, button):
         self.manualAuxModeMachine.replace(self.climbState)
 
-    @sea.queuedDashboardEvent
-    def c_climberFwd(self, *args, **kwargs):
-        self.climber.climb(1)
-
-    @sea.queuedDashboardEvent
-    def c_climberRev(self, *args, **kwargs):
-        self.climber.climb(-1)
-
-    @sea.queuedDashboardEvent
-    def c_climberStop(self, *args, **kwargs):
-        self.climber.climb(0)
-
     # TESTING
 
     @sea.queuedDashboardEvent
