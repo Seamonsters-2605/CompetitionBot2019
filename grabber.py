@@ -7,8 +7,9 @@ HATCH_POSITION = -891
 OPEN_POSITION = -3104
 CLOSED_POSITION = -3634
 ELEVATOR_FLOOR = -3514
-ELEVATOR_CARGO_POSITIONS = [43508, 109364, 109364] # TODO level 3
-ELEVATOR_HATCH_POSITIONS = [21154, 89260, 149598]
+ELEVATOR_LIFTED = 36806
+ELEVATOR_CARGO_POSITIONS = [40833, 105547, 150471]
+ELEVATOR_HATCH_POSITIONS = [21154, 81352, 146561]
 
 class GrabberArm():
 
@@ -42,7 +43,7 @@ class GrabberArm():
     def setupPivotTalon(self, talon):
         talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         talon.setSensorPhase(True)
-        talon.config_kP(0, 1, 0)
+        talon.config_kP(0, 0.2, 0)
         talon.config_kI(0, 0, 0)
         talon.config_kD(0, 3, 0)
         talon.config_kF(0, 0, 0)
@@ -52,15 +53,20 @@ class GrabberArm():
         self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
         self.slideOrigin = self.slideMotor.getSelectedSensorPosition(0)
 
+    def disableAllMotors(self):
+        self.leftPivot.disable()
+        self.rightPivot.disable()
+        self.elevatorSlide(0)
+
     #takes in the ball
     def intake(self):
-        self.leftSpinner.set(0.35)
-        self.rightSpinner.set(-0.35)
+        self.leftSpinner.set(-0.35)
+        self.rightSpinner.set(0.35)
 
     #shoots out the ball
     def eject(self):
-        self.leftSpinner.set(-1)
-        self.rightSpinner.set(1)
+        self.leftSpinner.set(1)
+        self.rightSpinner.set(-1)
 
     def stopIntake(self):
         self.leftSpinner.set(0)
@@ -88,12 +94,12 @@ class GrabberArm():
         self.intake()
 
     def setInnerPiston(self, value):
-        self.solenoid1.set(value)
-        self.solenoid0.set(not value)
+        self.solenoid1.set(not value)
+        self.solenoid0.set(value)
 
     def setOuterPiston(self, value):
-        self.solenoid3.set(value)
-        self.solenoid2.set(not value)
+        self.solenoid3.set(not value)
+        self.solenoid2.set(value)
 
     #grabber slides up
     def elevatorSlide(self, speed):
@@ -110,6 +116,9 @@ class GrabberArm():
 
     def elevatorFloor(self):
         self._setElevatorPosition(ELEVATOR_FLOOR)
+
+    def elevatorLifted(self):
+        self._setElevatorPosition(ELEVATOR_LIFTED)
 
     def elevatorCargoPosition(self, pos):
         self._setElevatorPosition(ELEVATOR_CARGO_POSITIONS[pos-1])
