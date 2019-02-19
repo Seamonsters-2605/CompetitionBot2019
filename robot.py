@@ -379,9 +379,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.manualGear = drivetrain.fastPositionGear
 
     @sea.queuedDashboardEvent
-    def c_disableWheel(self, button):
-        self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
-        self.app.switchDeadWheelText(button)
+    def c_wheelButtonClicked(self, button):
+        button.controller.clicked()
 
     @sea.queuedDashboardEvent
     def c_manualMode(self, button):

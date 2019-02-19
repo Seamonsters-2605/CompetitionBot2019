@@ -39,6 +39,37 @@ class Arrow(gui.SvgPolyline):
             % (svgX, svgY, svgAngle)
 
 
+class WheelButtonController:
+
+    def __init__(self, num, wheel):
+        self.num = num
+        self.wheel = wheel
+        self.button = gui.Button(chr(ord('A') + num))
+        self._buttonColor("green")
+        self.button.controller = self
+        self.encoderWorking = True
+
+    def _buttonColor(self, color):
+        self.button.style["background"] = color
+
+    def update(self):
+        if self.wheel.disabled:
+            return
+        if self.encoderWorking and not self.wheel.encoderWorking:
+            self._buttonColor("red")
+        elif self.wheel.encoderWorking and not self.encoderWorking:
+            self._buttonColor("green")
+
+    def clicked(self):
+        if not self.wheel.disabled:
+            self.wheel.disabled = True
+            self._buttonColor("black")
+        else:
+            self.wheel.disabled = False
+            self.wheel.encoderWorking = True
+            self.encoderWorking = True
+            self._buttonColor("green")
+
 class CompetitionBotDashboard(sea.Dashboard):
 
     # these values match the simulator config.json and the field image
@@ -89,7 +120,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.encoderLbl = gui.Label("[encoder values]")
         root.append(self.encoderLbl)
 
-        root.append(self.initWheelControlls(robot))
+        root.append(self.initWheelControls(robot))
 
         root.append(self.initFieldMap(robot))
         self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
@@ -112,7 +143,8 @@ class CompetitionBotDashboard(sea.Dashboard):
             '%.3f' % (self.robot.timingMonitor.realTimeRatio,))
         self.currentLbl.set_text(self.robot.lbl_current)
         self.encoderLbl.set_text(self.robot.lbl_encoder)
-        self.updateBrokenEncoderButton(self.robot)
+        for wheelButton in self.wheelBtns:
+            wheelButton.update()
 
         if self.updateSchedulerFlag:
             self.updateScheduler()
@@ -190,24 +222,23 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         return manualBox
 
-    def initWheelControlls(self, robot):
-        wheelControllsBox = gui.VBox()
-        self.groupStyle(wheelControllsBox)
+    def initWheelControls(self, robot):
+        wheelControlsBox = gui.VBox()
+        self.groupStyle(wheelControlsBox)
 
-        self.wheelControllsLbl = gui.Label("[wheel controlls]")
-        wheelControllsBox.append(self.wheelControllsLbl)
-        self.wheelBtns = [None] * 4
+        wheelControlsBox.append(gui.Label("Swerve Wheels"))
+        self.wheelBtns = []
         
         wheelsBox = gui.HBox()
-        wheelControllsBox.append(wheelsBox)
+        wheelControlsBox.append(wheelsBox)
         for wheelIndex in range(4):
-            newButton = gui.Button(str(wheelIndex + 1))
-            newButton.wheelNum = wheelIndex + 1
-            newButton.onclick.connect(robot.c_disableWheel)
-            self.wheelBtns[wheelIndex] = newButton
-            wheelsBox.append(newButton)
+            newButton = WheelButtonController(wheelIndex,
+                robot.superDrive.wheels[wheelIndex].angledWheel)
+            newButton.button.onclick.connect(robot.c_wheelButtonClicked)
+            wheelsBox.append(newButton.button)
+            self.wheelBtns.append(newButton)
 
-        return wheelControllsBox
+        return wheelControlsBox
 
     def initFieldMap(self, robot):
         fieldBox = gui.VBox()
@@ -461,18 +492,6 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.fieldSvg.append(line)
             lineX, lineY = x1, y1
         return lineX, lineY
-
-    def switchDeadWheelText(self, button):
-        if button.get_text() != "dead":
-            button.set_text("dead")
-        else:
-            button.set_text(str(button.wheelNum))
-            
-    #if the encoder stops working, the button attached to it turns red
-    def updateBrokenEncoderButton(self, robot):
-        for button in self.wheelBtns:
-            if not robot.superDrive.wheels[button.wheelNum - 1].angledWheel.encoderWorking:
-                button.style["background"] = "red"
 
     # WIDGET CALLBACKS
 
