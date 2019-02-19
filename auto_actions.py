@@ -39,7 +39,7 @@ def createNavigateToPointAction(pathFollower, coord, speed):
         coords=[(coord.x, coord.y)])
 
 def createVisionAlignAction(drive, vision):
-    return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision), 50))
+    return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision, drive), 50))
 
 def createPickUpHatchAction(drive, grabber):
     return Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber))
