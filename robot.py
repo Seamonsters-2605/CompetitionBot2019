@@ -30,6 +30,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.superDrive = drivetrain.initDrivetrain()
         self.superDrive.gear = None
         self.multiDrive = sea.MultiDrive(self.superDrive)
+        self.driveVoltage = False
         self.manualGear = None
         self.fieldOriented = True
 
@@ -138,7 +139,10 @@ class CompetitionBot2019(sea.GeneratorBot):
             return 2
 
     def manualDriving(self):
-        self.manualGear = drivetrain.mediumPositionGear
+        if self.driveVoltage:
+            self.manualGear = drivetrain.mediumVoltageGear
+        else:
+            self.manualGear = drivetrain.mediumPositionGear
         self.fieldOriented = True
 
         self.resetPositions()
@@ -153,13 +157,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             # BUTTON BOARD
 
             if self.buttonBoard.getRawButton(3):
-                self.manualGear = drivetrain.slowPositionGear
+                if self.driveVoltage:
+                    self.manualGear = drivetrain.slowVoltageGear
+                else:
+                    self.manualGear = drivetrain.slowPositionGear
                 self.fieldOriented = False
             if self.buttonBoard.getRawButton(4):
-                self.manualGear = drivetrain.mediumPositionGear
+                if self.driveVoltage:
+                    self.manualGear = drivetrain.mediumVoltageGear
+                else:
+                    self.manualGear = drivetrain.mediumPositionGear
                 self.fieldOriented = True
             if self.buttonBoard.getRawButton(5):
-                self.manualGear = drivetrain.fastPositionGear
+                if self.driveVoltage:
+                    self.manualGear = drivetrain.fastVoltageGear
+                else:
+                    self.manualGear = drivetrain.fastPositionGear
                 self.fieldOriented = True
 
             # DRIVING
@@ -357,28 +370,16 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
-    def c_slowVoltageGear(self, button):
-        self.manualGear = drivetrain.slowVoltageGear
-
-    @sea.queuedDashboardEvent
-    def c_mediumVoltageGear(self, button):
+    def c_driveVoltage(self, button):
+        self.driveVoltage = True
         self.manualGear = drivetrain.mediumVoltageGear
+        self.fieldOriented = True
 
     @sea.queuedDashboardEvent
-    def c_fastVoltageGear(self, button):
-        self.manualGear = drivetrain.fastVoltageGear
-
-    @sea.queuedDashboardEvent
-    def c_slowPositionGear(self, button):
-        self.manualGear = drivetrain.slowPositionGear
-
-    @sea.queuedDashboardEvent
-    def c_mediumPositionGear(self, button):
+    def c_drivePosition(self, button):
+        self.driveVoltage = False
         self.manualGear = drivetrain.mediumPositionGear
-
-    @sea.queuedDashboardEvent
-    def c_fastPositionGear(self, button):
-        self.manualGear = drivetrain.fastPositionGear
+        self.fieldOriented = True
 
     @sea.queuedDashboardEvent
     def c_wheelButtonClicked(self, button):

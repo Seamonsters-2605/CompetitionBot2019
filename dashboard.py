@@ -183,27 +183,12 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         voltageModeBox = gui.HBox()
         manualBox.append(voltageModeBox)
-        slowVoltageBtn = gui.Button("Slow Voltage")
-        slowVoltageBtn.onclick.connect(robot.c_slowVoltageGear)
-        voltageModeBox.append(slowVoltageBtn)
-        mediumVoltageBtn = gui.Button("Medium Voltage")
-        mediumVoltageBtn.onclick.connect(robot.c_mediumVoltageGear)
-        voltageModeBox.append(mediumVoltageBtn)
-        fastVoltageBtn = gui.Button("Fast Voltage")
-        fastVoltageBtn.onclick.connect(robot.c_fastVoltageGear)
-        voltageModeBox.append(fastVoltageBtn)
-
-        velocityModeBox = gui.HBox()
-        manualBox.append(velocityModeBox)
-        slowVelocityBtn = gui.Button("Slow Position")
-        slowVelocityBtn.onclick.connect(robot.c_slowPositionGear)
-        velocityModeBox.append(slowVelocityBtn)
-        mediumVelocityBtn = gui.Button("Medium Position")
-        mediumVelocityBtn.onclick.connect(robot.c_mediumPositionGear)
-        velocityModeBox.append(mediumVelocityBtn)
-        fastVelocityBtn = gui.Button("Fast Position")
-        fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
-        velocityModeBox.append(fastVelocityBtn)
+        driveVoltageBtn = gui.Button("Drive Voltage")
+        driveVoltageBtn.onclick.connect(robot.c_driveVoltage)
+        voltageModeBox.append(driveVoltageBtn)
+        drivePositionBtn = gui.Button("Drive Position")
+        drivePositionBtn.onclick.connect(robot.c_drivePosition)
+        voltageModeBox.append(drivePositionBtn)
 
         return manualBox
 
