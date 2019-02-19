@@ -346,33 +346,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         actionNavigateBtn.onclick.connect(self.c_actionNavigate)
         navigationBox.append(actionNavigateBtn)
 
-        actionVisionAlignBtn = gui.Button('Vision Align')
-        actionVisionAlignBtn.onclick.connect(self.c_actionVisionAlign)
-        addActionBox.append(actionVisionAlignBtn)
-
-        elevatorBox = gui.HBox()
-        addActionBox.append(elevatorBox)
-        elevatorBox.append(gui.Label("Elevator position:"))
-        self.elevatorPosInput = gui.SpinBox(1, 1, 3)
-        elevatorBox.append(self.elevatorPosInput)
-
-        hatchBox = gui.HBox()
-        addActionBox.append(hatchBox)
-        actionPickUpHatchBtn = gui.Button('Pick up Hatch')
-        actionPickUpHatchBtn.onclick.connect(self.c_actionPickUpHatch)
-        hatchBox.append(actionPickUpHatchBtn)
-        actionDepositHatchBtn = gui.Button('Deposit Hatch')
-        actionDepositHatchBtn.onclick.connect(self.c_actionDepositHatch)
-        hatchBox.append(actionDepositHatchBtn)
-
-        cargoBox = gui.HBox()
-        addActionBox.append(cargoBox)
-        actionPickUpCargoBtn = gui.Button('Pick up Cargo')
-        actionPickUpCargoBtn.onclick.connect(self.c_actionPickUpCargo)
-        cargoBox.append(actionPickUpCargoBtn)
-        actionDepositCargoBtn = gui.Button('Deposit Cargo')
-        actionDepositCargoBtn.onclick.connect(self.c_actionDepositCargo)
-        cargoBox.append(actionDepositCargoBtn)
+        genericActionList = gui.ListView()
+        index = 0
+        for action in robot.genericAutoActions:
+            genericActionList.append(gui.ListItem(action.name), str(index))
+            index += 1
+        genericActionList.onselection.connect(self.c_addGenericAction)
+        addActionBox.append(genericActionList)
 
         # END ADD ACTION BUTTONS
 
@@ -517,36 +497,10 @@ class CompetitionBotDashboard(sea.Dashboard):
                 self.robot.pathFollower, self.selectedCoord, speed))
         self.updateScheduler()
 
-    def c_actionVisionAlign(self, button):
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createVisionAlignAction(
-                self.robot.superDrive, self.robot.vision))
-        self.updateScheduler()
-
-    def c_actionPickUpHatch(self, button):
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createPickUpHatchAction(
-                self.robot.superDrive, self.robot.grabberArm))
-        self.updateScheduler()
-
-    def c_actionDepositHatch(self, button):
-        pos = int(self.elevatorPosInput.get_value())
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createDepositHatchAction(
-                self.robot.superDrive, self.robot.grabberArm, pos))
-        self.updateScheduler()
-
-    def c_actionPickUpCargo(self, button):
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createPickUpCargoAction(
-                self.robot.superDrive, self.robot.grabberArm))
-        self.updateScheduler()
-
-    def c_actionDepositCargo(self, button):
-        pos = int(self.elevatorPosInput.get_value())
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createDepositCargoAction(
-                self.robot.superDrive, self.robot.grabberArm, pos))
+    def c_addGenericAction(self, listview, key):
+        index = int(key)
+        action = self.robot.genericAutoActions[index]
+        self.robot.autoScheduler.actionList.append(action)
         self.updateScheduler()
 
     def c_clearSchedule(self, button):

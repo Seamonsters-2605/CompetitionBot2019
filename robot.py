@@ -9,6 +9,7 @@ import grabber
 from buttons import Buttons
 import auto_scheduler
 import auto_vision
+import auto_actions
 import coordinates
 from networktables import NetworkTables
 import climber
@@ -41,13 +42,16 @@ class CompetitionBot2019(sea.GeneratorBot):
         startPosition = coordinates.startCenter.inQuadrant(1)
         self.pathFollower.setPosition(startPosition.x, startPosition.y, startPosition.orientation)
 
-        self.joystick = wpilib.Joystick(0)
-
         self.pdp = wpilib.PowerDistributionPanel(50)
+
+        self.vision = NetworkTables.getTable('limelight')
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
         self.autoScheduler.idleFunction = self.autoIdle
+
+        self.genericAutoActions = auto_actions.createGenericAutoActions(
+            self.superDrive, self.grabberArm, self.vision)
 
         self.manualAuxModeMachine = sea.StateMachine()
         self.auxDisabledState = sea.State(self.auxDisabledMode)
@@ -63,12 +67,10 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.timingMonitor = sea.TimingMonitor()
 
-        self.vision = NetworkTables.getTable('limelight')
-
         self.app = None # dashboard
-        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
         self.lbl_current = "no"
         self.lbl_encoder = 'no'
+        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
         #wpilib.CameraServer.launch('camera.py:main')
 
