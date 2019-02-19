@@ -324,11 +324,21 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox = gui.VBox()
         self.groupStyle(schedulerBox)
 
-        addActionBox = gui.VBox()
-        addActionBox.append(gui.Label("Add Action:"))
-        schedulerBox.append(addActionBox)
+        controlBox = gui.HBox()
+        schedulerBox.append(controlBox)
+        manualModeBtn = gui.Button("Manual")
+        manualModeBtn.onclick.connect(robot.c_manualMode)
+        controlBox.append(manualModeBtn)
+        autoModeBtn = gui.Button("Auto")
+        autoModeBtn.onclick.connect(robot.c_autoMode)
+        controlBox.append(autoModeBtn)
 
-        # BEGIN ADD ACTION BUTTONS
+        hbox = gui.HBox()
+        hbox.style['align-items'] = 'flex-start'
+        schedulerBox.append(hbox)
+
+        addActionBox = gui.VBox()
+        hbox.append(addActionBox)
 
         speedBox = gui.HBox()
         addActionBox.append(speedBox)
@@ -336,6 +346,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.speedInput = gui.Input()
         self.speedInput.set_value("5")
         speedBox.append(self.speedInput)
+
+        addActionBox.append(gui.Label("Auto actions:"))
 
         genericActionList = gui.ListView()
         genericActionList.append("Drive to Point", "drivetopoint")
@@ -347,26 +359,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         genericActionList.onselection.connect(self.c_addGenericAction)
         addActionBox.append(genericActionList)
 
-        # END ADD ACTION BUTTONS
-
-        controlBox = gui.HBox()
-        schedulerBox.append(controlBox)
-
-        manualModeBtn = gui.Button("Manual")
-        manualModeBtn.onclick.connect(robot.c_manualMode)
-        controlBox.append(manualModeBtn)
-        autoModeBtn = gui.Button("Auto")
-        autoModeBtn.onclick.connect(robot.c_autoMode)
-        controlBox.append(autoModeBtn)
+        scheduleListBox = gui.VBox()
+        hbox.append(scheduleListBox)
+        clearScheduleBox = gui.HBox()
+        scheduleListBox.append(clearScheduleBox)
+        clearScheduleBox.append(gui.Label("Schedule:"))
         clearScheduleBtn = gui.Button("Clear")
         clearScheduleBtn.onclick.connect(self.c_clearSchedule)
-        controlBox.append(clearScheduleBtn)
-
-        schedulerBox.append(gui.Label("Schedule:"))
+        clearScheduleBox.append(clearScheduleBtn)
 
         self.schedulerList = gui.ListView()
         self.schedulerList.onselection.connect(self.c_removeAction)
-        schedulerBox.append(self.schedulerList)
+        scheduleListBox.append(self.schedulerList)
 
         return schedulerBox
 
