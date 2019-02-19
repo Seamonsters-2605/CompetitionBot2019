@@ -51,7 +51,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.autoScheduler.idleFunction = self.autoIdle
 
         self.genericAutoActions = auto_actions.createGenericAutoActions(
-            self.superDrive, self.grabberArm, self.vision)
+            self.pathFollower, self.grabberArm, self.vision)
 
         self.manualAuxModeMachine = sea.StateMachine()
         self.auxDisabledState = sea.State(self.auxDisabledMode)
