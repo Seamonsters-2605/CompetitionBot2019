@@ -10,13 +10,6 @@ def driveWait(drive, time):
         drive.drive(0, 0, 0)
         yield
 
-def driveIntoWall(drive):
-    drivetrain.autoVelocityGear.applyGear(drive)
-    for _ in range(50):
-        drive.drive(2, FORWARD, 0)
-        yield
-    yield from driveWait(drive, 25)
-
 def driveBackFromWall(drive):
     drivetrain.autoPositionGear.applyGear(drive)
     for _ in range(25): # one foot?
@@ -24,14 +17,8 @@ def driveBackFromWall(drive):
         yield
 
 def pickUpHatch(drive, grabber):                    # PICK UP HATCH
-    grabber.elevatorHatchPosition(1)                # elevator position 1
-    grabber.setInnerPiston(True)                    # extend inner piston
-    grabber.setOuterPiston(False)
-    grabber.clawHatch()                             # claw in hatch position
-
-    yield from driveIntoWall(drive)                 # drive into wall
-    grabber.elevatorHatchPosition(2)                # elevator lift up
-    yield from driveWait(drive, 25)                 # wait for elevator
+    grabber.elevatorLifted()                        # elevator lift up
+    yield from driveWait(drive, 25)                 # wait for elevator TODO
     yield from driveBackFromWall(drive)             # drive backward
     grabber.elevatorHatchPosition(1)                # elevator down
     grabber.setInnerPiston(False)                   # retract inner piston
@@ -39,11 +26,6 @@ def pickUpHatch(drive, grabber):                    # PICK UP HATCH
     yield                                           # END
 
 def pickUpCargo(drive, grabber):                    # PICK UP CARGO
-    grabber.elevatorCargoPosition(1)                # elevator position 1
-    grabber.setInnerPiston(False)
-    grabber.setOuterPiston(False)
-    grabber.clawOpen()                              # claw open
-    yield from driveIntoWall(drive)                 # drive into wall
     grabber.clawClosed()                            # claw closed
     grabber.intake()                                # intake
     yield from driveWait(drive, 30)                 # wait for intake
@@ -54,7 +36,7 @@ def pickUpCargo(drive, grabber):                    # PICK UP CARGO
 
 def depositHatch(drive, grabber, pos):              # DEPOSIT HATCH
     grabber.elevatorHatchPosition(pos)              # move elevator to position
-    yield from driveIntoWall(drive)                 # drive into wall
+    yield from driveWait(drive, 50)                 # wait for elevator TODO
     grabber.setOuterPiston(True)                    # extend outer pistons
     yield from driveWait(drive, 25)                 # wait for pistons
     yield from driveBackFromWall(drive)             # drive backward
@@ -65,7 +47,7 @@ def depositHatch(drive, grabber, pos):              # DEPOSIT HATCH
 
 def depositCargo(drive, grabber, pos):              # DEPOSIT CARGO
     grabber.elevatorCargoPosition(pos)              # move elevator to position
-    yield from driveIntoWall(drive)                 # drive into wall
+    yield from driveWait(drive, 50)                 # wait for elevator TODO
     grabber.eject()                                 # eject cargo
     yield from driveWait(drive, 25)                 # wait for eject
     grabber.stopIntake()                            # stop intake
