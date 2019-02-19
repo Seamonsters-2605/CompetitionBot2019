@@ -337,16 +337,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.speedInput.set_value("5")
         speedBox.append(self.speedInput)
 
-        navigationBox = gui.HBox()
-        addActionBox.append(navigationBox)
-        actionDriveToPointBtn = gui.Button('Drive to Point')
-        actionDriveToPointBtn.onclick.connect(self.c_actionDriveToPoint)
-        navigationBox.append(actionDriveToPointBtn)
-        actionNavigateBtn = gui.Button('Navigate to Point')
-        actionNavigateBtn.onclick.connect(self.c_actionNavigate)
-        navigationBox.append(actionNavigateBtn)
-
         genericActionList = gui.ListView()
+        genericActionList.append("Drive to Point", "drivetopoint")
+        genericActionList.append("Navigate to Point", "navigatetopoint")
         index = 0
         for action in robot.genericAutoActions:
             genericActionList.append(gui.ListItem(action.name), str(index))
@@ -483,23 +476,16 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robot.pathFollower.setPosition(
             coord.x, coord.y, coord.orientation)
 
-    def c_actionDriveToPoint(self, button):
-        speed = float(self.speedInput.get_value())
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createDriveToPointAction(
-                self.robot.pathFollower, self.selectedCoord, speed))
-        self.updateScheduler()
-
-    def c_actionNavigate(self, button):
-        speed = float(self.speedInput.get_value())
-        self.robot.autoScheduler.actionList.append(
-            auto_actions.createNavigateToPointAction(
-                self.robot.pathFollower, self.selectedCoord, speed))
-        self.updateScheduler()
-
     def c_addGenericAction(self, listview, key):
-        index = int(key)
-        action = self.robot.genericAutoActions[index]
+        speed = float(self.speedInput.get_value())
+        if key == "drivetopoint":
+            action = auto_actions.createDriveToPointAction(
+                self.robot.pathFollower, self.selectedCoord, speed)
+        elif key == "navigatetopoint":
+            action = auto_actions.createNavigateToPointAction(
+                self.robot.pathFollower, self.selectedCoord, speed)
+        else:
+            action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
         self.updateScheduler()
 
