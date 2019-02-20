@@ -181,9 +181,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.pathFollower.updateRobotPosition()
 
             if self.joystick.getRawButtonPressed(4):
-                yield sea.AddParallelSignal(
-                    sea.parallel(auto_vision.driveIntoVisionTarget(self.multiDrive, self.vision, self.superDrive),
-                    sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4))))
+                yield sea.AddParallelSignal(self.manualVisionAlign())
 
             x = sea.deadZone(self.joystick.getX())
             y = sea.deadZone(self.joystick.getY())
@@ -228,6 +226,17 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.multiDrive.update()
 
             yield
+
+    def manualVisionAlign(self):
+        yield from sea.parallel(
+            auto_vision.driveIntoVisionTarget(
+                self.multiDrive, self.vision, self.superDrive),
+            sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
+        if self.driveVoltage:
+            self.manualGear = drivetrain.mediumVoltageGear
+        else:
+            self.manualGear = drivetrain.mediumPositionGear
+        self.fieldOriented = True
 
     def elevatorControl(self):
         self.grabberArm.elevatorSlide(-self.buttonBoard.getY() * 0.3)
