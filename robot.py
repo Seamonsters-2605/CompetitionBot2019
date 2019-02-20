@@ -93,6 +93,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         yield from self.mainGenerator()
 
     def test(self):
+        self.grabberArm.disableAllMotors()
         yield from sea.parallel(
             self.dashboardUpdateGenerator(),
             self.timingMonitor.updateGenerator()
