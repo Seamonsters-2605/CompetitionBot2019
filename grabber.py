@@ -77,8 +77,6 @@ class GrabberArm():
         self.rightSpinner.set(0)
 
     def _setClawPosition(self, position):
-        print("set claw", position)
-        return
         self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + position)
         self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - position)
 
