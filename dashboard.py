@@ -4,6 +4,7 @@ import seamonsters as sea
 import coordinates
 import drivetrain
 import auto_actions
+import random
 
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
@@ -95,9 +96,20 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root = gui.VBox(width=600, margin='0px auto')
 
+        generalBox = gui.HBox()
+        root.append(generalBox)
+
         closeButton = gui.Button("Close")
         closeButton.onclick.connect(self.c_closeApp)
-        root.append(closeButton)
+        generalBox.append(closeButton)
+
+        connectionTestButton = gui.Button("Connection Test")
+        generalBox.append(connectionTestButton)
+
+        def connectionTest(button):
+            color = "rgb(%d, %d, %d)" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            connectionTestButton.style["background"] = color
+        connectionTestButton.onclick.connect(connectionTest)
 
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
