@@ -242,7 +242,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.stopIntake()
         self.grabberArm.setInnerPiston(False)
         self.grabberArm.setOuterPiston(False)
-        self.grabberArm.elevatorSlide(0)
+        self.grabberArm.elevatorToZero()
         while True:
             self.grabberArm.clawBack()
             yield
@@ -253,10 +253,15 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.setOuterPiston(False)
         self.grabberArm.elevatorSlide(0)
         while True:
-            if self.joystick.getRawButton(1):
+            if self.joystick.getRawButton(8):
+                self.grabberArm.elevatorCargoPosition(self.getThrottlePos())
+            elif self.joystick.getRawButton(1):
                 self.grabberArm.clawOpen()
+                self.grabberArm.elevatorFloor()
             else:
                 self.grabberArm.clawClosed()
+                self.elevatorControl()
+
             if self.joystick.getRawButtonReleased(1):
                 def releasedAction():
                     self.grabberArm.intake()
@@ -267,11 +272,6 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.eject()
             if self.joystick.getRawButtonReleased(2):
                 self.grabberArm.stopIntake()
-
-            if self.joystick.getRawButton(8):
-                self.grabberArm.elevatorCargoPosition(self.getThrottlePos())
-            else:
-                self.elevatorControl()
 
             try:
                 yield
