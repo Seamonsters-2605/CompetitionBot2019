@@ -326,6 +326,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         print("Climb mode")
         while True:
             self.climber.climb(-self.buttonBoard.getY())
+            yield
 
     def updateDashboardLabels(self):
         #self.lbl_current = str(self.pdp.getTotalCurrent())
