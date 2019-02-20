@@ -43,10 +43,11 @@ class GrabberArm():
     def setupPivotTalon(self, talon):
         talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         talon.setSensorPhase(True)
-        talon.config_kP(0, 0.2, 0)
+        talon.config_kP(0, 0.5, 0)
         talon.config_kI(0, 0, 0)
         talon.config_kD(0, 3, 0)
         talon.config_kF(0, 0, 0)
+        talon.configClosedLoopPeakOutput(0, 0.5, 0)
 
     def resetAllSensors(self):
         self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
