@@ -10,6 +10,7 @@ from buttons import Buttons
 import auto_scheduler
 import auto_vision
 import auto_actions
+import auto_grabber
 import coordinates
 from networktables import NetworkTables
 import climber
@@ -33,6 +34,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.driveVoltage = False
         self.manualGear = None
         self.fieldOriented = True
+        self.holdGear = False
 
         self.opticalSensors = [
             wpilib.AnalogInput(0), wpilib.AnalogInput(1),
@@ -214,7 +216,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 aDiff = sea.circleDistance(alignAngle, self.pathFollower.robotAngle)
                 turn = sea.feedbackLoopScale(-aDiff, 15, 2, drivetrain.mediumPositionGear.turnScale)
 
-            if self.manualGear.applyGear(self.superDrive):
+            if not self.holdGear and self.manualGear.applyGear(self.superDrive):
                 if self.app is not None:
                     self.app.driveGearLbl.set_text("Gear: " + str(self.manualGear))
 
@@ -228,6 +230,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def manualVisionAlign(self):
+        self.holdGear = True
         yield from sea.parallel(
             auto_vision.driveIntoVisionTarget(
                 self.multiDrive, self.vision, self.superDrive),
@@ -237,6 +240,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         else:
             self.manualGear = drivetrain.mediumPositionGear
         self.fieldOriented = True
+        self.holdGear = False
 
     def elevatorControl(self):
         self.grabberArm.elevatorSlide(-self.buttonBoard.getY() * 0.3)
@@ -292,17 +296,20 @@ class CompetitionBot2019(sea.GeneratorBot):
         print("Hatch mode")
         self.grabberArm.stopIntake()
         self.grabberArm.elevatorSlide(0)
+        self.grabberArm.setInnerPiston(False)
+        self.joystick.getRawButtonPressed(1)
         while True:
             self.grabberArm.clawHatch()
             if self.joystick.getRawButton(2):
-                self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(True)
-            if self.joystick.getRawButton(1):
-                self.grabberArm.setInnerPiston(True)
-                self.grabberArm.setOuterPiston(False)
             if self.joystick.getRawButton(10):
-                self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(False)
+
+            if self.joystick.getRawButtonPressed(1):
+                self.holdGear = True
+                yield from auto_grabber.pickUpHatch(
+                    self.multiDrive, self.grabberArm, self.superDrive)
+                self.holdGear = False
 
             if self.joystick.getRawButton(8):
                 self.grabberArm.elevatorHatchPosition(self.getThrottlePos())
