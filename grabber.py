@@ -83,7 +83,7 @@ class GrabberArm():
     def clawClosed(self):
         if self.clawState == "closed":
             return
-        if not self.safeForArmsToClose():
+        if self.clawState != "open" and not self.safeForArmsToClose():
             return
         self.clawState = "closed"
         self._setClawPosition(CLOSED_POSITION)
@@ -91,7 +91,7 @@ class GrabberArm():
     def clawOpen(self):
         if self.clawState == "open":
             return
-        if not self.safeForArmsToClose():
+        if self.clawState != "closed" and not self.safeForArmsToClose():
             return
         self.clawState = "open"
         self._setClawPosition(OPEN_POSITION)
@@ -100,12 +100,19 @@ class GrabberArm():
         if self.clawState == "back":
             return
         if not self.safeForArmsToGoBack():
+            self.clawHatch()
+            return
+        if (self.clawState == "open" or self.clawState == "closed") \
+                and not self.safeForArmsToClose():
             return
         self.clawState = "back"
         self._setClawPosition(DEFENSE_POSITION)
 
     def clawHatch(self):
         if self.clawState == "hatch":
+            return
+        if (self.clawState == "open" or self.clawState == "closed") \
+                and not self.safeForArmsToClose():
             return
         self.clawState = "hatch"
         self._setClawPosition(HATCH_POSITION)
