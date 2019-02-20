@@ -15,7 +15,6 @@ import coordinates
 from networktables import NetworkTables
 import climber
 
-DISABLE_MOTORS_TIME = 50 # iterations
 OPTICAL_SENSOR_THRESHOLD = 0.5 # volts
 
 class CompetitionBot2019(sea.GeneratorBot):
