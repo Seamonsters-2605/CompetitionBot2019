@@ -48,13 +48,13 @@ def createGenericAutoActions(pathFollower, grabber, vision):
     drive = pathFollower.drive
     return [
         Action("Vision align", lambda:
-            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 2)),
-        Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber)),
-        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1)),
-        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2)),
-        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(drive, grabber, 3)),
-        Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber)),
-        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(drive, grabber, 1)),
-        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(drive, grabber, 2)),
-        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(drive, grabber, 3))
+            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 4)),
+        Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber, drive)),
+        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1, drive)),
+        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2, drive)),
+        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(drive, grabber, 3, drive)),
+        Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber, drive)),
+        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(drive, grabber, 1, drive)),
+        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(drive, grabber, 2, drive)),
+        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(drive, grabber, 3, drive))
     ]
