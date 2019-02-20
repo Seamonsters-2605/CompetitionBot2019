@@ -98,17 +98,28 @@ class CompetitionBotDashboard(sea.Dashboard):
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.VBox(width=600, margin='0px auto')
+        root = gui.VBox(width=1000, margin='0px auto')
 
-        root.append(self.initGeneral(robot))
-        root.append(self.initManualControls(robot))
-        root.append(self.initWheelControls(robot))
+        sideHBox = gui.HBox()
+        root.append(sideHBox)
+        sideHBox.style['align-items'] = 'flex-start'
+        leftSide = gui.VBox()
+        sideHBox.append(leftSide)
+        rightSide = gui.VBox()
+        sideHBox.append(rightSide)
 
-        root.append(self.initFieldMap(robot))
+        hbox1 = gui.HBox()
+        leftSide.append(hbox1)
+        hbox1.append(self.initGeneral(robot))
+        hbox1.append(self.initWheelControls(robot))
+
+        leftSide.append(self.initManualControls(robot))
+
+        leftSide.append(self.initFieldMap(robot))
         self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
         self.updateCursorPosition()
 
-        root.append(self.initScheduler(robot))
+        rightSide.append(self.initScheduler(robot))
         self.updateScheduler()
         self.updateSchedulerFlag = False
 
