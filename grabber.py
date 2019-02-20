@@ -55,12 +55,12 @@ class GrabberArm():
         self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
         self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
         self.slideOrigin = self.slideMotor.getSelectedSensorPosition(0)
+        self.clawState = "back"
 
     def disableAllMotors(self):
         self.leftPivot.disable()
         self.rightPivot.disable()
         self.elevatorSlide(0)
-        self.clawState = None
 
     #takes in the ball
     def intake(self):
