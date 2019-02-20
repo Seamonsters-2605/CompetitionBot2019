@@ -214,7 +214,7 @@ class CompetitionBot2019(sea.GeneratorBot):
                 alignAngle = -math.radians(pov) - math.pi / 2
             if alignAngle is not None:
                 aDiff = sea.circleDistance(alignAngle, self.pathFollower.robotAngle)
-                turn = sea.feedbackLoopScale(-aDiff, 15, 2, drivetrain.mediumPositionGear.turnScale)
+                turn = sea.feedbackLoopScale(-aDiff, 25, 2, drivetrain.mediumPositionGear.turnScale)
 
             if not self.holdGear and self.manualGear.applyGear(self.superDrive):
                 if self.app is not None:
