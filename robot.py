@@ -341,6 +341,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     def logElevator(self):
         while True:
             print(self.grabberArm.safeForArmsToClose(), self.grabberArm.safeForArmsToGoBack())
+            yield
 
     def homeSwerveWheel(self, name, swerveWheel, sensor, angle):
         swerveWheel.zeroSteering()
