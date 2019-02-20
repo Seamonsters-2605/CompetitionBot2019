@@ -243,7 +243,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.holdGear = False
 
     def elevatorControl(self):
-        self.grabberArm.elevatorSlide(-self.buttonBoard.getY() * 0.3)
+        self.grabberArm.elevatorSlide(-self.buttonBoard.getY() * 0.5)
 
     def auxDisabledMode(self):
         print("Aux Disabled")
