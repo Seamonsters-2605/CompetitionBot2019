@@ -9,6 +9,7 @@ import grabber
 from buttons import Buttons
 import auto_scheduler
 import auto_vision
+import auto_actions
 import coordinates
 from networktables import NetworkTables
 import climber
@@ -19,16 +20,19 @@ OPTICAL_SENSOR_THRESHOLD = 0.5 # volts
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
+        self.joystick = wpilib.Joystick(0)
+        self.buttonBoard = wpilib.Joystick(1)
+
         self.grabberArm = grabber.GrabberArm()
         self.grabberArm.stopCompressor()
         self.climber = climber.Climber()
 
-        self.joystick = wpilib.Joystick(0)
-
         self.superDrive = drivetrain.initDrivetrain()
         self.superDrive.gear = None
+        self.multiDrive = sea.MultiDrive(self.superDrive)
+        self.driveVoltage = False
         self.manualGear = None
-        self.headless_mode = True
+        self.fieldOriented = True
 
         self.opticalSensors = [
             wpilib.AnalogInput(0), wpilib.AnalogInput(1),
@@ -39,30 +43,37 @@ class CompetitionBot2019(sea.GeneratorBot):
         startPosition = coordinates.startCenter.inQuadrant(1)
         self.pathFollower.setPosition(startPosition.x, startPosition.y, startPosition.orientation)
 
-        self.joystick = wpilib.Joystick(0)
-
         self.pdp = wpilib.PowerDistributionPanel(50)
+
+        self.vision = NetworkTables.getTable('limelight')
 
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
         self.autoScheduler.idleFunction = self.autoIdle
+
+        self.genericAutoActions = auto_actions.createGenericAutoActions(
+            self.pathFollower, self.grabberArm, self.vision)
+
+        self.manualAuxModeMachine = sea.StateMachine()
+        self.auxDisabledState = sea.State(self.auxDisabledMode)
+        self.defenseState = sea.State(self.manualDefenseMode)
+        self.hatchState = sea.State(self.manualHatchMode)
+        self.cargoState = sea.State(self.manualCargoMode)
+        self.climbState = sea.State(self.manualClimbMode)
+
         self.controlModeMachine = sea.StateMachine()
         self.autoState = sea.State(self.autoScheduler.runSchedule)
-        self.manualState = sea.State(self.joystickControl)
+        self.manualState = sea.State(lambda: sea.parallel(
+            self.manualDriving(), self.manualAuxModeMachine.updateGenerator()))
 
         self.timingMonitor = sea.TimingMonitor()
 
-        self.vision = NetworkTables.getTable('limelight')
-
         self.app = None # dashboard
-        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
         self.lbl_current = "no"
         self.lbl_encoder = 'no'
+        sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
-        self.cargoMode = False
-        self.defenseMode = True
-        self.hatchMode = False
-        self.elevatorFree = True
+        #wpilib.CameraServer.launch('camera.py:main')
 
     def updateScheduler(self):
         if self.app is not None:
@@ -74,7 +85,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def teleop(self):
         self.manualMode()
-        self.grabberArm.resetAllSensors()
+        self.manualAuxModeMachine.replace(self.auxDisabledState)
         yield from self.mainGenerator()
     
     def autonomous(self):
@@ -82,6 +93,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         yield from self.mainGenerator()
 
     def test(self):
+        self.grabberArm.disableAllMotors()
         yield from sea.parallel(
             self.dashboardUpdateGenerator(),
             self.timingMonitor.updateGenerator()
@@ -118,84 +130,60 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.updateDashboardLabels()
             yield v
 
-    def joystickControl(self):
-        self.manualGear = drivetrain.fastPositionGear
-        self.setHeadless(True)
-        self.elevatorFree = True
+    def getThrottlePos(self):
+        throttle = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
+        if throttle > 0.5:
+            return 3
+        elif throttle < -0.5:
+            return 1
+        else:
+            return 2
+
+    def manualDriving(self):
+        if self.driveVoltage:
+            self.manualGear = drivetrain.mediumVoltageGear
+        else:
+            self.manualGear = drivetrain.mediumPositionGear
+        self.fieldOriented = True
+
         self.resetPositions()
-        currentMode = None
+        
+        alignAngle = None
 
         self.joystick.getRawButtonPressed(1)
         self.joystick.getRawButtonPressed(11)
         self.joystick.getRawButtonPressed(12)
 
         while True:
-            # GRABBER
+            # BUTTON BOARD
 
-            throttle = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
-            if throttle > 0.5:
-                throttlePos = 3
-            elif throttle < -0.5:
-                throttlePos = 1
-            else:
-                throttlePos = 2
-
-            # Cargo Mode
-            if self.cargoMode:
-                if currentMode != "cargo":
-                    currentMode = "cargo"
-                    self.grabberArm.setInnerPiston(False)
-                    self.grabberArm.setOuterPiston(False)
-                    self.grabberArm.clawClosed()
-                               
-                if self.joystick.getRawButtonPressed(1):
-                    self.grabberArm.clawOpen()
-                if self.joystick.getRawButtonReleased(1):
-                    self.grabberArm.clawClosed()
-                    def releasedAction():
-                        self.grabberArm.intake()
-                        yield from sea.wait(30)
-                        self.grabberArm.stopIntake()
-                    yield sea.AddParallelSignal(releasedAction())
-                if self.joystick.getRawButton(2):
-                    self.grabberArm.eject()
-                if self.joystick.getRawButtonReleased(2):
-                    self.grabberArm.stopIntake()
-
-            elif self.hatchMode:
-                if currentMode != "hatch":
-                    currentMode = "hatch"
-                    self.grabberArm.clawHatch()
-                    self.grabberArm.stopIntake()
-                
-                if self.joystick.getRawButton(2):
-                    self.grabberArm.setInnerPiston(False)
-                    self.grabberArm.setOuterPiston(True)
-                if self.joystick.getRawButton(1):
-                    self.grabberArm.setInnerPiston(True)
-                    self.grabberArm.setOuterPiston(False)
-                if self.joystick.getRawButton(10):
-                    self.grabberArm.setInnerPiston(False)
-                    self.grabberArm.setOuterPiston(False)
-
-            elif self.defenseMode:
-                if currentMode != "defense":
-                    currentMode = "defense"
-                    self.grabberArm.clawBack()
-                    self.grabberArm.stopIntake()
-                    self.grabberArm.setInnerPiston(False)
-                    self.grabberArm.setOuterPiston(False)
-
-            if self.elevatorFree:
-                self.grabberArm.elevatorSlide(throttle)
+            if self.buttonBoard.getRawButton(3):
+                if self.driveVoltage:
+                    self.manualGear = drivetrain.slowVoltageGear
+                else:
+                    self.manualGear = drivetrain.slowPositionGear
+                self.fieldOriented = False
+            if self.buttonBoard.getRawButton(4):
+                if self.driveVoltage:
+                    self.manualGear = drivetrain.mediumVoltageGear
+                else:
+                    self.manualGear = drivetrain.mediumPositionGear
+                self.fieldOriented = True
+            if self.buttonBoard.getRawButton(5):
+                if self.driveVoltage:
+                    self.manualGear = drivetrain.fastVoltageGear
+                else:
+                    self.manualGear = drivetrain.fastPositionGear
+                self.fieldOriented = True
 
             # DRIVING
 
             self.pathFollower.updateRobotPosition()
 
-            if self.joystick.getRawButton(4):
-                yield from sea.parallel(auto_vision.strafeAlign(self.superDrive, self.vision),
-                    sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
+            if self.joystick.getRawButtonPressed(4):
+                yield sea.AddParallelSignal(
+                    sea.parallel(auto_vision.driveIntoVisionTarget(self.multiDrive, self.vision, self.superDrive),
+                    sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4))))
 
             x = sea.deadZone(self.joystick.getX())
             y = sea.deadZone(self.joystick.getY())
@@ -204,11 +192,13 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             direction = -self.joystick.getDirectionRadians() + math.pi/2
 
-            if self.headless_mode:
+            if self.fieldOriented and not self.joystick.getRawButton(4):
                 direction -= self.pathFollower.robotAngle + math.pi/2
             
             turn = -sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_TWIST)) \
                 - 0.5 * sea.deadZone(self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_LEVER))
+            if turn != 0:
+                alignAngle = None
             turn *= self.manualGear.turnScale # maximum radians per second
 
             if not self.joystick.getPOV() == -1:
@@ -221,19 +211,104 @@ class CompetitionBot2019(sea.GeneratorBot):
                     pov = 210
                 elif pov == 315:
                     pov = 330
-                aDiff = sea.circleDistance(-math.radians(pov) - math.pi/2, self.pathFollower.robotAngle)
-                turn = sea.feedbackLoopScale(-aDiff, 10, 2, drivetrain.mediumPositionGear.turnScale)
+                alignAngle = -math.radians(pov) - math.pi / 2
+            if alignAngle is not None:
+                aDiff = sea.circleDistance(alignAngle, self.pathFollower.robotAngle)
+                turn = sea.feedbackLoopScale(-aDiff, 15, 2, drivetrain.mediumPositionGear.turnScale)
 
             if self.manualGear.applyGear(self.superDrive):
                 if self.app is not None:
                     self.app.driveGearLbl.set_text("Gear: " + str(self.manualGear))
 
-            if self.joystick.getRawButton(9) or wpilib.RobotController.isBrownedOut():
+            if self.buttonBoard.getRawButton(1) or wpilib.RobotController.isBrownedOut():
+                alignAngle = None
                 self.superDrive.disable()
             else:
-                self.superDrive.drive(mag, direction, turn)
+                self.multiDrive.drive(mag, direction, turn)
+            self.multiDrive.update()
 
             yield
+
+    def elevatorControl(self):
+        self.grabberArm.elevatorSlide(-self.buttonBoard.getY() * 0.3)
+
+    def auxDisabledMode(self):
+        print("Aux Disabled")
+        self.grabberArm.disableAllMotors()
+        yield from sea.forever()
+
+    def manualDefenseMode(self):
+        print("Defense Mode")
+        self.grabberArm.clawBack()
+        self.grabberArm.stopIntake()
+        self.grabberArm.setInnerPiston(False)
+        self.grabberArm.setOuterPiston(False)
+        self.grabberArm.elevatorSlide(0)
+        yield from sea.forever()
+
+    def manualCargoMode(self):
+        print("Cargo Mode")
+        self.grabberArm.setInnerPiston(False)
+        self.grabberArm.setOuterPiston(False)
+        self.grabberArm.clawClosed()
+        self.grabberArm.elevatorSlide(0)
+        while True:
+            if self.joystick.getRawButtonPressed(1):
+                self.grabberArm.clawOpen()
+            if self.joystick.getRawButtonReleased(1):
+                self.grabberArm.clawClosed()
+                def releasedAction():
+                    self.grabberArm.intake()
+                    yield from sea.wait(30)
+                    self.grabberArm.stopIntake()
+                yield sea.AddParallelSignal(releasedAction())
+            if self.joystick.getRawButton(2):
+                self.grabberArm.eject()
+            if self.joystick.getRawButtonReleased(2):
+                self.grabberArm.stopIntake()
+
+            if self.joystick.getRawButton(8):
+                self.grabberArm.elevatorCargoPosition(self.getThrottlePos())
+            else:
+                self.elevatorControl()
+
+            try:
+                yield
+            except:
+                self.grabberArm.disableAllMotors()
+                return
+
+    def manualHatchMode(self):
+        print("Hatch mode")
+        self.grabberArm.clawHatch()
+        self.grabberArm.stopIntake()
+        self.grabberArm.elevatorSlide(0)
+        while True:
+            if self.joystick.getRawButton(2):
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(True)
+            if self.joystick.getRawButton(1):
+                self.grabberArm.setInnerPiston(True)
+                self.grabberArm.setOuterPiston(False)
+            if self.joystick.getRawButton(10):
+                self.grabberArm.setInnerPiston(False)
+                self.grabberArm.setOuterPiston(False)
+
+            if self.joystick.getRawButton(8):
+                self.grabberArm.elevatorHatchPosition(self.getThrottlePos())
+            else:
+                self.elevatorControl()
+
+            try:
+                yield
+            except:
+                self.grabberArm.disableAllMotors()
+                return
+
+    def manualClimbMode(self):
+        print("Climb mode")
+        while True:
+            self.climber.climb(-self.buttonBoard.getY())
 
     def updateDashboardLabels(self):
         #self.lbl_current = str(self.pdp.getTotalCurrent())
@@ -241,11 +316,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.lbl_encoder = ''
         for wheel in self.superDrive.wheels:
             self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
-
-    def setHeadless(self, on):
-        self.headless_mode = on
-        if self.app is not None:
-            self.app.fieldOrientedLbl.set_text("Field oriented: " + ("On" if on else "Off"))
 
     # TEST FUNCTIONS
 
@@ -271,7 +341,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             voltage = sensor.getVoltage()
             #print(voltage)
             if voltage < OPTICAL_SENSOR_THRESHOLD:
-                motor.set(0)
+                motor.set(ctre.ControlMode.PercentOutput, 0)
                 break
             yield
         print(name, math.degrees(swerveWheel._getCurrentSteeringAngle()))
@@ -301,41 +371,20 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
-    def c_fieldOrientedOn(self, button):
-        self.setHeadless(True)
-
-    @sea.queuedDashboardEvent
-    def c_fieldOrientedOff(self, button):
-        self.setHeadless(False)
-
-    @sea.queuedDashboardEvent
-    def c_slowVoltageGear(self, button):
-        self.manualGear = drivetrain.slowVoltageGear
-
-    @sea.queuedDashboardEvent
-    def c_mediumVoltageGear(self, button):
+    def c_driveVoltage(self, button):
+        self.driveVoltage = True
         self.manualGear = drivetrain.mediumVoltageGear
+        self.fieldOriented = True
 
     @sea.queuedDashboardEvent
-    def c_fastVoltageGear(self, button):
-        self.manualGear = drivetrain.fastVoltageGear
-
-    @sea.queuedDashboardEvent
-    def c_slowPositionGear(self, button):
-        self.manualGear = drivetrain.slowPositionGear
-
-    @sea.queuedDashboardEvent
-    def c_mediumPositionGear(self, button):
+    def c_drivePosition(self, button):
+        self.driveVoltage = False
         self.manualGear = drivetrain.mediumPositionGear
+        self.fieldOriented = True
 
     @sea.queuedDashboardEvent
-    def c_fastPositionGear(self, button):
-        self.manualGear = drivetrain.fastPositionGear
-
-    @sea.queuedDashboardEvent
-    def c_disableWheel(self, button):
-        self.superDrive.wheels[button.wheelNum - 1].angledWheel.driveMode = ctre.ControlMode.Disabled
-        self.app.switchDeadWheelText(button)
+    def c_wheelButtonClicked(self, button):
+        button.controller.clicked()
 
     @sea.queuedDashboardEvent
     def c_manualMode(self, button):
@@ -344,63 +393,26 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_autoMode(self, button):
         self.autoMode()
+
+    @sea.queuedDashboardEvent
+    def c_auxDisabledMode(self, button):
+        self.manualAuxModeMachine.replace(self.auxDisabledState)
     
     @sea.queuedDashboardEvent
     def c_defenseMode(self, button):
-        self.defenseMode = True
-        self.hatchMode = False
-        self.cargoMode = False
+        self.manualAuxModeMachine.replace(self.defenseState)
 
     @sea.queuedDashboardEvent
     def c_cargoMode(self, button):
-        self.defenseMode = False
-        self.hatchMode = False
-        self.cargoMode = True
+        self.manualAuxModeMachine.replace(self.cargoState)
     
     @sea.queuedDashboardEvent
     def c_hatchMode(self, button):
-        self.defenseMode = False
-        self.hatchMode = True
-        self.cargoMode = False
-
-    def c_elevatorFree(self, button):
-        self.elevatorFree = True
+        self.manualAuxModeMachine.replace(self.hatchState)
 
     @sea.queuedDashboardEvent
-    def c_elevatorG(self, button):
-        self.elevatorFree = False
-        self.grabberArm.elevatorFloor()
-
-    @sea.queuedDashboardEvent
-    def c_elevator1(self, button):
-        self.elevatorPosButton(1)
-
-    @sea.queuedDashboardEvent
-    def c_elevator2(self, button):
-        self.elevatorPosButton(2)
-
-    @sea.queuedDashboardEvent
-    def c_elevator3(self, button):
-        self.elevatorPosButton(3)
-
-    def elevatorPosButton(self, num):
-        self.elevatorFree = False
-        if self.cargoMode:
-            self.grabberArm.elevatorCargoPosition(num)
-        else:
-            self.grabberArm.elevatorHatchPosition(num)
-
-    @sea.queuedDashboardEvent
-    def c_climberFwd(self, *args, **kwargs):
-        self.climber.climb(1)
-
-    @sea.queuedDashboardEvent
-    def c_climberRev(self, *args, **kwargs):
-        self.climber.climb(-1)
-
-    @sea.queuedDashboardEvent
-    def c_climberStop(self, *args, **kwargs):
-        self.climber.climb(0)
+    def c_climbMode(self, button):
+        self.manualAuxModeMachine.replace(self.climbState)
 
     # TESTING
 
@@ -416,6 +428,10 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_logOpticalSensors(self, button):
         return sea.AddParallelSignal(self.logOpticalSensors())
+
+    @sea.queuedDashboardEvent
+    def c_resetClaw(self, button):
+        self.grabberArm.resetAllSensors()
 
 
 if __name__ == "__main__":

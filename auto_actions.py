@@ -25,30 +25,36 @@ def createDriveToPointAction(pathFollower, coord, speed):
         coords=[(coord.x, coord.y)])
 
 def navigateToPoint(pathFollower, coord, speed):
-    if coordinates.testCollision(pathFollower.robotX, pathFollower.robotY, coord.x, coord.y):
-        waypoints = coordinates.findWaypoints(coord,
-            pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
-        for pt in waypoints:
-            yield from driveToPoint(pathFollower, pt, speed)
-    else:
-        yield from driveToPoint(pathFollower, coord, speed)
+    waypoints = coordinates.findWaypoints(coord,
+        pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
+    for pt in waypoints:
+        yield from driveToPoint(pathFollower, pt, speed)
 
 def createNavigateToPointAction(pathFollower, coord, speed):
     return Action("Navigate to " + coord.name,
         lambda: navigateToPoint(pathFollower, coord, speed),
         coords=[(coord.x, coord.y)])
 
-def createVisionAlignAction(drive, vision):
-    return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision), 50))
+def setRobotPosition(pathFollower, coord):
+    pathFollower.setPosition(coord.x, coord.y, coord.orientation)
+    yield
 
-def createPickUpHatchAction(drive, grabber):
-    return Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber))
+def createSetRobotPositionAction(pathFollower, coord):
+    return Action("Set robot to " + coord.name,
+        lambda: setRobotPosition(pathFollower, coord),
+        coords=[(coord.x, coord.y)])
 
-def createDepositHatchAction(drive, grabber, pos):
-    return Action("Deposit hatch", lambda: auto_grabber.depositHatch(drive, grabber, pos))
-
-def createPickUpCargoAction(drive, grabber):
-    return Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber))
-
-def createDepositCargoAction(drive, grabber, pos):
-    return Action("Deposit cargo", lambda: auto_grabber.depositCargo(drive, grabber, pos))
+def createGenericAutoActions(pathFollower, grabber, vision):
+    drive = pathFollower.drive
+    return [
+        Action("Vision align", lambda:
+            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 2)),
+        Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber)),
+        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1)),
+        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2)),
+        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(drive, grabber, 3)),
+        Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber)),
+        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(drive, grabber, 1)),
+        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(drive, grabber, 2)),
+        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(drive, grabber, 3))
+    ]
