@@ -4,8 +4,8 @@ import seamonsters as sea
 
 DEFENSE_POSITION = 0
 HATCH_POSITION = -891
-OPEN_POSITION = -3104
-CLOSED_POSITION = -3690
+OPEN_POSITION = -3219
+CLOSED_POSITION = -3700
 ELEVATOR_FLOOR = -3514
 ELEVATOR_LIFTED = 36806
 ELEVATOR_CARGO_POSITIONS = [40833, 105547, 150471]
@@ -44,10 +44,10 @@ class GrabberArm():
 
     def setupPivotTalon(self, talon):
         talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        talon.setSensorPhase(True)
-        talon.config_kP(0, 0.5, 0)
+        talon.setSensorPhase(False)
+        talon.config_kP(0, 2, 0)
         talon.config_kI(0, 0, 0)
-        talon.config_kD(0, 3, 0)
+        talon.config_kD(0, 12, 0)
         talon.config_kF(0, 0, 0)
         talon.configClosedLoopPeakOutput(0, 0.5, 0)
 
