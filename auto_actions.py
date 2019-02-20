@@ -48,7 +48,7 @@ def createGenericAutoActions(pathFollower, grabber, vision):
     drive = pathFollower.drive
     return [
         Action("Vision align", lambda:
-            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 4)),
+            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 3)),
         Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber, drive)),
         Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1, drive)),
         Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2, drive)),
