@@ -239,24 +239,25 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def manualDefenseMode(self):
         print("Defense Mode")
-        self.grabberArm.clawBack()
         self.grabberArm.stopIntake()
         self.grabberArm.setInnerPiston(False)
         self.grabberArm.setOuterPiston(False)
         self.grabberArm.elevatorSlide(0)
-        yield from sea.forever()
+        while True:
+            self.grabberArm.clawBack()
+            yield
 
     def manualCargoMode(self):
         print("Cargo Mode")
         self.grabberArm.setInnerPiston(False)
         self.grabberArm.setOuterPiston(False)
-        self.grabberArm.clawClosed()
         self.grabberArm.elevatorSlide(0)
         while True:
-            if self.joystick.getRawButtonPressed(1):
+            if self.joystick.getRawButton(1):
                 self.grabberArm.clawOpen()
-            if self.joystick.getRawButtonReleased(1):
+            else:
                 self.grabberArm.clawClosed()
+            if self.joystick.getRawButtonReleased(1):
                 def releasedAction():
                     self.grabberArm.intake()
                     yield from sea.wait(30)
@@ -280,10 +281,10 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def manualHatchMode(self):
         print("Hatch mode")
-        self.grabberArm.clawHatch()
         self.grabberArm.stopIntake()
         self.grabberArm.elevatorSlide(0)
         while True:
+            self.grabberArm.clawHatch()
             if self.joystick.getRawButton(2):
                 self.grabberArm.setInnerPiston(False)
                 self.grabberArm.setOuterPiston(True)
@@ -325,6 +326,10 @@ class CompetitionBot2019(sea.GeneratorBot):
                 (self.opticalSensors[0].getVoltage(), self.opticalSensors[1].getVoltage(),
                  self.opticalSensors[2].getVoltage(), self.opticalSensors[3].getVoltage()))
             yield
+
+    def logElevator(self):
+        while True:
+            print(self.grabberArm.safeForArmsToClose(), self.grabberArm.safeForArmsToGoBack())
 
     def homeSwerveWheel(self, name, swerveWheel, sensor, angle):
         swerveWheel.zeroSteering()
@@ -428,6 +433,10 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_logOpticalSensors(self, button):
         return sea.AddParallelSignal(self.logOpticalSensors())
+
+    @sea.queuedDashboardEvent
+    def c_logElevator(self, button):
+        return sea.AddParallelSignal(self.logElevator())
 
     @sea.queuedDashboardEvent
     def c_resetClaw(self, button):

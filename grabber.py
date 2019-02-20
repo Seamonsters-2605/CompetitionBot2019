@@ -22,6 +22,8 @@ class GrabberArm():
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.setupPivotTalon(self.rightPivot)
 
+        self.clawState = None
+
         # TODO fix names
         self.solenoid0 = wpilib.Solenoid(0)
         self.solenoid1 = wpilib.Solenoid(1)
@@ -58,6 +60,7 @@ class GrabberArm():
         self.leftPivot.disable()
         self.rightPivot.disable()
         self.elevatorSlide(0)
+        self.clawState = None
 
     #takes in the ball
     def intake(self):
@@ -74,19 +77,39 @@ class GrabberArm():
         self.rightSpinner.set(0)
 
     def _setClawPosition(self, position):
+        print("set claw", position)
+        return
         self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + position)
         self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - position)
 
     def clawClosed(self):
+        if self.clawState == "closed":
+            return
+        if not self.safeForArmsToClose():
+            return
+        self.clawState = "closed"
         self._setClawPosition(CLOSED_POSITION)
 
     def clawOpen(self):
+        if self.clawState == "open":
+            return
+        if not self.safeForArmsToClose():
+            return
+        self.clawState = "open"
         self._setClawPosition(OPEN_POSITION)
 
     def clawBack(self):
+        if self.clawState == "back":
+            return
+        if not self.safeForArmsToGoBack():
+            return
+        self.clawState = "back"
         self._setClawPosition(DEFENSE_POSITION)
 
     def clawHatch(self):
+        if self.clawState == "hatch":
+            return
+        self.clawState = "hatch"
         self._setClawPosition(HATCH_POSITION)
 
     #clamps the arms while running the intake wheels to grab the ball
@@ -115,6 +138,13 @@ class GrabberArm():
             self.slideMotor.set(ctre.ControlMode.Position, pos)
             self.slideValue = pos
 
+    def _getElevatorPosition(self):
+        enc = self.slideMotor.getSelectedSensorPosition(0)
+        return enc - self.slideOrigin
+
+    def elevatorToZero(self):
+        self._setElevatorPosition(0)
+
     def elevatorFloor(self):
         self._setElevatorPosition(ELEVATOR_FLOOR)
 
@@ -126,6 +156,12 @@ class GrabberArm():
 
     def elevatorHatchPosition(self, pos):
         self._setElevatorPosition(ELEVATOR_HATCH_POSITIONS[pos-1])
+
+    def safeForArmsToGoBack(self):
+        return self._getElevatorPosition() < ELEVATOR_HATCH_POSITIONS[0]
+
+    def safeForArmsToClose(self):
+        return self._getElevatorPosition() > 0
 
     def startCompressor(self):
         self.compressor.start()
