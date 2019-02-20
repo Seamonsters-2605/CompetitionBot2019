@@ -2,7 +2,7 @@ import numpy
 from PIL import Image
 
 pic = Image.open("field.png")
-field = numpy.array(pic.getdata(), numpy.uint8).reshape(pic.size[1], pic.size[0], 3)
+field = numpy.array(pic.getdata(), numpy.uint8).reshape(pic.size[1], pic.size[0], 4)
 
 #the field is 27 by 54 feet
 
