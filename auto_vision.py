@@ -10,7 +10,7 @@ ALIGN_TOLERANCE = 1 # degrees
 FWD_SPEED = 1
 
 def driveIntoVisionTarget(drive, vision, superDrive, distance=None):
-    drivetrain.autoVelocityGear.applyGear(superDrive)
+    drivetrain.slowPositionGear.applyGear(superDrive)
 
     distTravelled = 0
     while True:
