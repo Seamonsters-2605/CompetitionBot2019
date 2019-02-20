@@ -37,12 +37,12 @@ def driveIntoVisionTarget(drive, vision, superDrive, distance=None):
         distTravelled += FWD_SPEED / sea.ITERATIONS_PER_SECOND # TODO not real time
 
         if distance is not None and distTravelled > distance:
-            drive(0, 0, 0)
+            drive.drive(0, 0, 0)
             return True
         try:
             yield True
         except:
-            drive(0, 0, 0)
+            drive.drive(0, 0, 0)
             return False
 
 
