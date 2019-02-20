@@ -70,8 +70,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.timingMonitor = sea.TimingMonitor()
 
         self.app = None # dashboard
-        self.lbl_current = "no"
-        self.lbl_encoder = 'no'
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
         #wpilib.CameraServer.launch('camera.py:main')
@@ -322,11 +320,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def updateDashboardLabels(self):
-        #self.lbl_current = str(self.pdp.getTotalCurrent())
-        self.lbl_current = "no"
-        self.lbl_encoder = ''
-        for wheel in self.superDrive.wheels:
-            self.lbl_encoder += '%.3f ' % math.degrees(wheel.getRealDirection())
+        pass
 
     # TEST FUNCTIONS
 

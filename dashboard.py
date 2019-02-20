@@ -42,12 +42,14 @@ class Arrow(gui.SvgPolyline):
 
 class WheelButtonController:
 
-    def __init__(self, num, wheel):
+    def __init__(self, num, wheel, robot):
         self.num = num
         self.wheel = wheel
-        self.button = gui.Button(chr(ord('A') + num))
+        self.name = chr(ord('A') + num)
+        self.button = gui.Button(self.name)
         self._buttonColor("green")
         self.button.controller = self
+        self.button.onclick.connect(robot.c_wheelButtonClicked)
         self.encoderWorking = True
 
     def _buttonColor(self, color):
@@ -82,11 +84,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         super().__init__(*args, css=True, **kwargs)
 
     # apply a style to the widget to visually group items together
-    def groupStyle(self, widget):
-        widget.style['border'] = '2px solid gray'
-        widget.style['border-radius'] = '0.5em'
-        widget.style['margin'] = '0.5em'
-        widget.style['padding'] = '0.2em'
+    def sectionBox(self):
+        vbox = gui.VBox()
+        vbox.style['border'] = '2px solid gray'
+        vbox.style['border-radius'] = '0.5em'
+        vbox.style['margin'] = '0.5em'
+        vbox.style['padding'] = '0.2em'
+        return vbox
 
     def spaceBox(self):
         return gui.HBox(width=10)
@@ -96,42 +100,8 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         root = gui.VBox(width=600, margin='0px auto')
 
-        generalBox = gui.HBox()
-        root.append(generalBox)
-
-        closeButton = gui.Button("Close")
-        closeButton.onclick.connect(self.c_closeApp)
-        generalBox.append(closeButton)
-
-        connectionTestButton = gui.Button("Connection Test")
-        generalBox.append(connectionTestButton)
-
-        def connectionTest(button):
-            color = "rgb(%d, %d, %d)" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            connectionTestButton.style["background"] = color
-        connectionTestButton.onclick.connect(connectionTest)
-
-        self.realTimeRatioLbl = gui.Label("[real time ratio]")
-        root.append(self.realTimeRatioLbl)
-
-        self.currentLbl = gui.Label("[current]")
-        root.append(self.currentLbl)
-
-        compressorBox = gui.HBox()
-        root.append(compressorBox)
-        compressorBox.append(gui.Label("Compressor:"))
-        startCompressorBtn = gui.Button("Start")
-        startCompressorBtn.onclick.connect(robot.c_startCompressor)
-        compressorBox.append(startCompressorBtn)
-        stopCompressorBtn = gui.Button("Stop")
-        stopCompressorBtn.onclick.connect(robot.c_stopCompressor)
-        compressorBox.append(stopCompressorBtn)
-
+        root.append(self.initGeneral(robot))
         root.append(self.initManualControls(robot))
-
-        self.encoderLbl = gui.Label("[encoder values]")
-        root.append(self.encoderLbl)
-
         root.append(self.initWheelControls(robot))
 
         root.append(self.initFieldMap(robot))
@@ -153,8 +123,6 @@ class CompetitionBotDashboard(sea.Dashboard):
             pf.robotX, pf.robotY, pf.robotAngle)
         self.realTimeRatioLbl.set_text(
             '%.3f' % (self.robot.timingMonitor.realTimeRatio,))
-        self.currentLbl.set_text(self.robot.lbl_current)
-        self.encoderLbl.set_text(self.robot.lbl_encoder)
         for wheelButton in self.wheelBtns:
             wheelButton.update()
 
@@ -162,9 +130,30 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.updateScheduler()
             self.updateSchedulerFlag = False
 
+    def initGeneral(self, robot):
+        generalBox = self.sectionBox()
+
+        dashboardBox = gui.HBox()
+        generalBox.append(dashboardBox)
+
+        closeButton = gui.Button("Close")
+        closeButton.onclick.connect(self.c_closeApp)
+        dashboardBox.append(closeButton)
+
+        connectionTestButton = gui.Button("Connection Test")
+        dashboardBox.append(connectionTestButton)
+        def connectionTest(button):
+            color = "rgb(%d, %d, %d)" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            connectionTestButton.style["background"] = color
+        connectionTestButton.onclick.connect(connectionTest)
+
+        self.realTimeRatioLbl = gui.Label("[real time ratio]")
+        generalBox.append(self.realTimeRatioLbl)
+
+        return generalBox
+
     def initManualControls(self, robot):
-        manualBox = gui.VBox()
-        self.groupStyle(manualBox)
+        manualBox = self.sectionBox()
         manualBox.append(gui.Label("MANUAL"))
 
         clawModeBox = gui.HBox()
@@ -205,26 +194,24 @@ class CompetitionBotDashboard(sea.Dashboard):
         return manualBox
 
     def initWheelControls(self, robot):
-        wheelControlsBox = gui.VBox()
-        self.groupStyle(wheelControlsBox)
-
+        wheelControlsBox = self.sectionBox()
         wheelControlsBox.append(gui.Label("Swerve Wheels"))
+
+        grid = gui.GridBox()
+        grid.define_grid([['C','D'],['A','B']])
+        wheelControlsBox.append(grid)
+
         self.wheelBtns = []
-        
-        wheelsBox = gui.HBox()
-        wheelControlsBox.append(wheelsBox)
         for wheelIndex in range(4):
             newButton = WheelButtonController(wheelIndex,
-                robot.superDrive.wheels[wheelIndex].angledWheel)
-            newButton.button.onclick.connect(robot.c_wheelButtonClicked)
-            wheelsBox.append(newButton.button)
+                robot.superDrive.wheels[wheelIndex].angledWheel, robot)
+            grid.append(newButton.button, newButton.name)
             self.wheelBtns.append(newButton)
 
         return wheelControlsBox
 
     def initFieldMap(self, robot):
-        fieldBox = gui.VBox()
-        self.groupStyle(fieldBox)
+        fieldBox = self.sectionBox()
 
         posBox = gui.HBox()
         fieldBox.append(posBox)
@@ -303,8 +290,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.updateCursorPosition()
 
     def initScheduler(self, robot):
-        schedulerBox = gui.VBox()
-        self.groupStyle(schedulerBox)
+        schedulerBox = self.sectionBox()
 
         controlBox = gui.HBox()
         schedulerBox.append(controlBox)
@@ -358,9 +344,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         return schedulerBox
 
     def initTestControl(self, robot):
-        testBox = gui.VBox()
-        self.groupStyle(testBox)
+        testBox = self.sectionBox()
         testBox.append(gui.Label("TEST MODE"))
+
+        compressorBox = gui.HBox()
+        testBox.append(compressorBox)
+        compressorBox.append(gui.Label("Compressor:"))
+        startCompressorBtn = gui.Button("Start")
+        startCompressorBtn.onclick.connect(robot.c_startCompressor)
+        compressorBox.append(startCompressorBtn)
+        stopCompressorBtn = gui.Button("Stop")
+        stopCompressorBtn.onclick.connect(robot.c_stopCompressor)
+        compressorBox.append(stopCompressorBtn)
 
         logBox = gui.HBox()
         testBox.append(logBox)
