@@ -275,12 +275,6 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.clawClosed()
                 self.elevatorControl()
 
-            if self.joystick.getRawButtonReleased(1):
-                def releasedAction():
-                    self.grabberArm.intake()
-                    yield from sea.wait(30)
-                    self.grabberArm.stopIntake()
-                yield sea.AddParallelSignal(releasedAction())
             if self.joystick.getRawButton(2):
                 self.grabberArm.eject()
             if self.joystick.getRawButtonReleased(2):
