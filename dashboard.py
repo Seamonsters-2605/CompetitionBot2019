@@ -384,6 +384,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         resetSwerveBtn.onclick.connect(robot.c_wheelsToZero)
         swerveBox.append(resetSwerveBtn)
 
+        setSwerveZeroBtn = gui.Button("Set swerve zero")
+        setSwerveZeroBtn.onclick.connect(robot.c_setSwerveZero)
+        swerveBox.append(setSwerveZeroBtn)
+
         resetClawBtn = gui.Button("Reset Claw")
         resetClawBtn.onclick.connect(robot.c_resetClaw)
         testBox.append(resetClawBtn)

@@ -436,6 +436,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             wheel._setSteering(0)
 
     @sea.queuedDashboardEvent
+    def c_setSwerveZero(self, button):
+        for wheel in self.superDrive.wheels:
+            wheel.zeroSteering()
+
+    @sea.queuedDashboardEvent
     def c_homeSwerveWheels(self, button):
         return sea.AddParallelSignal(self.homeAllSwerveWheels())
 
