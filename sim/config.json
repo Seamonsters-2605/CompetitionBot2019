@@ -3,8 +3,8 @@
   "pyfrc": {
     
     "robot": {
-      "w": 2.4167,
-      "h": 2.4167,
+      "w": 2.9167,
+      "h": 2.9167,
       "starting_x": 2.5,
       "starting_y": 5,
       "starting_angle": 0

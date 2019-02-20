@@ -68,21 +68,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         closeButton.onclick.connect(self.c_closeApp)
         root.append(closeButton)
 
-        clawModeBox = gui.HBox()
-        root.append(clawModeBox)
-
-        defenseButton = gui.Button("Defense Mode")
-        defenseButton.onclick.connect(robot.c_defenseMode)
-        clawModeBox.append(defenseButton)
-
-        cargoButton = gui.Button("Cargo Mode")
-        cargoButton.onclick.connect(robot.c_cargoMode)
-        clawModeBox.append(cargoButton)
-        
-        hatchButton = gui.Button("Hatch Mode")
-        hatchButton.onclick.connect(robot.c_hatchMode)
-        clawModeBox.append(hatchButton)
-        
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
         root.append(self.realTimeRatioLbl)
 
@@ -99,14 +84,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         stopCompressorBtn.onclick.connect(robot.c_stopCompressor)
         compressorBox.append(stopCompressorBtn)
 
-        zeroSteeringBtn = gui.Button("Reset swerve rotations")
-        zeroSteeringBtn.onclick.connect(robot.c_wheelsToZero)
-        root.append(zeroSteeringBtn)
-
-        self.fieldOrientedLbl = gui.Label("[field oriented state]")
-        root.append(self.fieldOrientedLbl)
-
-        root.append(self.initGearSelector(robot))
+        root.append(self.initManualControls(robot))
 
         self.encoderLbl = gui.Label("[encoder values]")
         root.append(self.encoderLbl)
@@ -120,6 +98,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initScheduler(robot))
         self.updateScheduler()
         self.updateSchedulerFlag = False
+
+        root.append(self.initTestControl(robot))
 
         appCallback(self)
         return root
@@ -138,15 +118,31 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.updateScheduler()
             self.updateSchedulerFlag = False
 
-    def initGearSelector(self, robot):
-        gearSelectorBox = gui.VBox()
-        self.groupStyle(gearSelectorBox)
+    def initManualControls(self, robot):
+        manualBox = gui.VBox()
+        self.groupStyle(manualBox)
+        manualBox.append(gui.Label("MANUAL"))
+
+        clawModeBox = gui.HBox()
+        manualBox.append(clawModeBox)
+
+        defenseButton = gui.Button("Defense Mode")
+        defenseButton.onclick.connect(robot.c_defenseMode)
+        clawModeBox.append(defenseButton)
+
+        cargoButton = gui.Button("Cargo Mode")
+        cargoButton.onclick.connect(robot.c_cargoMode)
+        clawModeBox.append(cargoButton)
+        
+        hatchButton = gui.Button("Hatch Mode")
+        hatchButton.onclick.connect(robot.c_hatchMode)
+        clawModeBox.append(hatchButton)
 
         self.driveGearLbl = gui.Label("[drive gear]")
-        gearSelectorBox.append(self.driveGearLbl)
+        manualBox.append(self.driveGearLbl)
 
         voltageModeBox = gui.HBox()
-        gearSelectorBox.append(voltageModeBox)
+        manualBox.append(voltageModeBox)
         slowVoltageBtn = gui.Button("Slow Voltage")
         slowVoltageBtn.onclick.connect(robot.c_slowVoltageGear)
         voltageModeBox.append(slowVoltageBtn)
@@ -158,7 +154,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         voltageModeBox.append(fastVoltageBtn)
 
         velocityModeBox = gui.HBox()
-        gearSelectorBox.append(velocityModeBox)
+        manualBox.append(velocityModeBox)
         slowVelocityBtn = gui.Button("Slow Position")
         slowVelocityBtn.onclick.connect(robot.c_slowPositionGear)
         velocityModeBox.append(slowVelocityBtn)
@@ -169,34 +165,54 @@ class CompetitionBotDashboard(sea.Dashboard):
         fastVelocityBtn.onclick.connect(robot.c_fastPositionGear)
         velocityModeBox.append(fastVelocityBtn)
 
-        pidFrame = gui.HBox()
-        gearSelectorBox.append(pidFrame)
-        pidTable = gui.VBox()
-        pidFrame.append(pidTable)
-        pidRow = gui.HBox()
-        pidTable.append(pidRow)
-        pIn = gui.Input()
-        pidRow.append(pIn)
-        iIn = gui.Input()
-        pidRow.append(iIn)
-        pidRow = gui.HBox()
-        pidTable.append(pidRow)
-        dIn = gui.Input()
-        pidRow.append(dIn)
-        fIn = gui.Input()
-        pidRow.append(fIn)
-        setBtn = gui.Button("PID")
-        pidFrame.append(setBtn)
+        self.fieldOrientedLbl = gui.Label("[field oriented state]")
+        manualBox.append(self.fieldOrientedLbl)
 
-        def setPids(widget):
-            drivetrain.mediumPositionGear.p = float(pIn.get_value())
-            drivetrain.mediumPositionGear.i = float(iIn.get_value())
-            drivetrain.mediumPositionGear.d = float(dIn.get_value())
-            drivetrain.mediumPositionGear.f = float(fIn.get_value())
-            print("PIDS", drivetrain.mediumPositionGear)
-        setBtn.onclick.connect(setPids)
+        fieldOrientedBox = gui.HBox()
+        manualBox.append(fieldOrientedBox)
 
-        return gearSelectorBox
+        fieldOrientedOnBtn = gui.Button("Field Oriented On")
+        fieldOrientedOnBtn.onclick.connect(robot.c_fieldOrientedOn)
+        fieldOrientedBox.append(fieldOrientedOnBtn)
+        fieldOrientedOffBtn = gui.Button("Off")
+        fieldOrientedOffBtn.onclick.connect(robot.c_fieldOrientedOff)
+        fieldOrientedBox.append(fieldOrientedOffBtn)
+
+        elevatorBox = gui.HBox()
+        manualBox.append(elevatorBox)
+
+        elevatorFreeBtn = gui.Button("Elevator Free")
+        elevatorFreeBtn.onclick.connect(robot.c_elevatorFree)
+        elevatorBox.append(elevatorFreeBtn)
+        elevatorGBtn = gui.Button("G")
+        elevatorGBtn.onclick.connect(robot.c_elevatorG)
+        elevatorBox.append(elevatorGBtn)
+        elevator1Btn = gui.Button("1")
+        elevator1Btn.onclick.connect(robot.c_elevator1)
+        elevatorBox.append(elevator1Btn)
+        elevator2Btn = gui.Button("2")
+        elevator2Btn.onclick.connect(robot.c_elevator2)
+        elevatorBox.append(elevator2Btn)
+        elevator3Btn = gui.Button("3")
+        elevator3Btn.onclick.connect(robot.c_elevator3)
+        elevatorBox.append(elevator3Btn)
+
+        climberBox = gui.HBox()
+        manualBox.append(climberBox)
+
+        climberRevBtn = gui.Button("Climber REV")
+        climberRevBtn.onmousedown.connect(robot.c_climberRev)
+        climberRevBtn.onmouseup.connect(robot.c_climberStop)
+        climberBox.append(climberRevBtn)
+        climberStopBtn = gui.Button("Climber STOP")
+        climberStopBtn.onclick.connect(robot.c_climberStop)
+        climberBox.append(climberStopBtn)
+        climberFwdBtn = gui.Button("Climber FWD")
+        climberFwdBtn.onmousedown.connect(robot.c_climberFwd)
+        climberFwdBtn.onmouseup.connect(robot.c_climberStop)
+        climberBox.append(climberFwdBtn)
+
+        return manualBox
 
     def initWheelControlls(self, robot):
         wheelControllsBox = gui.VBox()
@@ -327,6 +343,30 @@ class CompetitionBotDashboard(sea.Dashboard):
         actionVisionAlignBtn.onclick.connect(self.c_actionVisionAlign)
         addActionBox.append(actionVisionAlignBtn)
 
+        elevatorBox = gui.HBox()
+        addActionBox.append(elevatorBox)
+        elevatorBox.append(gui.Label("Elevator position:"))
+        self.elevatorPosInput = gui.SpinBox(1, 1, 3)
+        elevatorBox.append(self.elevatorPosInput)
+
+        hatchBox = gui.HBox()
+        addActionBox.append(hatchBox)
+        actionPickUpHatchBtn = gui.Button('Pick up Hatch')
+        actionPickUpHatchBtn.onclick.connect(self.c_actionPickUpHatch)
+        hatchBox.append(actionPickUpHatchBtn)
+        actionDepositHatchBtn = gui.Button('Deposit Hatch')
+        actionDepositHatchBtn.onclick.connect(self.c_actionDepositHatch)
+        hatchBox.append(actionDepositHatchBtn)
+
+        cargoBox = gui.HBox()
+        addActionBox.append(cargoBox)
+        actionPickUpCargoBtn = gui.Button('Pick up Cargo')
+        actionPickUpCargoBtn.onclick.connect(self.c_actionPickUpCargo)
+        cargoBox.append(actionPickUpCargoBtn)
+        actionDepositCargoBtn = gui.Button('Deposit Cargo')
+        actionDepositCargoBtn.onclick.connect(self.c_actionDepositCargo)
+        cargoBox.append(actionDepositCargoBtn)
+
         # END ADD ACTION BUTTONS
 
         controlBox = gui.HBox()
@@ -349,6 +389,57 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox.append(self.schedulerList)
 
         return schedulerBox
+
+    def initTestControl(self, robot):
+        testBox = gui.VBox()
+        self.groupStyle(testBox)
+        testBox.append(gui.Label("TEST MODE"))
+
+        logBox = gui.HBox()
+        testBox.append(logBox)
+
+        logOpticalBtn = gui.Button("Log Optical")
+        logOpticalBtn.onclick.connect(robot.c_logOpticalSensors)
+        logBox.append(logOpticalBtn)
+
+        swerveBox = gui.HBox()
+        testBox.append(swerveBox)
+
+        homeSwerveBtn = gui.Button("Home swerve")
+        homeSwerveBtn.onclick.connect(robot.c_homeSwerveWheels)
+        swerveBox.append(homeSwerveBtn)
+
+        resetSwerveBtn = gui.Button("Wheels to zero")
+        resetSwerveBtn.onclick.connect(robot.c_wheelsToZero)
+        swerveBox.append(resetSwerveBtn)
+
+        pidFrame = gui.HBox()
+        testBox.append(pidFrame)
+        pidTable = gui.VBox()
+        pidFrame.append(pidTable)
+        pidRow = gui.HBox()
+        pidTable.append(pidRow)
+        pIn = gui.Input()
+        pidRow.append(pIn)
+        iIn = gui.Input()
+        pidRow.append(iIn)
+        pidRow = gui.HBox()
+        pidTable.append(pidRow)
+        dIn = gui.Input()
+        pidRow.append(dIn)
+        fIn = gui.Input()
+        pidRow.append(fIn)
+        setBtn = gui.Button("Med. Gear PID")
+        pidFrame.append(setBtn)
+
+        def setPids(widget):
+            drivetrain.mediumPositionGear.p = float(pIn.get_value())
+            drivetrain.mediumPositionGear.i = float(iIn.get_value())
+            drivetrain.mediumPositionGear.d = float(dIn.get_value())
+            drivetrain.mediumPositionGear.f = float(fIn.get_value())
+        setBtn.onclick.connect(setPids)
+
+        return testBox
 
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
@@ -431,6 +522,32 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robot.autoScheduler.actionList.append(
             auto_actions.createVisionAlignAction(
                 self.robot.superDrive, self.robot.vision))
+        self.updateScheduler()
+
+    def c_actionPickUpHatch(self, button):
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createPickUpHatchAction(
+                self.robot.superDrive, self.robot.grabberArm))
+        self.updateScheduler()
+
+    def c_actionDepositHatch(self, button):
+        pos = int(self.elevatorPosInput.get_value())
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createDepositHatchAction(
+                self.robot.superDrive, self.robot.grabberArm, pos))
+        self.updateScheduler()
+
+    def c_actionPickUpCargo(self, button):
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createPickUpCargoAction(
+                self.robot.superDrive, self.robot.grabberArm))
+        self.updateScheduler()
+
+    def c_actionDepositCargo(self, button):
+        pos = int(self.elevatorPosInput.get_value())
+        self.robot.autoScheduler.actionList.append(
+            auto_actions.createDepositCargoAction(
+                self.robot.superDrive, self.robot.grabberArm, pos))
         self.updateScheduler()
 
     def c_clearSchedule(self, button):

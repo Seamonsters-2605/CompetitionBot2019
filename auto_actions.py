@@ -2,9 +2,12 @@ import math
 import seamonsters as sea
 from auto_scheduler import Action
 import auto_vision
+import auto_grabber
 import coordinates
+import drivetrain
 
 def driveToPoint(pathFollower, coord, speed):
+    drivetrain.autoPositionGear.applyGear(pathFollower.drive)
     angle = sea.circleDistance(pathFollower.robotAngle, coord.orientation) + pathFollower.robotAngle
     dist = math.hypot(coord.x - pathFollower.robotX, coord.y - pathFollower.robotY)
     if dist < 0.1:
@@ -37,3 +40,15 @@ def createNavigateToPointAction(pathFollower, coord, speed):
 
 def createVisionAlignAction(drive, vision):
     return Action("Vision align", lambda: sea.ensureTrue(auto_vision.strafeAlign(drive, vision), 50))
+
+def createPickUpHatchAction(drive, grabber):
+    return Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber))
+
+def createDepositHatchAction(drive, grabber, pos):
+    return Action("Deposit hatch", lambda: auto_grabber.depositHatch(drive, grabber, pos))
+
+def createPickUpCargoAction(drive, grabber):
+    return Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber))
+
+def createDepositCargoAction(drive, grabber, pos):
+    return Action("Deposit cargo", lambda: auto_grabber.depositCargo(drive, grabber, pos))

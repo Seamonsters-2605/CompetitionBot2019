@@ -3,9 +3,12 @@ import ctre
 import seamonsters as sea
 
 DEFENSE_POSITION = 0
-HATCH_POSITION = -300
-OPEN_POSITION = -2841
-CLOSED_POSITION = -3800
+HATCH_POSITION = -891
+OPEN_POSITION = -3104
+CLOSED_POSITION = -3634
+ELEVATOR_FLOOR = 3514
+ELEVATOR_CARGO_POSITIONS = [-43508, -109364, -109364] # TODO level 3
+ELEVATOR_HATCH_POSITIONS = [-21154, -89260, -149598]
 
 class GrabberArm():
 
@@ -14,23 +17,40 @@ class GrabberArm():
         self.rightSpinner = ctre.WPI_TalonSRX(21)
 
         self.leftPivot = ctre.WPI_TalonSRX(22)
-        self.leftPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
+        self.setupPivotTalon(self.leftPivot)
         self.rightPivot = ctre.WPI_TalonSRX(23)
-        self.rightPivot.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
-        self.rightPivot.setSensorPhase(True)
+        self.setupPivotTalon(self.rightPivot)
 
         # TODO fix names
-        self.hatchGrabberOut1 = wpilib.Solenoid(0)
-        self.hatchGrabberIn1 = wpilib.Solenoid(1)
-        self.hatchGrabberOut2 = wpilib.Solenoid(2)
-        self.hatchGrabberIn2 = wpilib.Solenoid(3)
-
+        self.solenoid0 = wpilib.Solenoid(0)
+        self.solenoid1 = wpilib.Solenoid(1)
+        self.solenoid2 = wpilib.Solenoid(2)
+        self.solenoid3 = wpilib.Solenoid(3)
         self.compressor = wpilib.Compressor(0)
-        self.slideMotor = ctre.WPI_TalonSRX(30)
 
-        self.slideSpeed = 0
+        self.slideMotor = ctre.WPI_TalonSRX(30)
+        self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.slideMotor.setSensorPhase(False)
+        self.slideMotor.config_kP(0, 0.3, 0)
+        self.slideMotor.config_kI(0, 0, 0)
+        self.slideMotor.config_kD(0, 3, 0)
+        self.slideMotor.config_kF(0, 0, 0)
+        self.slideValue = None
+
+        self.resetAllSensors()
+
+    def setupPivotTalon(self, talon):
+        talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        talon.setSensorPhase(True)
+        talon.config_kP(0, 1, 0)
+        talon.config_kI(0, 0, 0)
+        talon.config_kD(0, 3, 0)
+        talon.config_kF(0, 0, 0)
+
+    def resetAllSensors(self):
+        self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
+        self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
+        self.slideOrigin = self.slideMotor.getSelectedSensorPosition(0)
 
     #takes in the ball
     def intake(self):
@@ -68,18 +88,35 @@ class GrabberArm():
         self.intake()
 
     def setInnerPiston(self, value):
-        self.hatchGrabberOut1.set(not value)
-        self.hatchGrabberIn1.set(value)
+        self.solenoid1.set(value)
+        self.solenoid0.set(not value)
 
     def setOuterPiston(self, value):
-        self.hatchGrabberOut2.set(value)
-        self.hatchGrabberIn2.set(not value)
+        self.solenoid3.set(value)
+        self.solenoid2.set(not value)
 
     #grabber slides up
-    def slide(self, speed):
-        if speed != self.slideSpeed:
+    def elevatorSlide(self, speed):
+        speed *= -1
+        speed -= .05
+        if speed != self.slideValue:
             self.slideMotor.set(speed)
-            self.slideSpeed = speed
+            self.slideValue = speed
+
+    def _setElevatorPosition(self, pos):
+        pos += self.slideOrigin
+        if pos != self.slideValue:
+            self.slideMotor.set(ctre.ControlMode.Position, pos)
+            self.slideValue = pos
+
+    def elevatorFloor(self):
+        self._setElevatorPosition(ELEVATOR_FLOOR)
+
+    def elevatorCargoPosition(self, pos):
+        self._setElevatorPosition(ELEVATOR_CARGO_POSITIONS[pos-1])
+
+    def elevatorHatchPosition(self, pos):
+        self._setElevatorPosition(ELEVATOR_HATCH_POSITIONS[pos-1])
 
     def startCompressor(self):
         self.compressor.start()
