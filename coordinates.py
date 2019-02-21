@@ -2,7 +2,7 @@ import math
 import seamonsters as sea
 import drivetrain
 
-WALL_MARGIN = 19 / 12
+VISION_DISTANCE = 3 # feet
 
 # is A to B closer clockwise or counterclockwise?
 def clockwise(a, b):
@@ -10,12 +10,13 @@ def clockwise(a, b):
 
 class DriveCoordinate:
 
-    def __init__(self, name, x, y, orientation):
+    def __init__(self, name, x, y, orientation, visionTarget=False):
         self.name = name
         self.x = x
         self.y = y
         self.orientation = orientation
         self.angle = math.atan2(self.y, self.x)
+        self.visionTarget = visionTarget
 
     def __repr__(self):
         return "%s (%f, %f, %f deg)" \
@@ -35,32 +36,33 @@ class DriveCoordinate:
             newY = -newY
             newOrient = math.pi - newOrient
         return DriveCoordinate(self.name + " quad " + str(quadrant),
-            newX, newY, newOrient)
+            newX, newY, newOrient, self.visionTarget)
+
+    def moveForward(self, amount):
+        return DriveCoordinate(self.name,
+            self.x - math.sin(self.orientation) * amount,
+            self.y + math.cos(self.orientation) * amount,
+            self.orientation, self.visionTarget)
     
     def moveAwayFromWall(self):
-        return DriveCoordinate(self.name,
-            self.x + math.sin(self.orientation) * WALL_MARGIN,
-            self.y - math.cos(self.orientation) * WALL_MARGIN,
-            self.orientation)
+        return self.moveForward(-drivetrain.ROBOT_LENGTH / 2)
 
     def moveTowardsWall(self):
-        return DriveCoordinate(self.name,
-            self.x - math.sin(self.orientation) * WALL_MARGIN,
-            self.y + math.cos(self.orientation) * WALL_MARGIN,
-            self.orientation)
+        return self.moveForward(drivetrain.ROBOT_LENGTH / 2)
 
     def withOrientation(self, orientation):
-        return DriveCoordinate(self.name, self.x, self.y, orientation)
+        return DriveCoordinate(self.name, self.x, self.y, orientation, self.visionTarget)
 
 
-rocket1 = DriveCoordinate("Rocket1", 6.7, 11.9, math.radians(-60)).moveAwayFromWall() # from image
-rocket2 = DriveCoordinate("Rocket2", 8.0, 134.56 / 12, math.radians(0)).moveAwayFromWall() # from diagram
-rocket3 = DriveCoordinate("Rocket3", 9.3, 11.9, math.radians(60)).moveAwayFromWall() # from image
-humanstation = DriveCoordinate("Human", 27, 11.3, math.radians(-90)).moveAwayFromWall() # from image
-cargo1 = DriveCoordinate("Cargo1", 20.85 / 12, 27.75 / 12, math.radians(180)).moveAwayFromWall() # x diagram, y manual
-cargo2 = DriveCoordinate("Cargo2", 42.6 / 12, 27.75 / 12, math.radians(180)).moveAwayFromWall()
-cargo3 = DriveCoordinate("Cargo3", 64.35 / 12, 27.75 / 12, math.radians(180)).moveAwayFromWall()
-cargo4 = DriveCoordinate("Cargo4", 8.7, 10.875 / 12, math.radians(90)).moveAwayFromWall() # x image, y diagram
+rocket1 = DriveCoordinate("Rocket1", 6.7, 11.9, math.radians(-60), True).moveAwayFromWall() # from image
+rocket2 = DriveCoordinate("Rocket2", 8.0, 134.56 / 12, math.radians(0), True).moveAwayFromWall() # from diagram
+rocket3 = DriveCoordinate("Rocket3", 9.3, 11.9, math.radians(60), True).moveAwayFromWall() # from image
+humanstation = DriveCoordinate("Human", 27, 11.3, math.radians(-90), True).moveAwayFromWall() # from image
+cargo1 = DriveCoordinate("Cargo1", 20.85 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall() # x diagram, y manual
+cargo2 = DriveCoordinate("Cargo2", 42.6 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall()
+cargo3 = DriveCoordinate("Cargo3", 64.35 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall()
+cargo4 = DriveCoordinate("Cargo4", 8.7, 10.875 / 12, math.radians(90), True).moveAwayFromWall() # x image, y diagram
+
 startLevel1 = DriveCoordinate("Start level 1", 277.0 / 12, 3.6, math.radians(90)).moveTowardsWall() # x diagram, y image
 startLevel2 = DriveCoordinate("Start level 2", 27.0, 3.6, math.radians(90)).moveTowardsWall() # from image
 startCenter = DriveCoordinate("Start center", 277.0 / 12, 0, math.radians(90)).moveTowardsWall() # from diagram
@@ -71,6 +73,18 @@ targetPoints = []
 for quadrant in range(0, 4):
     for point in quadrantTargetPoints:
         targetPoints.append(point.inQuadrant(quadrant))
+
+def getVisionAlignIntermediatePoint(targetCoord, robotX, robotY):
+    if not targetCoord.visionTarget:
+        return None
+    perpendicularDist = -(robotX-targetCoord.x) * math.sin(targetCoord.orientation) \
+                       + (robotY-targetCoord.y) * math.cos(targetCoord.orientation)
+    if perpendicularDist > 0: # in front of target
+        perpendicularDist = -VISION_DISTANCE
+    if perpendicularDist < -VISION_DISTANCE:
+        perpendicularDist = -VISION_DISTANCE
+    return targetCoord.moveForward(perpendicularDist)
+
 
 WAYPOINT_BOX_X = 13.5
 WAYPOINT_BOX_Y = 6.5
