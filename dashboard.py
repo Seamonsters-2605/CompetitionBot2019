@@ -160,7 +160,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         connectionTestButton.onclick.connect(connectionTest)
 
         self.realTimeRatioLbl = gui.Label("[real time ratio]")
-        generalBox.append(self.realTimeRatioLbl)
+        generalBox.append(sea.hBoxWith(gui.Label("Code slowdown:"),
+            self.spaceBox(), self.realTimeRatioLbl))
 
         return generalBox
 
@@ -381,9 +382,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         genericActionList.onselection.connect(self.c_addGenericAction)
         addActionBox.append(genericActionList)
 
+        hbox.append(self.spaceBox())
+
         scheduleListBox = gui.VBox()
         hbox.append(scheduleListBox)
         clearScheduleBox = gui.HBox()
+        clearScheduleBox.style['align-items'] = 'flex-end'
         scheduleListBox.append(clearScheduleBox)
         clearScheduleBox.append(gui.Label("Schedule:"))
         clearScheduleBtn = gui.Button("Clear")
