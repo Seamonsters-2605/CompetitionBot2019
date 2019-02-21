@@ -530,10 +530,12 @@ class CompetitionBotDashboard(sea.Dashboard):
     def c_addGenericAction(self, listview, key):
         if key == "drivetopoint":
             action = auto_actions.createDriveToPointAction(
-                self.robot.pathFollower, self.selectedCoord, self.autoSpeed)
+                self.robot.pathFollower, self.robot.vision,
+                self.selectedCoord, self.autoSpeed)
         elif key == "navigatetopoint":
             action = auto_actions.createNavigateToPointAction(
-                self.robot.pathFollower, self.selectedCoord, self.autoSpeed)
+                self.robot.pathFollower, self.robot.vision,
+                self.selectedCoord, self.autoSpeed)
         elif key == "setposition":
             action = auto_actions.createSetRobotPositionAction(
                 self.robot.pathFollower, self.selectedCoord)

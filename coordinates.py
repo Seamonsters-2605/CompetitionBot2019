@@ -83,7 +83,9 @@ def getVisionAlignIntermediatePoint(targetCoord, robotX, robotY):
         perpendicularDist = -VISION_DISTANCE
     if perpendicularDist < -VISION_DISTANCE:
         perpendicularDist = -VISION_DISTANCE
-    return targetCoord.moveForward(perpendicularDist)
+    intermediate = targetCoord.moveForward(perpendicularDist)
+    intermediate.visionTarget = False
+    return intermediate
 
 
 WAYPOINT_BOX_X = 13.5

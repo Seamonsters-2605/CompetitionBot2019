@@ -6,8 +6,17 @@ import auto_grabber
 import coordinates
 import drivetrain
 
-def driveToPoint(pathFollower, coord, speed):
+VISION_APPROACH_MARGIN = 1 # how far past the wall to drive for vision align
+
+def driveToPoint(pathFollower, vision, coord, speed):
     drivetrain.autoPositionGear.applyGear(pathFollower.drive)
+
+    visionIntermediateCoord = coordinates.getVisionAlignIntermediatePoint(
+        coord, pathFollower.robotX, pathFollower.robotY)
+    if visionIntermediateCoord is not None:
+        finalCoord = coord
+        coord = visionIntermediateCoord
+
     angle = sea.circleDistance(pathFollower.robotAngle, coord.orientation) + pathFollower.robotAngle
     dist = math.hypot(coord.x - pathFollower.robotX, coord.y - pathFollower.robotY)
     if dist < 0.1:
@@ -18,21 +27,29 @@ def driveToPoint(pathFollower, coord, speed):
         pathFollower.driveToPointGenerator(coord.x, coord.y, angle, time,
             math.radians(1), 1),
         25)
+    
+    # approach vision target
+    if visionIntermediateCoord is not None:
+        distanceToTarget = math.hypot(visionIntermediateCoord.x - coord.x,
+                                      visionIntermediateCoord.y - coord.y)
+        yield from auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(
+            pathFollower.drive, vision, pathFollower.drive, distanceToTarget + VISION_APPROACH_MARGIN)
+        pathFollower.setPosition(finalCoord.x, finalCoord.y, None)
 
-def createDriveToPointAction(pathFollower, coord, speed):
+def createDriveToPointAction(pathFollower, vision, coord, speed):
     return Action("Drive to " + coord.name,
-        lambda: driveToPoint(pathFollower, coord, speed),
+        lambda: driveToPoint(pathFollower, vision, coord, speed),
         coords=[(coord.x, coord.y)])
 
-def navigateToPoint(pathFollower, coord, speed):
+def navigateToPoint(pathFollower, vision, coord, speed):
     waypoints = coordinates.findWaypoints(coord,
         pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
     for pt in waypoints:
-        yield from driveToPoint(pathFollower, pt, speed)
+        yield from driveToPoint(pathFollower, vision, pt, speed)
 
-def createNavigateToPointAction(pathFollower, coord, speed):
+def createNavigateToPointAction(pathFollower, vision, coord, speed):
     return Action("Navigate to " + coord.name,
-        lambda: navigateToPoint(pathFollower, coord, speed),
+        lambda: navigateToPoint(pathFollower, vision, coord, speed),
         coords=[(coord.x, coord.y)])
 
 def setRobotPosition(pathFollower, coord):
