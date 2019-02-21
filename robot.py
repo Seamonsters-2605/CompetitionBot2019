@@ -450,10 +450,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_autoMode(self, button):
         self.autoMode()
-
-    @sea.queuedDashboardEvent
-    def c_auxDisabledMode(self, button):
-        self.manualAuxModeMachine.replace(self.auxDisabledState)
     
     @sea.queuedDashboardEvent
     def c_defenseMode(self, button):

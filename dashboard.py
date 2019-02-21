@@ -98,33 +98,37 @@ class CompetitionBotDashboard(sea.Dashboard):
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.VBox(width=900, margin='0px auto')
+        root = gui.VBox(width=1000, margin='0px auto')
 
         sideHBox = gui.HBox()
         sideHBox.style['align-items'] = 'flex-start' # both panels align to top
         root.append(sideHBox)
         leftSide = gui.VBox()
+        leftSide.style['align-items'] = 'stretch'
         sideHBox.append(leftSide)
         rightSide = gui.VBox()
+        rightSide.style['align-items'] = 'flex-start'
         sideHBox.append(rightSide)
 
+        rightSide.append(self.initCamera())
+
+        rightSide.append(self.initFieldMap(robot))
+        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
+        self.updateCursorPosition()
+
+        rightSide.append(self.initTestControl(robot))
+
         hbox1 = gui.HBox()
-        hbox1.style['align-items'] = 'flex-start'
+        hbox1.style['align-items'] = 'stretch'
         leftSide.append(hbox1)
         hbox1.append(self.initGeneral(robot))
         hbox1.append(self.initWheelControls(robot))
 
         leftSide.append(self.initManualControls(robot))
 
-        leftSide.append(self.initFieldMap(robot))
-        self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
-        self.updateCursorPosition()
-
-        rightSide.append(self.initScheduler(robot))
+        leftSide.append(self.initScheduler(robot))
         self.updateScheduler()
         self.updateSchedulerFlag = False
-
-        root.append(self.initTestControl(robot))
 
         appCallback(self)
         return root
@@ -141,6 +145,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         if self.updateSchedulerFlag:
             self.updateScheduler()
             self.updateSchedulerFlag = False
+
+    def initCamera(self):
+        cameraBox = self.sectionBox()
+        cameraBox.set_size(640, 240)
+        cameraBox.append(gui.Label("Camera feed goes here"))
+        return cameraBox
 
     def initGeneral(self, robot):
         generalBox = self.sectionBox()
@@ -159,8 +169,8 @@ class CompetitionBotDashboard(sea.Dashboard):
             connectionTestButton.style["background"] = color
         connectionTestButton.onclick.connect(connectionTest)
 
-        self.realTimeRatioLbl = gui.Label("[real time ratio]")
-        generalBox.append(sea.hBoxWith(gui.Label("Code slowdown:"),
+        self.realTimeRatioLbl = gui.Label("1.000")
+        generalBox.append(sea.hBoxWith(gui.Label("Slowdown:"),
             self.spaceBox(), self.realTimeRatioLbl))
 
         return generalBox
@@ -173,27 +183,22 @@ class CompetitionBotDashboard(sea.Dashboard):
         manualBox.append(auxModeBox)
         self.auxModeGroup = sea.ToggleButtonGroup()
 
-        auxDisabledBtn = gui.Button("No Aux")
-        auxDisabledBtn.onclick.connect(robot.c_auxDisabledMode)
-        self.auxModeGroup.addButton(auxDisabledBtn, "disabled")
-        auxModeBox.append(auxDisabledBtn)
-
-        defenseButton = gui.Button("Defense Mode")
+        defenseButton = gui.Button("Defense")
         defenseButton.onclick.connect(robot.c_defenseMode)
         self.auxModeGroup.addButton(defenseButton, "defense")
         auxModeBox.append(defenseButton)
 
-        cargoButton = gui.Button("Cargo Mode")
+        cargoButton = gui.Button("Cargo")
         cargoButton.onclick.connect(robot.c_cargoMode)
         self.auxModeGroup.addButton(cargoButton, "cargo")
         auxModeBox.append(cargoButton)
         
-        hatchButton = gui.Button("Hatch Mode")
+        hatchButton = gui.Button("Hatch")
         hatchButton.onclick.connect(robot.c_hatchMode)
         self.auxModeGroup.addButton(hatchButton, "hatch")
         auxModeBox.append(hatchButton)
 
-        climbBtn = gui.Button("Climb Mode")
+        climbBtn = gui.Button("Climb")
         climbBtn.onclick.connect(robot.c_climbMode)
         self.auxModeGroup.addButton(climbBtn, "climb")
         auxModeBox.append(climbBtn)
@@ -237,7 +242,6 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def initWheelControls(self, robot):
         wheelControlsBox = self.sectionBox()
-        wheelControlsBox.append(gui.Label("Swerve Wheels"))
 
         grid = gui.GridBox()
         grid.define_grid([['C','D'],['A','B']])
