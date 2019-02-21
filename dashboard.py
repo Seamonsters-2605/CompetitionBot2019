@@ -98,17 +98,18 @@ class CompetitionBotDashboard(sea.Dashboard):
     def main(self, robot, appCallback):
         self.robot = robot
 
-        root = gui.VBox(width=1000, margin='0px auto')
+        root = gui.VBox(width=900, margin='0px auto')
 
         sideHBox = gui.HBox()
+        sideHBox.style['align-items'] = 'flex-start' # both panels align to top
         root.append(sideHBox)
-        sideHBox.style['align-items'] = 'flex-start'
         leftSide = gui.VBox()
         sideHBox.append(leftSide)
         rightSide = gui.VBox()
         sideHBox.append(rightSide)
 
         hbox1 = gui.HBox()
+        hbox1.style['align-items'] = 'flex-start'
         leftSide.append(hbox1)
         hbox1.append(self.initGeneral(robot))
         hbox1.append(self.initWheelControls(robot))
