@@ -588,7 +588,7 @@ input[type='range']:disabled::-moz-range-thumb {
     text-align: center;
     text-decoration: none;
     color: #888;
-    padding: 20px 0;
+    padding: 3px 6px;
     border-bottom: 2px solid #888;
     background: #f7f7f7;
 }

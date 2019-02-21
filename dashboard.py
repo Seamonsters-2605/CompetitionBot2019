@@ -353,12 +353,20 @@ class CompetitionBotDashboard(sea.Dashboard):
         addActionBox = gui.VBox()
         hbox.append(addActionBox)
 
-        speedBox = gui.HBox()
-        addActionBox.append(speedBox)
-        speedBox.append(gui.Label("Speed:"))
-        self.speedInput = gui.Input()
-        self.speedInput.set_value("5")
-        speedBox.append(self.speedInput)
+        self.autoSpeed = 6
+        def slowSpeed():
+            self.autoSpeed = 3
+        def mediumSpeed():
+            self.autoSpeed = 6
+        def fastSpeed():
+            self.autoSpeed = 10
+
+        speedTabBox = gui.TabBox()
+        speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
+        speedTabBox.add_tab(gui.Widget(), "Med", mediumSpeed)
+        speedTabBox.add_tab(gui.Widget(), "Fast", fastSpeed)
+        speedTabBox.select_by_index(1)
+        addActionBox.append(speedTabBox)
 
         addActionBox.append(gui.Label("Auto actions:"))
 
@@ -512,13 +520,12 @@ class CompetitionBotDashboard(sea.Dashboard):
             coord.x, coord.y, coord.orientation)
 
     def c_addGenericAction(self, listview, key):
-        speed = float(self.speedInput.get_value())
         if key == "drivetopoint":
             action = auto_actions.createDriveToPointAction(
-                self.robot.pathFollower, self.selectedCoord, speed)
+                self.robot.pathFollower, self.selectedCoord, self.autoSpeed)
         elif key == "navigatetopoint":
             action = auto_actions.createNavigateToPointAction(
-                self.robot.pathFollower, self.selectedCoord, speed)
+                self.robot.pathFollower, self.selectedCoord, self.autoSpeed)
         elif key == "setposition":
             action = auto_actions.createSetRobotPositionAction(
                 self.robot.pathFollower, self.selectedCoord)
