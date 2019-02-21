@@ -191,9 +191,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         climbBtn.onclick.connect(robot.c_climbMode)
         clawModeBox.append(climbBtn)
 
-        self.driveGearLbl = gui.Label("[drive gear]")
-        manualBox.append(self.driveGearLbl)
-
         voltageModeBox = gui.HBox()
         manualBox.append(voltageModeBox)
         driveVoltageBtn = gui.Button("Drive Voltage")

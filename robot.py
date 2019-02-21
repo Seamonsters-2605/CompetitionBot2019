@@ -85,10 +85,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         #wpilib.CameraServer.launch('camera.py:main')
 
-    def updateScheduler(self):
-        if self.app is not None:
-            self.app.updateSchedulerFlag = True
-
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
             wheel.resetPosition()
@@ -122,14 +118,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.pathFollower.updateRobotPosition()
         self.superDrive.drive(0, 0, 0)
 
-    def autoMode(self):
-        self.controlModeMachine.replace(self.autoState)
-        self.updateScheduler()
-
-    def manualMode(self):
-        self.controlModeMachine.replace(self.manualState)
-        self.updateScheduler()
-
     def dashboardUpdateGenerator(self):
         if self.app is not None:
             self.app.clearEvents()
@@ -150,41 +138,26 @@ class CompetitionBot2019(sea.GeneratorBot):
             return 2
 
     def manualDriving(self):
-        if self.driveVoltage:
-            self.manualGear = drivetrain.mediumVoltageGear
-        else:
-            self.manualGear = drivetrain.mediumPositionGear
-        self.fieldOriented = True
+        self.manualMediumGear()
 
         self.resetPositions()
         
         alignAngle = None
 
-        self.joystick.getRawButtonPressed(1)
-        self.joystick.getRawButtonPressed(11)
-        self.joystick.getRawButtonPressed(12)
+        # clear joystick events
+        for i in range(1,13):
+            self.joystick.getRawButtonPressed(i)
+            self.joystick.getRawButtonReleased(i)
 
         while True:
             # BUTTON BOARD
 
-            if self.buttonBoard.getRawButton(3):
-                if self.driveVoltage:
-                    self.manualGear = drivetrain.slowVoltageGear
-                else:
-                    self.manualGear = drivetrain.slowPositionGear
-                self.fieldOriented = False
-            if self.buttonBoard.getRawButton(4):
-                if self.driveVoltage:
-                    self.manualGear = drivetrain.mediumVoltageGear
-                else:
-                    self.manualGear = drivetrain.mediumPositionGear
-                self.fieldOriented = True
-            if self.buttonBoard.getRawButton(5):
-                if self.driveVoltage:
-                    self.manualGear = drivetrain.fastVoltageGear
-                else:
-                    self.manualGear = drivetrain.fastPositionGear
-                self.fieldOriented = True
+            if self.buttonBoard.getRawButtonPressed(3):
+                self.manualSlowGear()
+            if self.buttonBoard.getRawButtonPressed(4):
+                self.manualMediumGear()
+            if self.buttonBoard.getRawButtonPressed(5):
+                self.manualFastGear()
 
             # DRIVING
 
@@ -224,9 +197,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                 aDiff = sea.circleDistance(alignAngle, self.pathFollower.robotAngle)
                 turn = sea.feedbackLoopScale(-aDiff, 25, 2, drivetrain.mediumPositionGear.turnScale)
 
-            if not self.holdGear and self.manualGear.applyGear(self.superDrive):
-                if self.app is not None:
-                    self.app.driveGearLbl.set_text("Gear: " + str(self.manualGear))
+            if not self.holdGear:
+                self.manualGear.applyGear(self.superDrive)
 
             if self.buttonBoard.getRawButton(1) or wpilib.RobotController.isBrownedOut():
                 alignAngle = None
@@ -243,11 +215,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             auto_vision.driveIntoVisionTarget(
                 self.multiDrive, self.vision, self.superDrive),
             sea.stopAllWhenDone(sea.whileButtonPressed(self.joystick, 4)))
-        if self.driveVoltage:
-            self.manualGear = drivetrain.mediumVoltageGear
-        else:
-            self.manualGear = drivetrain.mediumPositionGear
-        self.fieldOriented = True
+        self.manualMediumGear()
         self.holdGear = False
 
     def elevatorControl(self):
@@ -333,6 +301,54 @@ class CompetitionBot2019(sea.GeneratorBot):
     def updateDashboardLabels(self):
         pass
 
+    def updateScheduler(self):
+        if self.app is not None:
+            self.app.updateSchedulerFlag = True
+
+    # STATE CHANGE
+    # these functions should be called rather than setting state variables directly
+    # they will also update the dashboard
+
+    def autoMode(self):
+        self.controlModeMachine.replace(self.autoState)
+        self.updateScheduler()
+
+    def manualMode(self):
+        self.controlModeMachine.replace(self.manualState)
+        self.updateScheduler()
+
+    def manualSlowGear(self):
+        if self.driveVoltage:
+            self.manualGear = drivetrain.slowVoltageGear
+        else:
+            self.manualGear = drivetrain.slowPositionGear
+        self.setFieldOriented(False)
+
+    def manualMediumGear(self):
+        if self.driveVoltage:
+            self.manualGear = drivetrain.mediumVoltageGear
+        else:
+            self.manualGear = drivetrain.mediumPositionGear
+        self.setFieldOriented(True)
+
+    def manualFastGear(self):
+        if self.driveVoltage:
+            self.manualGear = drivetrain.fastVoltageGear
+        else:
+            self.manualGear = drivetrain.fastPositionGear
+        self.setFieldOriented(True)
+
+    def driveVoltageMode(self):
+        self.driveVoltage = True
+        self.manualMediumGear()
+        
+    def drivePositionMode(self):
+        self.driveVoltage = False
+        self.manualMediumGear()
+
+    def setFieldOriented(self, enabled):
+        self.fieldOriented = enabled
+
     # TEST FUNCTIONS
 
     def logOpticalSensors(self):
@@ -384,24 +400,12 @@ class CompetitionBot2019(sea.GeneratorBot):
     # dashboard callbacks
 
     @sea.queuedDashboardEvent
-    def c_startCompressor(self, button):
-        self.grabberArm.startCompressor()
-
-    @sea.queuedDashboardEvent
-    def c_stopCompressor(self, button):
-        self.grabberArm.stopCompressor()
-
-    @sea.queuedDashboardEvent
     def c_driveVoltage(self, button):
-        self.driveVoltage = True
-        self.manualGear = drivetrain.mediumVoltageGear
-        self.fieldOriented = True
+        self.driveVoltageMode()
 
     @sea.queuedDashboardEvent
     def c_drivePosition(self, button):
-        self.driveVoltage = False
-        self.manualGear = drivetrain.mediumPositionGear
-        self.fieldOriented = True
+        self.drivePositionMode()
 
     @sea.queuedDashboardEvent
     def c_wheelButtonClicked(self, button):
@@ -436,6 +440,14 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.manualAuxModeMachine.replace(self.climbState)
 
     # TESTING
+
+    @sea.queuedDashboardEvent
+    def c_startCompressor(self, button):
+        self.grabberArm.startCompressor()
+
+    @sea.queuedDashboardEvent
+    def c_stopCompressor(self, button):
+        self.grabberArm.stopCompressor()
 
     @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
