@@ -91,10 +91,12 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def teleop(self):
         self.manualMode()
-        self.manualAuxModeMachine.replace(self.auxDisabledState)
         yield from self.mainGenerator()
     
     def autonomous(self):
+        self.grabberArm.resetAllSensors()
+        yield from self.homeAllSwerveWheels()
+
         self.autoMode()
         yield from self.mainGenerator()
 
@@ -139,6 +141,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def manualDriving(self):
         self.manualMediumGear()
+        self.manualAuxModeMachine.replace(self.auxDisabledState)
 
         self.resetPositions()
         
@@ -404,7 +407,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
         print(name, math.degrees(swerveWheel._getCurrentSteeringAngle()))
         swerveWheel.zeroSteering(angle)
-        swerveWheel._setSteering(0)
 
     def homeAllSwerveWheels(self):
         yield from sea.parallel(
