@@ -52,20 +52,9 @@ def createNavigateToPointAction(pathFollower, vision, coord, speed):
         lambda: navigateToPoint(pathFollower, vision, coord, speed),
         coords=[(coord.x, coord.y)])
 
-def setRobotPosition(pathFollower, coord):
-    pathFollower.setPosition(coord.x, coord.y, coord.orientation)
-    yield
-
-def createSetRobotPositionAction(pathFollower, coord):
-    return Action("Set robot to " + coord.name,
-        lambda: setRobotPosition(pathFollower, coord),
-        coords=[(coord.x, coord.y)])
-
 def createGenericAutoActions(pathFollower, grabber, vision):
     drive = pathFollower.drive
     return [
-        Action("Vision align", lambda:
-            auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(drive, vision, drive, 3)),
         Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber, drive)),
         Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1, drive)),
         Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2, drive)),

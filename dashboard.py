@@ -378,7 +378,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         genericActionList = gui.ListView()
         genericActionList.append("Drive to Point", "drivetopoint")
         genericActionList.append("Navigate to Point", "navigatetopoint")
-        genericActionList.append("Set robot position", "setposition")
         index = 0
         for action in robot.genericAutoActions:
             genericActionList.append(gui.ListItem(action.name), str(index))
@@ -536,9 +535,6 @@ class CompetitionBotDashboard(sea.Dashboard):
             action = auto_actions.createNavigateToPointAction(
                 self.robot.pathFollower, self.robot.vision,
                 self.selectedCoord, self.autoSpeed)
-        elif key == "setposition":
-            action = auto_actions.createSetRobotPositionAction(
-                self.robot.pathFollower, self.selectedCoord)
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
