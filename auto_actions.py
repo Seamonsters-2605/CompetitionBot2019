@@ -25,7 +25,7 @@ def driveToPoint(pathFollower, vision, coord, speed):
         time = dist / speed
     yield from sea.ensureTrue(
         pathFollower.driveToPointGenerator(coord.x, coord.y, angle, time,
-            math.radians(1), 1),
+            0.2, math.radians(2)),
         25)
     
     # approach vision target
