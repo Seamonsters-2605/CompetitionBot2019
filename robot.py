@@ -222,12 +222,14 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.elevatorSlide(-self.buttonBoard.getY() * 0.5)
 
     def auxDisabledMode(self):
-        print("Aux Disabled")
+        if self.app is not None:
+            self.app.auxModeGroup.highlight("disabled")
         self.grabberArm.disableAllMotors()
         yield from sea.forever()
 
     def manualDefenseMode(self):
-        print("Defense Mode")
+        if self.app is not None:
+            self.app.auxModeGroup.highlight("defense")
         self.grabberArm.stopIntake()
         self.grabberArm.setInnerPiston(False)
         self.grabberArm.setOuterPiston(False)
@@ -237,7 +239,8 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def manualCargoMode(self):
-        print("Cargo Mode")
+        if self.app is not None:
+            self.app.auxModeGroup.highlight("cargo")
         self.grabberArm.setInnerPiston(False)
         self.grabberArm.setOuterPiston(False)
         self.grabberArm.elevatorSlide(0)
@@ -263,7 +266,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                 return
 
     def manualHatchMode(self):
-        print("Hatch mode")
+        if self.app is not None:
+            self.app.auxModeGroup.highlight("hatch")
         self.grabberArm.stopIntake()
         self.grabberArm.elevatorSlide(0)
         self.grabberArm.setInnerPiston(False)
@@ -293,7 +297,8 @@ class CompetitionBot2019(sea.GeneratorBot):
                 return
 
     def manualClimbMode(self):
-        print("Climb mode")
+        if self.app is not None:
+            self.app.auxModeGroup.highlight("climb")
         while True:
             self.climber.climb(-self.buttonBoard.getY())
             yield
@@ -312,10 +317,14 @@ class CompetitionBot2019(sea.GeneratorBot):
     def autoMode(self):
         self.controlModeMachine.replace(self.autoState)
         self.updateScheduler()
+        if self.app is not None:
+            self.app.controlModeGroup.highlight("auto")
 
     def manualMode(self):
         self.controlModeMachine.replace(self.manualState)
         self.updateScheduler()
+        if self.app is not None:
+            self.app.controlModeGroup.highlight("manual")
 
     def manualSlowGear(self):
         if self.driveVoltage:
@@ -323,6 +332,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         else:
             self.manualGear = drivetrain.slowPositionGear
         self.setFieldOriented(False)
+        if self.app is not None:
+            self.app.gearGroup.highlight("slow")
 
     def manualMediumGear(self):
         if self.driveVoltage:
@@ -330,6 +341,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         else:
             self.manualGear = drivetrain.mediumPositionGear
         self.setFieldOriented(True)
+        if self.app is not None:
+            self.app.gearGroup.highlight("medium")
 
     def manualFastGear(self):
         if self.driveVoltage:
@@ -337,17 +350,25 @@ class CompetitionBot2019(sea.GeneratorBot):
         else:
             self.manualGear = drivetrain.fastPositionGear
         self.setFieldOriented(True)
+        if self.app is not None:
+            self.app.gearGroup.highlight("fast")
 
     def driveVoltageMode(self):
         self.driveVoltage = True
         self.manualMediumGear()
+        if self.app is not None:
+            self.app.voltageModeGroup.highlight(True)
         
     def drivePositionMode(self):
         self.driveVoltage = False
         self.manualMediumGear()
+        if self.app is not None:
+            self.app.voltageModeGroup.highlight(False)
 
     def setFieldOriented(self, enabled):
         self.fieldOriented = enabled
+        if self.app is not None:
+            self.app.fieldOrientedGroup.highlight(enabled)
 
     # TEST FUNCTIONS
 
@@ -400,12 +421,23 @@ class CompetitionBot2019(sea.GeneratorBot):
     # dashboard callbacks
 
     @sea.queuedDashboardEvent
-    def c_driveVoltage(self, button):
-        self.driveVoltageMode()
+    def c_toggleVoltage(self, button):
+        if self.driveVoltage:
+            self.drivePositionMode()
+        else:
+            self.driveVoltageMode()
 
-    @sea.queuedDashboardEvent
-    def c_drivePosition(self, button):
-        self.drivePositionMode()
+    def c_toggleFieldOriented(self, button):
+        self.setFieldOriented(not self.fieldOriented)
+
+    def c_slowGear(self, button):
+        self.manualSlowGear()
+
+    def c_mediumGear(self, button):
+        self.manualMediumGear()
+
+    def c_fastGear(self, button):
+        self.manualFastGear()
 
     @sea.queuedDashboardEvent
     def c_wheelButtonClicked(self, button):

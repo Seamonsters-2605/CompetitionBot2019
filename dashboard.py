@@ -168,37 +168,69 @@ class CompetitionBotDashboard(sea.Dashboard):
         manualBox = self.sectionBox()
         manualBox.append(gui.Label("MANUAL"))
 
-        clawModeBox = gui.HBox()
-        manualBox.append(clawModeBox)
+        auxModeBox = gui.HBox()
+        manualBox.append(auxModeBox)
+        self.auxModeGroup = sea.ToggleButtonGroup()
 
         auxDisabledBtn = gui.Button("No Aux")
         auxDisabledBtn.onclick.connect(robot.c_auxDisabledMode)
-        clawModeBox.append(auxDisabledBtn)
+        self.auxModeGroup.addButton(auxDisabledBtn, "disabled")
+        auxModeBox.append(auxDisabledBtn)
 
         defenseButton = gui.Button("Defense Mode")
         defenseButton.onclick.connect(robot.c_defenseMode)
-        clawModeBox.append(defenseButton)
+        self.auxModeGroup.addButton(defenseButton, "defense")
+        auxModeBox.append(defenseButton)
 
         cargoButton = gui.Button("Cargo Mode")
         cargoButton.onclick.connect(robot.c_cargoMode)
-        clawModeBox.append(cargoButton)
+        self.auxModeGroup.addButton(cargoButton, "cargo")
+        auxModeBox.append(cargoButton)
         
         hatchButton = gui.Button("Hatch Mode")
         hatchButton.onclick.connect(robot.c_hatchMode)
-        clawModeBox.append(hatchButton)
+        self.auxModeGroup.addButton(hatchButton, "hatch")
+        auxModeBox.append(hatchButton)
 
         climbBtn = gui.Button("Climb Mode")
         climbBtn.onclick.connect(robot.c_climbMode)
-        clawModeBox.append(climbBtn)
+        self.auxModeGroup.addButton(climbBtn, "climb")
+        auxModeBox.append(climbBtn)
 
-        voltageModeBox = gui.HBox()
-        manualBox.append(voltageModeBox)
-        driveVoltageBtn = gui.Button("Drive Voltage")
-        driveVoltageBtn.onclick.connect(robot.c_driveVoltage)
-        voltageModeBox.append(driveVoltageBtn)
-        drivePositionBtn = gui.Button("Drive Position")
-        drivePositionBtn.onclick.connect(robot.c_drivePosition)
-        voltageModeBox.append(drivePositionBtn)
+        speedBox = gui.HBox()
+        manualBox.append(speedBox)
+        
+        slowBtn = gui.Button("Slow")
+        slowBtn.onclick.connect(robot.c_slowGear)
+        speedBox.append(slowBtn)
+        mediumBtn = gui.Button("Medium")
+        mediumBtn.onclick.connect(robot.c_mediumGear)
+        speedBox.append(mediumBtn)
+        fastBtn = gui.Button("Fast")
+        fastBtn.onclick.connect(robot.c_fastGear)
+        speedBox.append(fastBtn)
+
+        self.gearGroup = sea.ToggleButtonGroup()
+        self.gearGroup.addButton(slowBtn, "slow")
+        self.gearGroup.addButton(mediumBtn, "medium")
+        self.gearGroup.addButton(fastBtn, "fast")
+
+        toggleBox = gui.HBox()
+        manualBox.append(toggleBox)
+
+        voltageToggle = gui.Button("Drive Voltage")
+        voltageToggle.onclick.connect(robot.c_toggleVoltage)
+        toggleBox.append(voltageToggle)
+        self.voltageModeGroup = sea.ToggleButtonGroup()
+        self.voltageModeGroup.addButton(voltageToggle, True)
+        self.voltageModeGroup.highlight(robot.driveVoltage)
+
+        fieldOrientedToggle = gui.Button("Field Oriented")
+        fieldOrientedToggle.onclick.connect(robot.c_toggleFieldOriented)
+        toggleBox.append(fieldOrientedToggle)
+        self.fieldOrientedGroup = sea.ToggleButtonGroup()
+        self.fieldOrientedGroup.addButton(fieldOrientedToggle, True)
+        self.fieldOrientedGroup.highlight(robot.fieldOriented)
 
         return manualBox
 
@@ -309,6 +341,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         autoModeBtn = gui.Button("Auto")
         autoModeBtn.onclick.connect(robot.c_autoMode)
         controlBox.append(autoModeBtn)
+
+        self.controlModeGroup = sea.ToggleButtonGroup()
+        self.controlModeGroup.addButton(manualModeBtn, "manual")
+        self.controlModeGroup.addButton(autoModeBtn, "auto")
 
         hbox = gui.HBox()
         hbox.style['align-items'] = 'flex-start'
