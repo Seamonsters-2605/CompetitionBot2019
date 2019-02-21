@@ -30,6 +30,7 @@ class GrabberArm():
         self.solenoid2 = wpilib.Solenoid(2)
         self.solenoid3 = wpilib.Solenoid(3)
         self.compressor = wpilib.Compressor(0)
+        self.stopCompressor()
 
         self.slideMotor = ctre.WPI_TalonSRX(30)
         self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)

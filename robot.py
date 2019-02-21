@@ -20,40 +20,48 @@ OPTICAL_SENSOR_THRESHOLD = 0.5 # volts
 class CompetitionBot2019(sea.GeneratorBot):
 
     def robotInit(self):
+        # DEVICES
+
         self.joystick = wpilib.Joystick(0)
         self.buttonBoard = wpilib.Joystick(1)
-
-        self.grabberArm = grabber.GrabberArm()
-        self.grabberArm.stopCompressor()
-        self.climber = climber.Climber()
-
-        self.superDrive = drivetrain.initDrivetrain()
-        self.superDrive.gear = None
-        self.multiDrive = sea.MultiDrive(self.superDrive)
-        self.driveVoltage = False
-        self.manualGear = None
-        self.fieldOriented = True
-        self.holdGear = False
 
         self.opticalSensors = [
             wpilib.AnalogInput(0), wpilib.AnalogInput(1),
             wpilib.AnalogInput(2), wpilib.AnalogInput(3)]
-        
-        self.ahrs = navx.AHRS.create_spi()
-        self.pathFollower = sea.PathFollower(self.superDrive, self.ahrs)
-        startPosition = coordinates.startCenter.inQuadrant(1)
-        self.pathFollower.setPosition(startPosition.x, startPosition.y, startPosition.orientation)
+
+        ahrs = navx.AHRS.create_spi()
 
         self.pdp = wpilib.PowerDistributionPanel(50)
 
         self.vision = NetworkTables.getTable('limelight')
 
+        # SUBSYSTEMS
+
+        self.superDrive = drivetrain.initDrivetrain()
+        self.superDrive.gear = None
+        self.multiDrive = sea.MultiDrive(self.superDrive)
+
+        self.grabberArm = grabber.GrabberArm()
+        self.climber = climber.Climber()
+
+        # HELPER OBJECTS
+
+        self.pathFollower = sea.PathFollower(self.superDrive, ahrs)
+        startPosition = coordinates.startCenter.inQuadrant(1)
+        self.pathFollower.setPosition(startPosition.x, startPosition.y, startPosition.orientation)
+
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
         self.autoScheduler.idleFunction = self.autoIdle
 
-        self.genericAutoActions = auto_actions.createGenericAutoActions(
-            self.pathFollower, self.grabberArm, self.vision)
+        self.timingMonitor = sea.TimingMonitor()
+
+        # MANUAL DRIVE STATE
+
+        self.driveVoltage = False
+        self.manualGear = None
+        self.fieldOriented = True
+        self.holdGear = False
 
         self.manualAuxModeMachine = sea.StateMachine()
         self.auxDisabledState = sea.State(self.auxDisabledMode)
@@ -67,7 +75,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.manualState = sea.State(lambda: sea.parallel(
             self.manualDriving(), self.manualAuxModeMachine.updateGenerator()))
 
-        self.timingMonitor = sea.TimingMonitor()
+        # DASHBOARD
+
+        self.genericAutoActions = auto_actions.createGenericAutoActions(
+            self.pathFollower, self.grabberArm, self.vision)
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
