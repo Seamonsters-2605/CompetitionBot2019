@@ -123,11 +123,11 @@ class GrabberArm():
         self.clawClosed()
         self.intake()
 
-    def setInnerPiston(self, value):
+    def setExtendPiston(self, value):
         self.solenoid1.set(not value)
         self.solenoid0.set(value)
 
-    def setOuterPiston(self, value):
+    def setGrabPiston(self, value):
         self.solenoid3.set(not value)
         self.solenoid2.set(value)
 

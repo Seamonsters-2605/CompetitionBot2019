@@ -131,6 +131,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.updateDashboardLabels()
             yield v
 
+    def runAutoAction(self, action):
+        self.autoScheduler.actionList.insert(0, action)
+        self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self))
+        self.autoMode()
+
     def getThrottlePos(self):
         throttle = sea.deadZone(-self.joystick.getRawAxis(sea.TFlightHotasX.AXIS_THROTTLE))
         if throttle > 0.5:
@@ -248,8 +253,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.auxModeGroup.highlight("defense")
         self.grabberArm.stopIntake()
-        self.grabberArm.setInnerPiston(False)
-        self.grabberArm.setOuterPiston(False)
         self.grabberArm.elevatorToZero()
         while True:
             self.grabberArm.clawBack()
@@ -258,8 +261,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     def manualCargoMode(self):
         if self.app is not None:
             self.app.auxModeGroup.highlight("cargo")
-        self.grabberArm.setInnerPiston(False)
-        self.grabberArm.setOuterPiston(False)
         self.grabberArm.elevatorSlide(0)
         while True:
             if self.joystick.getRawButton(8):
@@ -287,20 +288,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.auxModeGroup.highlight("hatch")
         self.grabberArm.stopIntake()
         self.grabberArm.elevatorSlide(0)
-        self.grabberArm.setInnerPiston(False)
+
         self.joystick.getRawButtonPressed(1)
+        self.joystick.getRawButtonPressed(2)
+        self.joystick.getRawButtonPressed(10)
         while True:
             self.grabberArm.clawHatch()
-            if self.joystick.getRawButton(2):
-                self.grabberArm.setOuterPiston(True)
-            if self.joystick.getRawButton(10):
-                self.grabberArm.setOuterPiston(False)
 
             if self.joystick.getRawButtonPressed(1):
-                self.autoScheduler.actionList.insert(0,
-                    auto_actions.createPickUpHatchAction(self.pathFollower, self.grabberArm))
-                self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self))
-                self.autoMode()
+                self.runAutoAction(
+                    auto_actions.createGrabHatchAction(self.pathFollower, self.grabberArm))
+            if self.joystick.getRawButtonPressed(10):
+                self.runAutoAction(
+                    auto_actions.createRemoveHatchAction(self.pathFollower, self.grabberArm))
+            if self.joystick.getRawButtonPressed(2):
+                self.runAutoAction(
+                    auto_actions.createPlaceHatchAction(self.pathFollower, self.grabberArm))
 
             if self.joystick.getRawButton(8):
                 self.grabberArm.elevatorHatchPosition(self.getThrottlePos())
