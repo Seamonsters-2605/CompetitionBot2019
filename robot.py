@@ -108,6 +108,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def mainGenerator(self):
         self.resetPositions()
+        self.manualAuxModeMachine.replace(self.auxDisabledState)
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(),
             self.dashboardUpdateGenerator(),
@@ -140,7 +141,6 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def manualDriving(self):
         self.manualMediumGear()
-        self.manualAuxModeMachine.replace(self.auxDisabledState)
 
         self.resetPositions()
         
