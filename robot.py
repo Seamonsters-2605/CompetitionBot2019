@@ -77,7 +77,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         # DASHBOARD
 
         self.genericAutoActions = auto_actions.createGenericAutoActions(
-            self.pathFollower, self.grabberArm)
+            self, self.pathFollower, self.grabberArm)
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
@@ -284,6 +284,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.joystick.getRawButtonPressed(1):
                 self.autoScheduler.actionList.insert(0,
                     auto_actions.createPickUpHatchAction(self.pathFollower, self.grabberArm))
+                self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self))
                 self.autoMode()
 
             if self.joystick.getRawButton(8):

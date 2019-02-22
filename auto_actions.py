@@ -56,7 +56,14 @@ def createPickUpHatchAction(pathFollower, grabber):
     return Action("Pick up hatch",
         lambda: auto_grabber.pickUpHatch(pathFollower, grabber))
 
-def createGenericAutoActions(pathFollower, grabber):
+def endAuto(robot):
+    yield
+    robot.manualMode()
+
+def createEndAction(robot):
+    return Action("--END--", lambda: endAuto(robot))
+
+def createGenericAutoActions(robot, pathFollower, grabber):
     return [
         createPickUpHatchAction(pathFollower, grabber),
         Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(pathFollower, grabber, 1)),
@@ -64,5 +71,6 @@ def createGenericAutoActions(pathFollower, grabber):
         Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(pathFollower, grabber, 3)),
         Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(pathFollower, grabber, 1)),
         Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(pathFollower, grabber, 2)),
-        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3))
+        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3)),
+        createEndAction(robot)
     ]
