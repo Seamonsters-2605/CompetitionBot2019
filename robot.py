@@ -10,7 +10,6 @@ from buttons import Buttons
 import auto_scheduler
 import auto_vision
 import auto_actions
-import auto_grabber
 import coordinates
 from networktables import NetworkTables
 import climber
@@ -78,7 +77,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         # DASHBOARD
 
         self.genericAutoActions = auto_actions.createGenericAutoActions(
-            self.pathFollower, self.grabberArm, self.vision)
+            self.pathFollower, self.grabberArm)
 
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
@@ -283,10 +282,9 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.grabberArm.setOuterPiston(False)
 
             if self.joystick.getRawButtonPressed(1):
-                self.holdGear = True
-                yield from auto_grabber.pickUpHatch(
-                    self.multiDrive, self.grabberArm, self.superDrive)
-                self.holdGear = False
+                self.autoScheduler.actionList.insert(0,
+                    auto_actions.createPickUpHatchAction(self.pathFollower, self.grabberArm))
+                self.autoMode()
 
             if self.joystick.getRawButton(8):
                 self.grabberArm.elevatorHatchPosition(self.getThrottlePos())

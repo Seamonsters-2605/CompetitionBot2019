@@ -2,55 +2,53 @@ import math
 import seamonsters as sea
 import drivetrain
 
+DRIVE_BACK_DIST = 1.5
+DRIVE_BACK_TIME = 0.5
+
 FORWARD = math.pi/2
 BACKWARD = math.pi*3/2
 
-def driveWait(drive, time):
+def driveWait(pathFollower, time):
     for _ in range(time):
-        drive.drive(0, 0, 0)
+        pathFollower.updateRobotPosition()
+        pathFollower.drive.drive(0, 0, 0)
         yield
 
-def driveBackFromWall(drive, superDrive):
-    drivetrain.autoPositionGear.applyGear(superDrive)
-    for _ in range(20): # something?
-        drive.drive(3, BACKWARD, 0)
-        yield
+def driveBackFromWall(pathFollower):
+    drivetrain.autoPositionGear.applyGear(pathFollower.drive)
+    angle = pathFollower.robotAngle
+    targetX = pathFollower.robotX + math.sin(pathFollower.robotAngle) * DRIVE_BACK_DIST
+    targetY = pathFollower.robotY - math.cos(pathFollower.robotAngle) * DRIVE_BACK_DIST
+    yield from sea.ensureTrue(
+        pathFollower.driveToPointGenerator(targetX, targetY, angle, DRIVE_BACK_TIME,
+                0.2, math.radians(2)),
+        10)
 
-def pickUpHatch(drive, grabber, superDrive):        # PICK UP HATCH
+def pickUpHatch(pathFollower, grabber):             # PICK UP HATCH
     grabber.elevatorLifted()                        # elevator lift up
-    yield from driveWait(drive, 25)                 # wait for elevator TODO
-    yield from driveBackFromWall(drive, superDrive) # drive backward
+    yield from driveWait(pathFollower, 25)          # wait for elevator TODO
+    yield from driveBackFromWall(pathFollower)      # drive backward
     grabber.setInnerPiston(False)                   # retract inner piston
-    drive.drive(0, 0, 0)
     yield                                           # END
 
-def pickUpCargo(drive, grabber, superDrive):        # PICK UP CARGO
-    grabber.clawClosed()                            # claw closed
-    grabber.intake()                                # intake
-    yield from driveWait(drive, 30)                 # wait for intake
-    grabber.stopIntake()                            # stop intake
-    yield from driveBackFromWall(drive, superDrive) # drive backward
-    drive.drive(0, 0, 0)
-    yield                                           # END
-
-def depositHatch(drive, grabber, pos, superDrive):  # DEPOSIT HATCH
+def depositHatch(pathFollower, grabber, pos):       # DEPOSIT HATCH
     grabber.elevatorHatchPosition(pos)              # move elevator to position
-    yield from driveWait(drive, 50)                 # wait for elevator TODO
+    yield from driveWait(pathFollower, 35*pos)      # wait for elevator TODO
     grabber.setOuterPiston(True)                    # extend outer pistons
-    yield from driveWait(drive, 25)                 # wait for pistons
-    yield from driveBackFromWall(drive, superDrive) # drive backward
-    grabber.elevatorHatchPosition(1)                # elevator down
+    yield from driveWait(pathFollower, 20)          # wait for pistons
     grabber.setOuterPiston(False)                   # retract outer pistons
-    drive.drive(0, 0, 0)
+    grabber.elevatorHatchPosition(1)                # elevator down
+    yield from driveWait(pathFollower, 25*pos)      # wait for elevator TODO
+    yield from driveBackFromWall(pathFollower)      # drive backward
     yield                                           # END
 
-def depositCargo(drive, grabber, pos, superDrive):  # DEPOSIT CARGO
+def depositCargo(pathFollower, grabber, pos):       # DEPOSIT CARGO
     grabber.elevatorCargoPosition(pos)              # move elevator to position
-    yield from driveWait(drive, 50)                 # wait for elevator TODO
+    yield from driveWait(pathFollower, 35*pos)      # wait for elevator TODO
     grabber.eject()                                 # eject cargo
-    yield from driveWait(drive, 25)                 # wait for eject
+    yield from driveWait(pathFollower, 25)          # wait for eject
     grabber.stopIntake()                            # stop intake
-    yield from driveBackFromWall(drive, superDrive) # drive backward
     grabber.elevatorCargoPosition(1)                # elevator down
-    drive.drive(0, 0, 0)
+    yield from driveWait(pathFollower, 25*pos)      # wait for elevator TODO
+    yield from driveBackFromWall(pathFollower)      # drive backward
     yield                                           # END

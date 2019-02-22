@@ -52,15 +52,17 @@ def createNavigateToPointAction(pathFollower, vision, coord, speed):
         lambda: navigateToPoint(pathFollower, vision, coord, speed),
         coords=[(coord.x, coord.y)])
 
-def createGenericAutoActions(pathFollower, grabber, vision):
-    drive = pathFollower.drive
+def createPickUpHatchAction(pathFollower, grabber):
+    return Action("Pick up hatch",
+        lambda: auto_grabber.pickUpHatch(pathFollower, grabber))
+
+def createGenericAutoActions(pathFollower, grabber):
     return [
-        Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(drive, grabber, drive)),
-        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(drive, grabber, 1, drive)),
-        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(drive, grabber, 2, drive)),
-        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(drive, grabber, 3, drive)),
-        Action("Pick up cargo", lambda: auto_grabber.pickUpCargo(drive, grabber, drive)),
-        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(drive, grabber, 1, drive)),
-        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(drive, grabber, 2, drive)),
-        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(drive, grabber, 3, drive))
+        createPickUpHatchAction(pathFollower, grabber),
+        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(pathFollower, grabber, 1)),
+        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(pathFollower, grabber, 2)),
+        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(pathFollower, grabber, 3)),
+        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(pathFollower, grabber, 1)),
+        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(pathFollower, grabber, 2)),
+        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3))
     ]
