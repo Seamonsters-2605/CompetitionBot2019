@@ -33,6 +33,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.pdp = wpilib.PowerDistributionPanel(50)
 
         self.vision = NetworkTables.getTable('limelight')
+        self.vision.putNumber('pipeline', 1)
 
         # SUBSYSTEMS
 
