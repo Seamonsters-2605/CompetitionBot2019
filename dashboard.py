@@ -443,6 +443,17 @@ class CompetitionBotDashboard(sea.Dashboard):
         setSwerveZeroBtn.onclick.connect(robot.c_setSwerveZero)
         swerveBox.append(setSwerveZeroBtn)
 
+        swerveBrakeBox = gui.HBox()
+        testBox.append(swerveBrakeBox)
+
+        swerveBrakeOffBtn = gui.Button("Swerve Brake Off")
+        swerveBrakeOffBtn.onclick.connect(robot.c_swerveBrakeOff)
+        swerveBrakeBox.append(swerveBrakeOffBtn)
+
+        swerveBrakeOnBtn = gui.Button("Swerve Brake On")
+        swerveBrakeOnBtn.onclick.connect(robot.c_swerveBrakeOn)
+        swerveBrakeBox.append(swerveBrakeOnBtn)
+
         resetClawBtn = gui.Button("Reset Claw")
         resetClawBtn.onclick.connect(robot.c_resetClaw)
         testBox.append(resetClawBtn)

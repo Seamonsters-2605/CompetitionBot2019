@@ -101,6 +101,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         yield from self.mainGenerator()
 
     def test(self):
+        self.superDrive.disable()
         self.grabberArm.disableAllMotors()
         yield from sea.parallel(
             self.dashboardUpdateGenerator(),
@@ -492,6 +493,16 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_stopCompressor(self, button):
         self.grabberArm.stopCompressor()
+
+    @sea.queuedDashboardEvent
+    def c_swerveBrakeOff(self, button):
+        for wheel in self.superDrive.wheels:
+            wheel.steerMotor.setNeutralMode(ctre.NeutralMode.Coast)
+
+    @sea.queuedDashboardEvent
+    def c_swerveBrakeOn(self, button):
+        for wheel in self.superDrive.wheels:
+            wheel.steerMotor.setNeutralMode(ctre.NeutralMode.Brake)
 
     @sea.queuedDashboardEvent
     def c_wheelsToZero(self, button):
