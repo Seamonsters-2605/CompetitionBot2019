@@ -160,6 +160,20 @@ class CompetitionBot2019(sea.GeneratorBot):
                 self.manualMediumGear()
             if self.buttonBoard.getRawButtonPressed(5):
                 self.manualFastGear()
+            if self.buttonBoard.getRawButtonPressed(2):
+                if self.driveVoltage:
+                    self.drivePositionMode()
+                else:
+                    self.driveVoltageMode()
+            
+            if self.buttonBoard.getRawButtonPressed(7):
+                self.manualAuxModeMachine.replace(self.defenseState)
+            if self.buttonBoard.getRawButtonPressed(8):
+                self.manualAuxModeMachine.replace(self.cargoState)
+            if self.buttonBoard.getRawButtonPressed(9):
+                self.manualAuxModeMachine.replace(self.hatchState)
+            if self.buttonBoard.getRawButtonPressed(10):
+                self.manualAuxModeMachine.replace(self.climbState)
 
             # DRIVING
 
