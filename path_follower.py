@@ -37,6 +37,9 @@ class PathFinder:
         while not found:
             cell.sort()#rearrange list to get the move with the least cost
             cell.reverse()
+            if len(cell) == 0:
+                print("collision")
+                return targetPos
             next = cell.pop()
             x = next[2]
             y = next[3]
@@ -92,4 +95,10 @@ class PathFinder:
                     heuristic[i][j] = 100 # if there is an obstacle in the spot on the field, adds a very high 
                     # cost to going over that spot so it will be navigated around
 
+        initPos[0] = initPos[0] + int(len(self.field)/2)
+        initPos[1] = initPos[1] + int(len(self.field[0])/2)
+
         return self.search(self.field, initPos, targetPos, cost, heuristic)
+
+test = PathFinder("field.png")
+print(test.navigate([0, 0], [5, 7]))

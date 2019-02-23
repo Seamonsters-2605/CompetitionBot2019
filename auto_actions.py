@@ -5,6 +5,7 @@ import auto_vision
 import auto_grabber
 import coordinates
 import drivetrain
+import path_follower
 
 def driveToPoint(pathFollower, coord, speed):
     drivetrain.autoPositionGear.applyGear(pathFollower.drive)
@@ -25,8 +26,11 @@ def createDriveToPointAction(pathFollower, coord, speed):
         coords=[(coord.x, coord.y)])
 
 def navigateToPoint(pathFollower, coord, speed):
-    waypoints = coordinates.findWaypoints(coord,
-        pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
+    pathFinder = path_follower.PathFinder("field.png")
+    waypoints = pathFinder.navigate([int(pathFollower.robotX), int(pathFollower.robotY)], [int(coord.x), int(coord.y)])
+    #waypoints = coordinates.findWaypoints(coord,
+    #    pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
+    coordinates.findWaypoints
     for pt in waypoints:
         yield from driveToPoint(pathFollower, pt, speed)
 

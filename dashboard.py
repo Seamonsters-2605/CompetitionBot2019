@@ -466,7 +466,7 @@ class CompetitionBotDashboard(sea.Dashboard):
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
         self.updateScheduler()
-
+        
     def c_clearSchedule(self, button):
         self.robot.autoScheduler.actionList.clear()
         self.updateScheduler()
