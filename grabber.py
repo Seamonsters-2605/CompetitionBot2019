@@ -32,6 +32,9 @@ class GrabberArm():
         self.compressor = wpilib.Compressor(0)
         self.stopCompressor()
 
+        self.extendOut = False
+        self.grabOut = False
+
         self.slideMotor = ctre.WPI_TalonSRX(30)
         self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.slideMotor.setSensorPhase(False)
@@ -124,12 +127,14 @@ class GrabberArm():
         self.intake()
 
     def setExtendPiston(self, value):
-        self.solenoid1.set(not value)
-        self.solenoid0.set(value)
-
-    def setGrabPiston(self, value):
         self.solenoid3.set(not value)
         self.solenoid2.set(value)
+        self.extendOut = value
+
+    def setGrabPiston(self, value):
+        self.solenoid1.set(value)
+        self.solenoid0.set(not value)
+        self.grabOut = value
 
     #grabber slides up
     def elevatorSlide(self, speed):
