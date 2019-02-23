@@ -8,10 +8,16 @@ ALIGN_MAX_VEL = 2 # feet per second
 ALIGN_TOLERANCE = 1 # degrees
 
 FWD_SPEED = 1
+FWD_SPEED_AUTO = 2
 
 def driveIntoVisionTarget(drive, vision, superDrive, distance=None):
     try:
-        drivetrain.slowPositionGear.applyGear(superDrive)
+        if distance is not None:
+            fwdSpeed = FWD_SPEED_AUTO
+            drivetrain.autoPositionGear.applyGear(superDrive)
+        else:
+            fwdSpeed = FWD_SPEED
+            drivetrain.slowPositionGear.applyGear(superDrive)
         vision.putNumber('pipeline', 0)
         yield
 
@@ -32,11 +38,11 @@ def driveIntoVisionTarget(drive, vision, superDrive, distance=None):
             speed = sea.feedbackLoopScale(xOffset, ALIGN_SCALE, ALIGN_EXPONENT, ALIGN_MAX_VEL)
             print("%.3f degrees %.3f speed" % (xOffset, speed))
             
-            mag = math.hypot(speed, FWD_SPEED)
-            d = math.atan2(FWD_SPEED, speed)
+            mag = math.hypot(speed, fwdSpeed)
+            d = math.atan2(fwdSpeed, speed)
 
             drive.drive(mag,d,0)
-            distTravelled += FWD_SPEED / sea.ITERATIONS_PER_SECOND # TODO not real time
+            distTravelled += fwdSpeed / sea.ITERATIONS_PER_SECOND # TODO not real time
 
             if distance is not None and distTravelled > distance:
                 return True
