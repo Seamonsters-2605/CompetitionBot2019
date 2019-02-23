@@ -30,8 +30,7 @@ def driveToPoint(pathFollower, vision, coord, speed):
     
     # approach vision target
     if visionIntermediateCoord is not None:
-        distanceToTarget = math.hypot(visionIntermediateCoord.x - coord.x,
-                                      visionIntermediateCoord.y - coord.y)
+        distanceToTarget = math.hypot(coord.x - finalCoord.x, coord.y - finalCoord.y)
         yield from auto_vision.driveIntoVisionTargetOrGiveUpAndDriveForward(
             pathFollower.drive, vision, pathFollower.drive, distanceToTarget + VISION_APPROACH_MARGIN)
         pathFollower.setPosition(finalCoord.x, finalCoord.y, None)
