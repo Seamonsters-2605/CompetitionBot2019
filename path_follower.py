@@ -74,6 +74,11 @@ class PathFinder:
             path[i] = path[len(path) - 1 - i]
             path[len(path) - 1 - i] = temp
 
+        for spot in path:#make output x,y instead of y,x
+            temp = spot[0]
+            spot[0] = spot[1]
+            spot[1] = temp
+
         return path
 
     def navigate(self, initPos, targetPos):
@@ -94,11 +99,11 @@ class PathFinder:
                     # cost to going over that spot so it will be navigated around
         startPos = [0,0]
         startPos[0] = initPos[1] + int(len(self.field)/2)
-        startPos[1] = initPos[0] + int(len(self.field[0])/2)
+        startPos[1] = -initPos[0] + int(len(self.field[0])/2)
         endPos = [0,0]                                
         endPos[0] = targetPos[1] + int(len(self.field)/2)#compensating for difference in origin 
-        endPos[1] = targetPos[0] + int(len(self.field[0])/2)#(this is top left but dashboard is very middle)
+        endPos[1] = -targetPos[0] + int(len(self.field[0])/2)#(this is top left but dashboard is very middle)
         return self.search(self.field, startPos, endPos, cost, heuristic)
 
 test = PathFinder("field.png")
-print(test.navigate([0, -5], [0, 5]))
+print(test.navigate([0, -7], [0, 5]))
