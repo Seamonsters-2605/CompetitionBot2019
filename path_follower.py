@@ -62,17 +62,12 @@ class PathFinder:
         x = targetPos[0]
         y = targetPos[1]
         path.append([x, y])
-        while x != initPos[0] or y != initPos[1]:#makes path in backwards
+        while x != initPos[0] or y != initPos[1]:#makes path 
             x2 = x - moves[actField[x][y]][0]
             y2 = y - moves[actField[x][y]][1]
             x = x2
             y = y2
             path.append([x, y])
-
-        for i in range(int(len(path)/2)):#reverse path back to normal
-            temp = path[i]
-            path[i] = path[len(path) - 1 - i]
-            path[len(path) - 1 - i] = temp
 
         for spot in path:#make output x,y instead of y,x
             temp = spot[0]
@@ -104,6 +99,3 @@ class PathFinder:
         endPos[0] = targetPos[1] + int(len(self.field)/2)#compensating for difference in origin 
         endPos[1] = -targetPos[0] + int(len(self.field[0])/2)#(this is top left but dashboard is very middle)
         return self.search(self.field, startPos, endPos, cost, heuristic)
-
-test = PathFinder("field.png")
-print(test.navigate([0, -7], [0, 5]))
