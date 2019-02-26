@@ -37,9 +37,6 @@ class PathFinder:
         while not found:
             cell.sort()#rearrange list to get the move with the least cost
             cell.reverse()
-            if len(cell) == 0:
-                print("collision")
-                return targetPos
             next = cell.pop()
             x = next[2]
             y = next[3]
@@ -53,37 +50,41 @@ class PathFinder:
                 for i in range(len(moves)):#to try out different moves
                     x2 = x + moves[i][0]
                     y2 = y + moves[i][1]
-                    if x2 >= 0 and x2 < len(field) and y2 >=0 and y2 < len(field[0]):
-                        if refField[x2][y2] == 0 and field[x2][y2][0] == 255:
+                    if x2 >= 0 and x2 < len(field) and y2 >= 0 and y2 < len(field[0]):
+                        if refField[x2][y2] == 0 and field[x2][y2][0] == 0:
+                            print("x: " + str(x2) + " y: " + str(y2))
+                            print(str(refField[x2][y2]) + " <- ref   field -> " + str(field[x2][y2][0]))
                             g2 = g + cost
                             f2 = g2 + heuristic[x2][y2]
                             cell.append([f2, g2, x2, y2])
                             refField[x2][y2] = 1
                             actField[x2][y2] = i
-                            
-        revPath = []
+                                
+        path = []
         x = targetPos[0]
         y = targetPos[1]
-        revPath.append([x, y])#the steps that must be taken to get to the target (in backwards order)
-        while x != initPos[0] or y != initPos[1]:
+        path.append([x, y])
+        while x != initPos[0] or y != initPos[1]:#makes path in backwards
             x2 = x - moves[actField[x][y]][0]
             y2 = y - moves[actField[x][y]][1]
             x = x2
             y = y2
-            revPath.append([x, y])
+            path.append([x, y])
 
-        path = []
-        for i in range(len(revPath)):
-            path.append(revPath[len(revPath) - 1 - i])
+        for i in range(len(path)):#reverse path back to normal
+            temp = path[i]
+            path[i] = path[len(path) - 1 - i]
+            path[len(path) - 1 - i] = temp
 
         return path
 
-    def navigate(self, initPos, targetPos):
+    def navigate(self, startPos, targetPos):
         """
         :param initPos: a 2 element list of the current position of the robot [x,y]
         :param initPos: a 2 element list of the position that we want the robot to go to [x,y]
         """
         cost = 1
+        initPos = [startPos[0], startPos[1]]
 
         # has the cost of the robot going away from the goal mapped out so it will only check high cost 
         # stuff if there are no other options
@@ -101,4 +102,4 @@ class PathFinder:
         return self.search(self.field, initPos, targetPos, cost, heuristic)
 
 test = PathFinder("field.png")
-print(test.navigate([0, 0], [5, 7]))
+print(test.navigate([0, 11], [0, -11]))
