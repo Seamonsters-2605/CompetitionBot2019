@@ -72,8 +72,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
         self.controlModeMachine = sea.StateMachine()
         self.autoState = sea.State(self.autoScheduler.runSchedule)
-        self.manualState = sea.State(lambda: sea.parallel(
-            self.manualDriving(), self.manualAuxModeMachine.updateGenerator()))
+        self.manualState = sea.State(self.manualDriving, self.manualAuxModeMachine)
 
         # DASHBOARD
 
