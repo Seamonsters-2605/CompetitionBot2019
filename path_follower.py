@@ -51,9 +51,7 @@ class PathFinder:
                     x2 = x + moves[i][0]
                     y2 = y + moves[i][1]
                     if x2 >= 0 and x2 < len(field) and y2 >= 0 and y2 < len(field[0]):
-                        if refField[x2][y2] == 0 and field[x2][y2][0] == 0:
-                            print("x: " + str(x2) + " y: " + str(y2))
-                            print(str(refField[x2][y2]) + " <- ref   field -> " + str(field[x2][y2][0]))
+                        if refField[x2][y2] == 0 and field[x2][y2][0] == 255:
                             g2 = g + cost
                             f2 = g2 + heuristic[x2][y2]
                             cell.append([f2, g2, x2, y2])
@@ -78,13 +76,12 @@ class PathFinder:
 
         return path
 
-    def navigate(self, startPos, targetPos):
+    def navigate(self, initPos, targetPos):
         """
         :param initPos: a 2 element list of the current position of the robot [x,y]
         :param initPos: a 2 element list of the position that we want the robot to go to [x,y]
         """
         cost = 1
-        initPos = [startPos[0], startPos[1]]
 
         # has the cost of the robot going away from the goal mapped out so it will only check high cost 
         # stuff if there are no other options
@@ -95,11 +92,13 @@ class PathFinder:
                 if self.field[i][j][0] != 255:
                     heuristic[i][j] = 100 # if there is an obstacle in the spot on the field, adds a very high 
                     # cost to going over that spot so it will be navigated around
-
-        initPos[0] = initPos[0] + int(len(self.field)/2)
-        initPos[1] = initPos[1] + int(len(self.field[0])/2)
-
-        return self.search(self.field, initPos, targetPos, cost, heuristic)
+        startPos = [0,0]
+        startPos[0] = initPos[1] + int(len(self.field)/2)
+        startPos[1] = initPos[0] + int(len(self.field[0])/2)
+        endPos = [0,0]                                
+        endPos[0] = targetPos[1] + int(len(self.field)/2)#compensating for difference in origin 
+        endPos[1] = targetPos[0] + int(len(self.field[0])/2)#(this is top left but dashboard is very middle)
+        return self.search(self.field, startPos, endPos, cost, heuristic)
 
 test = PathFinder("field.png")
-print(test.navigate([0, 11], [0, -11]))
+print(test.navigate([0, -5], [0, 5]))
