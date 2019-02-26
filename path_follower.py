@@ -63,11 +63,15 @@ class PathFinder:
         y = targetPos[1]
         path.append([x, y])
         while x != initPos[0] or y != initPos[1]:#makes path backwards
-            x2 = x - moves[actField[x][y]][0]
-            y2 = y - moves[actField[x][y]][1]
-            x = x2
-            y = y2
-            path.append([x, y])
+            try:
+                x2 = x - moves[actField[x][y]][0]
+                y2 = y - moves[actField[x][y]][1]
+                x = x2
+                y = y2
+                path.append([x, y])
+            except IndexError:
+                print("robot collision detectd in path finder")
+                break
 
         for spot in path:#make output x,y instead of y,x
             temp = spot[0]
