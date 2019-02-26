@@ -69,7 +69,7 @@ class PathFinder:
             y = y2
             path.append([x, y])
 
-        for i in range(len(path)):#reverse path back to normal
+        for i in range(int(len(path)/2)):#reverse path back to normal
             temp = path[i]
             path[i] = path[len(path) - 1 - i]
             path[len(path) - 1 - i] = temp
