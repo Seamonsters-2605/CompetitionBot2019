@@ -74,7 +74,15 @@ class PathFinder:
             spot[0] = spot[1]
             spot[1] = temp
 
-        return path
+        onlyCorners = [path[0]]
+        for i in range(1,len(path)):
+            if i == len(path) - 1:
+                onlyCorners.append(path[i])
+            else:
+                if path[i-1][0] != path[i][0] == path[i + 1][0] or path[i-1][1] != path[i][1] == path[i + 1][0]:
+                    onlyCorners.append(path[i])
+
+        return onlyCorners
 
     def navigate(self, initPos, targetPos):
         """
