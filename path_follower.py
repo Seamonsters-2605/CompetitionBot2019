@@ -62,7 +62,7 @@ class PathFinder:
         x = targetPos[0]
         y = targetPos[1]
         path.append([x, y])
-        while x != initPos[0] or y != initPos[1]:#makes path 
+        while x != initPos[0] or y != initPos[1]:#makes path backwards
             x2 = x - moves[actField[x][y]][0]
             y2 = y - moves[actField[x][y]][1]
             x = x2
@@ -76,14 +76,15 @@ class PathFinder:
 
             spot[0] -= int(len(self.field[0])/2)#converting back to dashboard origin
             spot[1] -= int(len(self.field)/2)
-            spot[1] = -spot[1]
+            #spot[1] = -spot[1]
 
         onlyCorners = [path[0]]
         for i in range(1,len(path)):
             if i == len(path) - 1:
                 onlyCorners.append(path[i])
             else:
-                if path[i - 1][0] != path[i][0] == path[i + 1][0] or path[i - 1][1] != path[i][1] == path[i + 1][1]:
+                if path[i - 1][0] != path[i][0] == path[i + 1][0] or path[i - 1][1] != path[i][1] == path[i + 1][1] \
+                    or path[i + 1][0] != path[i][0] == path[i - 1][0] or path[i + 1][1] != path[i][1] == path[i - 1][1]:
                     onlyCorners.append(path[i])
 
         return onlyCorners
@@ -91,7 +92,7 @@ class PathFinder:
     def navigate(self, initPos, targetPos):
         """
         :param initPos: a 2 element list of the current position of the robot [x,y]
-        :param initPos: a 2 element list of the position that we want the robot to go to [x,y]
+        :param targetPos: a 2 element list of the position that we want the robot to go to [x,y]
         """
         cost = 1
 
@@ -106,8 +107,8 @@ class PathFinder:
                     # cost to going over that spot so it will be navigated around
         startPos = [0,0]
         startPos[0] = initPos[1] + int(len(self.field)/2)
-        startPos[1] = -initPos[0] + int(len(self.field[0])/2)
+        startPos[1] = initPos[0] + int(len(self.field[0])/2)
         endPos = [0,0]                                
         endPos[0] = targetPos[1] + int(len(self.field)/2)#compensating for difference in origin 
-        endPos[1] = -targetPos[0] + int(len(self.field[0])/2)#(this is top left but dashboard is very middle)
+        endPos[1] = targetPos[0] + int(len(self.field[0])/2)#(this is top left but dashboard is very middle)
         return self.search(self.field, startPos, endPos, cost, heuristic)
