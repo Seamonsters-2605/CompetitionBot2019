@@ -30,7 +30,7 @@ def navigateToPoint(pathFollower, coord, speed):
     waypoints = pathFinder.navigate([int(pathFollower.robotX), int(pathFollower.robotY)], [int(coord.x), int(coord.y)])
     print(waypoints)
     for pt in waypoints:
-        point = coordinates.DriveCoordinate("name", pt[0], pt[1], 0)
+        point = coordinates.DriveCoordinate("name", pt[0], pt[1], math.radians(0))
         yield from driveToPoint(pathFollower, point, speed)
 
 def createNavigateToPointAction(pathFollower, coord, speed):
