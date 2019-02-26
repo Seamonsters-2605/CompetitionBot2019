@@ -82,13 +82,9 @@ waypoints = [
     DriveCoordinate("Waypoint3", -WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, 0),
     DriveCoordinate("Waypoint4", WAYPOINT_BOX_X, -WAYPOINT_BOX_Y, 0)]
 
-def findWaypoints(targetCoord, robotX, robotY, robotAngle):
+def findStartingPoint(targetCoord, robotX, robotY, robotAngle):
     robotCoord = DriveCoordinate("Robot", robotX, robotY, robotAngle)
-    way1 = nearestBoxCoord(robotCoord)
-    way2 = nearestBoxCoord(targetCoord)
-    path = pathAroundBox(way1, way2)
-    path.append(targetCoord)
-    return path
+    return nearestBoxCoord(robotCoord)
 
 def nearestBoxCoord(coord):
     x = coord.x

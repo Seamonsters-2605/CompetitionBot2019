@@ -26,6 +26,8 @@ def createDriveToPointAction(pathFollower, coord, speed):
         coords=[(coord.x, coord.y)])
 
 def navigateToPoint(pathFollower, coord, speed):
+    yield from driveToPoint(pathFollower, coordinates.findStartingPoint(coord, pathFollower.robotX, \
+            pathFollower.robotY, pathFollower.robotAngle),speed)#robot drives somewhere without an obstacle before calculating path
     pathFinder = path_follower.PathFinder("field.png")
     waypoints = pathFinder.navigate([int(coord.x), int(coord.y)], [int(pathFollower.robotX), int(pathFollower.robotY)])
     del waypoints[len(waypoints) - 1]
