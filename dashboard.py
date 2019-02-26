@@ -125,10 +125,16 @@ class CompetitionBotDashboard(sea.Dashboard):
         root.append(self.initFieldMap(robot))
         self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
         self.updateCursorPosition()
+        #####
+        fieldVideoBox = gui.HBox()
+        fieldVideoBox.append(self.initVideoFeed())
 
-        root.append(self.initScheduler(robot))
+        fieldVideoBox.append(self.initScheduler(robot))
+        root.append(fieldVideoBox)
         self.updateScheduler()
         self.updateSchedulerFlag = False
+
+        #root.append(self.initVideoFeed(robot))
 
         root.append(self.initTestControl(robot))
 
@@ -281,6 +287,26 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         return fieldBox
     
+    def initVideoFeed(self):
+        videoFeedBox = gui.HBox()
+        self.groupStyle(videoFeedBox)
+
+        videoChoiceBox = gui.HBox(gui.Label('Video Feeds'))
+        self.videoFeedNumber = 1
+        for camera in ['Limelight','Camera 2','Camera3']:
+            button = gui.Button(camera)
+            button.onclick.connect(self.c_switchVideoFeed)
+            videoChoiceBox.append(button)
+        # videoButton = gui.Button('Switch to: Camera 2')
+        # self.isVideoOn = 1
+        self.videoFeed = gui.Image('http://10.26.5.6:5800/')
+        # videoButton.onclick.connect(self.c_switchVideoFeed) 
+
+        videoFeedBox.append(videoChoiceBox)
+        videoFeedBox.append(self.videoFeed)
+        
+        return videoFeedBox
+
     def mouse_down_listener(self,widget,x,y):
         x, y = svgToFieldCoordinates(x, y)
         self.selectedCoord = coordinates.DriveCoordinate("Selected",
@@ -477,3 +503,17 @@ class CompetitionBotDashboard(sea.Dashboard):
         if index < len(actionList):
             del actionList[index]
         self.updateScheduler()
+    
+    def c_switchVideoFeed(self,button):
+        if button.get_text() == 'Limelight':
+            self.videoFeedNumber = 1
+            print('Switch feed to Limelight')
+            self.videoFeed.set_image('http://10.26.5.6:5800/')
+        elif button.get_text() == 'Camera 2':
+            self.videoFeedNumber = 2
+            print('Switch feed to Camera 2')
+            self.videoFeed.set_image('https://avatars2.githubusercontent.com/u/13607012?s=280&v=4')
+        else:
+            self.videoFeedNumber = 3
+            print('Switch feed to Camera 3')
+            self.videoFeed.set_image('https://static.wixstatic.com/media/397bb7_d6b79c252d85453f980493f3d7fbb208~mv2.jpg/v1/crop/x_0,y_157,w_716,h_646/fill/w_255,h_230,al_c,q_80,usm_0.66_1.00_0.01/397bb7_d6b79c252d85453f980493f3d7fbb208~mv2.jpg')
