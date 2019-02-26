@@ -34,7 +34,7 @@ class PathFinder:
 
         found = False  #becomes true when robot gets to target position
 
-        while not found:
+        while not found and len(cell) > 0:
             cell.sort()#rearrange list to get the move with the least cost
             cell.reverse()
             next = cell.pop()
