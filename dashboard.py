@@ -151,7 +151,18 @@ class CompetitionBotDashboard(sea.Dashboard):
     def initCamera(self):
         cameraBox = self.sectionBox()
         cameraBox.set_size(640, 240)
-        cameraBox.append(gui.Label("Camera feed goes here"))
+
+        videoChoiceBox = gui.HBox(gui.Label('Video Feeds'))
+        cameraBox.append(videoChoiceBox)
+
+        for camera in ['Limelight','Camera 2','Camera 3']:
+            button = gui.Button(camera)
+            button.onclick.connect(self.c_switchVideoFeed)
+            videoChoiceBox.append(button)
+        self.videoFeed = gui.Image('http://10.26.5.6:5800/')
+
+        cameraBox.append(self.videoFeed)
+
         return cameraBox
 
     def initGeneral(self, robot):
@@ -566,3 +577,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         if index < len(actionList):
             del actionList[index]
         self.updateScheduler()
+
+    def c_switchVideoFeed(self,button):
+        if button.get_text() == 'Limelight':
+            print('Switch feed to Limelight')
+            self.videoFeed.set_image('http://10.26.5.6:5800/')
+        elif button.get_text() == 'Camera 2':
+            print('Switch feed to Camera 2')
+            self.videoFeed.set_image('https://avatars2.githubusercontent.com/u/13607012?s=280&v=4')
+        else:
+            print('Switch feed to Camera 3')
