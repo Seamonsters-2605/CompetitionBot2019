@@ -22,9 +22,9 @@ class PathFinder:
                 [ 1, 0 ], #down
                 [ 0, 1 ]] #right
 
-        refField = [[0 for col in range(len(field[0]))] for row in range(len(field))]#the referrence field
-        refField[initPos[0]][initPos[1]] = 1
-        actField = [[0 for col in range(len(field[0]))] for row in range(len(field))]#the field where the action happens 
+        refField = [[0 for col in range(len(field[0]))] for row in range(len(field))]#when robot drives over point
+        refField[initPos[0]][initPos[1]] = 1         #on this field it changes from 0 to 1 so it doesn't backtrack
+        actField = [[0 for col in range(len(field[0]))] for row in range(len(field))]#holds the move the robot must take
 
         x = initPos[0]
         y = initPos[1]
@@ -62,7 +62,7 @@ class PathFinder:
         x = targetPos[0]
         y = targetPos[1]
         path.append([x, y])
-        while x != initPos[0] or y != initPos[1]:#makes path backwards
+        while x != initPos[0] or y != initPos[1]:#makes path
             try:
                 x2 = x - moves[actField[x][y]][0]
                 y2 = y - moves[actField[x][y]][1]

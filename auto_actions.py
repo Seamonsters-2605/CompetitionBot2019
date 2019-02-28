@@ -31,6 +31,21 @@ def navigateToPoint(pathFollower, coord, speed):
     pathFinder = path_follower.PathFinder("field.png")
     waypoints = pathFinder.navigate([int(coord.x), int(coord.y)], [int(pathFollower.robotX), int(pathFollower.robotY)])
     del waypoints[len(waypoints) - 1]
+    del waypoints[0]
+    while True:#loops through and deletes unnesacarry points
+        changed = False
+        for pt in range(len(waypoints) - 3):
+            if not coordinates.testCollision(waypoints[pt][0], waypoints[pt][1], waypoints[pt + 2][0], waypoints[pt + 2][1]):
+                del waypoints[pt + 1]
+                changed = True
+                print("del1")
+        for pt in range(2, len(waypoints) - 1):
+            if not coordinates.testCollision(waypoints[len(waypoints) - pt - 1][0], waypoints[len(waypoints) - pt - 1][1], waypoints[len(waypoints) - pt - 3][0], waypoints[len(waypoints) - pt - 3][1]):
+                del waypoints[len(waypoints) - pt - 2]
+                changed = True
+                print("del2")
+        if not changed:
+            break
     for pt in waypoints:
         point = coordinates.DriveCoordinate("name", pt[0], pt[1], coord.orientation)
         yield from driveToPoint(pathFollower, point, speed)
