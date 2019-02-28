@@ -458,7 +458,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         resetClawBtn.onclick.connect(robot.c_resetClaw)
         testBox.append(resetClawBtn)
 
-<<<<<<< HEAD
         posBox = gui.HBox()
         testBox.append(posBox)
 
@@ -476,8 +475,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.cursorPositionLbl = gui.Label('')
         cursorBox.append(self.cursorPositionLbl)
         cursorBox.append(self.spaceBox())
-=======
->>>>>>> 8b6499a5e4583117a5a89731e2b60acb790da44c
         xInput = gui.Input()
         yInput = gui.Input()
         angleInput = gui.Input()
