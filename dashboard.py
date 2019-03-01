@@ -6,6 +6,11 @@ import drivetrain
 import auto_actions
 import random
 
+CROSSHAIR_X = 320
+CROSSHAIR_Y = 120
+CROSSHAIR_SIZE = 100
+CROSSHAIR_WIDTH = 4
+
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
             (-float(y) + CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
@@ -150,7 +155,6 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def initCamera(self):
         cameraBox = self.sectionBox()
-        cameraBox.set_size(640, 240)
 
         videoChoiceBox = gui.HBox(gui.Label('Video Feeds'))
         cameraBox.append(videoChoiceBox)
@@ -159,9 +163,40 @@ class CompetitionBotDashboard(sea.Dashboard):
             button = gui.Button(camera)
             button.onclick.connect(self.c_switchVideoFeed)
             videoChoiceBox.append(button)
-        self.videoFeed = gui.Image('http://10.26.5.6:5800/')
 
-        cameraBox.append(self.videoFeed)
+        staticBox = gui.Widget()
+        staticBox.set_size(640, 240)
+        cameraBox.append(staticBox)
+        relativeBox = gui.Widget()
+        relativeBox.style["position"] = "relative"
+        relativeBox.style["top"] = "0px"
+        relativeBox.style["left"] = "0px"
+        staticBox.append(relativeBox)
+
+        self.videoFeed = gui.Image('http://10.26.5.6:5800/')
+        self.videoFeed.style["top"] = "0px"
+        self.videoFeed.style["left"] = "0px"
+        self.videoFeed.style["position"] = "absolute"
+        self.videoFeed.style["z-index"] = "1"
+        relativeBox.append(self.videoFeed)
+
+        horizLine = gui.Widget()
+        horizLine.set_size(CROSSHAIR_SIZE, CROSSHAIR_WIDTH)
+        horizLine.style["background"] = "#66FF00"
+        horizLine.style["left"] = str(CROSSHAIR_X - CROSSHAIR_SIZE/2) + "px"
+        horizLine.style["top"] = str(CROSSHAIR_Y - CROSSHAIR_WIDTH/2) + "px"
+        horizLine.style["position"] = "absolute"
+        horizLine.style["z-index"] = "2"
+        relativeBox.append(horizLine)
+
+        vertLine = gui.Widget()
+        vertLine.set_size(CROSSHAIR_WIDTH, CROSSHAIR_SIZE)
+        vertLine.style["background"] = "#66FF00"
+        vertLine.style["left"] = str(CROSSHAIR_X - CROSSHAIR_WIDTH/2) + "px"
+        vertLine.style["top"] = str(CROSSHAIR_Y - CROSSHAIR_SIZE/2) + "px"
+        vertLine.style["position"] = "absolute"
+        vertLine.style["z-index"] = "2"
+        relativeBox.append(vertLine)
 
         return cameraBox
 
