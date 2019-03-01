@@ -67,8 +67,12 @@ startLevel1 = DriveCoordinate("Start level 1", 277.0 / 12, 3.6, math.radians(90)
 startLevel2 = DriveCoordinate("Start level 2", 27.0, 3.6, math.radians(90)).moveTowardsWall() # from image
 startCenter = DriveCoordinate("Start center", 277.0 / 12, 0, math.radians(90)).moveTowardsWall() # from diagram
 
+offHabCenter = DriveCoordinate("Off hab center", 19.1, 0, math.radians(90)).moveTowardsWall()
+offHabSide = DriveCoordinate("Off hab side", 19.1, 3.6, math.radians(90)).moveTowardsWall()
+
 quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation,
-    cargo1, cargo2, cargo3, cargo4, startLevel1, startLevel2, startCenter]
+    cargo1, cargo2, cargo3, cargo4, startLevel1, startLevel2, startCenter,
+    offHabCenter, offHabSide]
 targetPoints = []
 for quadrant in range(0, 4):
     for point in quadrantTargetPoints:
