@@ -556,11 +556,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         try:
             x = int(xInput.get_value())
             y = int(yInput.get_value())
+            angle = math.radians(float(angleInput.get_value()))
         except ValueError:
-            x = self.selectedCoord.x
-            y = self.selectedCoord.y
-        angle = math.radians(float(angleInput.get_value()))
-        self.selectedCoord = coordinates.DriveCoordinate("Selected",
+            return
+        self.selectedCoord = coordinates.DriveCoordinate("Entered",
             x,y,angle)
         self.updateCursorPosition()
 
