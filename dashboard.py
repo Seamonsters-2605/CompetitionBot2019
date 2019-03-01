@@ -323,7 +323,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPathLines = []
 
         return fieldBox
-    
+
     def mouse_down_listener(self,widget,x,y):
         x, y = svgToFieldCoordinates(x, y)
         self.selectedCoord = coordinates.DriveCoordinate("Selected",
@@ -332,7 +332,7 @@ class CompetitionBotDashboard(sea.Dashboard):
             if math.hypot(x - point.x, y - point.y) < 1:
                 self.selectedCoord = point
         self.updateCursorPosition()
-
+    
     def initScheduler(self, robot):
         schedulerBox = self.sectionBox()
 
@@ -452,6 +452,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         swerveBrakeOnBtn = gui.Button("Swerve Brake On")
         swerveBrakeOnBtn.onclick.connect(robot.c_swerveBrakeOn)
         swerveBrakeBox.append(swerveBrakeOnBtn)
+        
+
 
         resetClawBtn = gui.Button("Reset Claw")
         resetClawBtn.onclick.connect(robot.c_resetClaw)
@@ -474,6 +476,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.cursorPositionLbl = gui.Label('')
         cursorBox.append(self.cursorPositionLbl)
         cursorBox.append(self.spaceBox())
+        xInput = gui.Input()
+        yInput = gui.Input()
+        angleInput = gui.Input()
+        smallBox = sea.vBoxWith(xInput,yInput)
+        cursorToPtBtn = gui.Button('Move Cursor to Point')
+        cursorToPtBtn.set_on_click_listener(self.moveCursortoPt,xInput,yInput,angleInput)
+        testBox.append(sea.hBoxWith(smallBox,angleInput,cursorToPtBtn))
 
         pidFrame = gui.HBox()
         testBox.append(pidFrame)
@@ -502,7 +511,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         setBtn.onclick.connect(setPids)
 
         return testBox
-
+    
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
         self.robotPositionLbl.set_text('%.3f, %.3f, %.3f' %
@@ -543,6 +552,17 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.fieldSvg.append(line)
             lineX, lineY = x1, y1
         return lineX, lineY
+    
+    def moveCursortoPt(self,widget,xInput,yInput,angleInput):
+        try:
+            x = int(xInput.get_value())
+            y = int(yInput.get_value())
+            angle = math.radians(float(angleInput.get_value()))
+        except ValueError:
+            return
+        self.selectedCoord = coordinates.DriveCoordinate("Entered",
+            x,y,angle)
+        self.updateCursorPosition()
 
     # WIDGET CALLBACKS
 
