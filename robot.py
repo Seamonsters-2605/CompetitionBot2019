@@ -316,6 +316,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     def manualClimbMode(self):
         if self.app is not None:
             self.app.auxModeGroup.highlight("climb")
+        self.grabberArm.disableAllMotors()
         while True:
             self.climber.climb(-self.buttonBoard.getY())
             yield
