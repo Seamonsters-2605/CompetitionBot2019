@@ -112,11 +112,13 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         rightSide.append(self.initCamera())
 
+        testFrame = self.initTestControl(robot)
+
         rightSide.append(self.initFieldMap(robot))
         self.selectedCoord = coordinates.DriveCoordinate("Center", 0, 0, math.radians(-90))
         self.updateCursorPosition()
 
-        rightSide.append(self.initTestControl(robot))
+        rightSide.append(testFrame)
 
         hbox1 = gui.HBox()
         hbox1.style['align-items'] = 'stretch'
@@ -259,43 +261,28 @@ class CompetitionBotDashboard(sea.Dashboard):
     def initFieldMap(self, robot):
         fieldBox = self.sectionBox()
 
-        posBox = gui.HBox()
-        fieldBox.append(posBox)
+        robotBox = gui.HBox()
+        fieldBox.append(robotBox)
 
-        posBox.append(gui.Label("Robot:"))
-        posBox.append(self.spaceBox())
-        self.robotPositionLbl = gui.Label('')
-        posBox.append(self.robotPositionLbl)
-        posBox.append(self.spaceBox())
-
-        setPositionBtn = gui.Button("Set robot")
+        setPositionBtn = gui.Button("Set Robot to Cursor")
         setPositionBtn.onclick.connect(self.c_setRobotPosition)
-        posBox.append(setPositionBtn)
+        robotBox.append(setPositionBtn)
 
-        cursorBox = gui.HBox()
-        fieldBox.append(cursorBox)
-
-        cursorBox.append(gui.Label("Cursor:"))
-        cursorBox.append(self.spaceBox())
-        self.cursorPositionLbl = gui.Label('')
-        cursorBox.append(self.cursorPositionLbl)
-        cursorBox.append(self.spaceBox())
-
-        def setCursorAngle(button, angle):
-            self.selectedCoord = self.selectedCoord.withOrientation(angle)
-            self.updateCursorPosition()
+        def setRobotAngle(button, angle):
+            pathFollower = self.robot.pathFollower
+            pathFollower.setPosition(pathFollower.robotX, pathFollower.robotY, angle)
         leftBtn = gui.Button('<')
-        leftBtn.onclick.connect(setCursorAngle, math.radians(90))
-        cursorBox.append(leftBtn)
+        leftBtn.onclick.connect(setRobotAngle, math.radians(90))
+        robotBox.append(leftBtn)
         rightBtn = gui.Button('>')
-        rightBtn.onclick.connect(setCursorAngle, math.radians(-90))
-        cursorBox.append(rightBtn)
+        rightBtn.onclick.connect(setRobotAngle, math.radians(-90))
+        robotBox.append(rightBtn)
         upBtn = gui.Button('^')
-        upBtn.onclick.connect(setCursorAngle, 0)
-        cursorBox.append(upBtn)
+        upBtn.onclick.connect(setRobotAngle, 0)
+        robotBox.append(upBtn)
         downBtn = gui.Button('v')
-        downBtn.onclick.connect(setCursorAngle, math.radians(180))
-        cursorBox.append(downBtn)
+        downBtn.onclick.connect(setRobotAngle, math.radians(180))
+        robotBox.append(downBtn)
 
         self.fieldSvg = gui.Svg(CompetitionBotDashboard.FIELD_WIDTH,
             CompetitionBotDashboard.FIELD_HEIGHT)
@@ -457,6 +444,24 @@ class CompetitionBotDashboard(sea.Dashboard):
         resetClawBtn = gui.Button("Reset Claw")
         resetClawBtn.onclick.connect(robot.c_resetClaw)
         testBox.append(resetClawBtn)
+
+        posBox = gui.HBox()
+        testBox.append(posBox)
+
+        posBox.append(gui.Label("Robot:"))
+        posBox.append(self.spaceBox())
+        self.robotPositionLbl = gui.Label('')
+        posBox.append(self.robotPositionLbl)
+        posBox.append(self.spaceBox())
+
+        cursorBox = gui.HBox()
+        testBox.append(cursorBox)
+
+        cursorBox.append(gui.Label("Cursor:"))
+        cursorBox.append(self.spaceBox())
+        self.cursorPositionLbl = gui.Label('')
+        cursorBox.append(self.cursorPositionLbl)
+        cursorBox.append(self.spaceBox())
 
         pidFrame = gui.HBox()
         testBox.append(pidFrame)
