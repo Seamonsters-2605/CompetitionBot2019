@@ -6,6 +6,11 @@ import drivetrain
 import auto_actions
 import random
 
+CROSSHAIR_X = 320
+CROSSHAIR_Y = 120
+CROSSHAIR_SIZE = 100
+CROSSHAIR_WIDTH = 4
+
 def svgToFieldCoordinates(x, y):
     return ( (float(x) - CompetitionBotDashboard.FIELD_WIDTH  / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT,
             (-float(y) + CompetitionBotDashboard.FIELD_HEIGHT / 2) / CompetitionBotDashboard.FIELD_PIXELS_PER_FOOT)
@@ -150,8 +155,49 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def initCamera(self):
         cameraBox = self.sectionBox()
-        cameraBox.set_size(640, 240)
-        cameraBox.append(gui.Label("Camera feed goes here"))
+
+        videoChoiceBox = gui.HBox(gui.Label('Video Feeds'))
+        cameraBox.append(videoChoiceBox)
+
+        for camera in ['Limelight','Camera 2','Camera 3']:
+            button = gui.Button(camera)
+            button.onclick.connect(self.c_switchVideoFeed)
+            videoChoiceBox.append(button)
+
+        staticBox = gui.Widget()
+        staticBox.set_size(640, 240)
+        cameraBox.append(staticBox)
+        relativeBox = gui.Widget()
+        relativeBox.style["position"] = "relative"
+        relativeBox.style["top"] = "0px"
+        relativeBox.style["left"] = "0px"
+        staticBox.append(relativeBox)
+
+        self.videoFeed = gui.Image('http://10.26.5.6:5800/')
+        self.videoFeed.style["top"] = "0px"
+        self.videoFeed.style["left"] = "0px"
+        self.videoFeed.style["position"] = "absolute"
+        self.videoFeed.style["z-index"] = "1"
+        relativeBox.append(self.videoFeed)
+
+        horizLine = gui.Widget()
+        horizLine.set_size(CROSSHAIR_SIZE, CROSSHAIR_WIDTH)
+        horizLine.style["background"] = "#66FF00"
+        horizLine.style["left"] = str(CROSSHAIR_X - CROSSHAIR_SIZE/2) + "px"
+        horizLine.style["top"] = str(CROSSHAIR_Y - CROSSHAIR_WIDTH/2) + "px"
+        horizLine.style["position"] = "absolute"
+        horizLine.style["z-index"] = "2"
+        relativeBox.append(horizLine)
+
+        vertLine = gui.Widget()
+        vertLine.set_size(CROSSHAIR_WIDTH, CROSSHAIR_SIZE)
+        vertLine.style["background"] = "#66FF00"
+        vertLine.style["left"] = str(CROSSHAIR_X - CROSSHAIR_WIDTH/2) + "px"
+        vertLine.style["top"] = str(CROSSHAIR_Y - CROSSHAIR_SIZE/2) + "px"
+        vertLine.style["position"] = "absolute"
+        vertLine.style["z-index"] = "2"
+        relativeBox.append(vertLine)
+
         return cameraBox
 
     def initGeneral(self, robot):
@@ -312,7 +358,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robotPathLines = []
 
         return fieldBox
-    
+
     def mouse_down_listener(self,widget,x,y):
         x, y = svgToFieldCoordinates(x, y)
         self.selectedCoord = coordinates.DriveCoordinate("Selected",
@@ -321,7 +367,7 @@ class CompetitionBotDashboard(sea.Dashboard):
             if math.hypot(x - point.x, y - point.y) < 1:
                 self.selectedCoord = point
         self.updateCursorPosition()
-
+    
     def initScheduler(self, robot):
         schedulerBox = self.sectionBox()
 
@@ -365,6 +411,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         genericActionList = gui.ListView()
         genericActionList.append("Drive to Point", "drivetopoint")
         genericActionList.append("Navigate to Point", "navigatetopoint")
+        genericActionList.append("Rotate in place", "rotate")
         index = 0
         for action in robot.genericAutoActions:
             genericActionList.append(gui.ListItem(action.name), str(index))
@@ -440,6 +487,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         swerveBrakeOnBtn = gui.Button("Swerve Brake On")
         swerveBrakeOnBtn.onclick.connect(robot.c_swerveBrakeOn)
         swerveBrakeBox.append(swerveBrakeOnBtn)
+        
+
 
         resetClawBtn = gui.Button("Reset Claw")
         resetClawBtn.onclick.connect(robot.c_resetClaw)
@@ -462,6 +511,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.cursorPositionLbl = gui.Label('')
         cursorBox.append(self.cursorPositionLbl)
         cursorBox.append(self.spaceBox())
+        xInput = gui.Input()
+        yInput = gui.Input()
+        angleInput = gui.Input()
+        smallBox = sea.vBoxWith(xInput,yInput)
+        cursorToPtBtn = gui.Button('Move Cursor to Point')
+        cursorToPtBtn.set_on_click_listener(self.moveCursortoPt,xInput,yInput,angleInput)
+        testBox.append(sea.hBoxWith(smallBox,angleInput,cursorToPtBtn))
 
         pidFrame = gui.HBox()
         testBox.append(pidFrame)
@@ -490,7 +546,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         setBtn.onclick.connect(setPids)
 
         return testBox
-
+    
     def updateRobotPosition(self, robotX, robotY, robotAngle):
         self.robotArrow.setPosition(robotX, robotY, robotAngle)
         self.robotPositionLbl.set_text('%.3f, %.3f, %.3f' %
@@ -531,6 +587,17 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.fieldSvg.append(line)
             lineX, lineY = x1, y1
         return lineX, lineY
+    
+    def moveCursortoPt(self,widget,xInput,yInput,angleInput):
+        try:
+            x = int(xInput.get_value())
+            y = int(yInput.get_value())
+            angle = math.radians(float(angleInput.get_value()))
+        except ValueError:
+            return
+        self.selectedCoord = coordinates.DriveCoordinate("Entered",
+            x,y,angle)
+        self.updateCursorPosition()
 
     # WIDGET CALLBACKS
 
@@ -551,6 +618,9 @@ class CompetitionBotDashboard(sea.Dashboard):
             action = auto_actions.createNavigateToPointAction(
                 self.robot.pathFollower, self.robot.vision,
                 self.selectedCoord, self.autoSpeed)
+        elif key == "rotate":
+            action = auto_actions.createRotateInPlaceAction(
+                self.robot.pathFollower, self.selectedCoord)
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
@@ -566,3 +636,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         if index < len(actionList):
             del actionList[index]
         self.updateScheduler()
+
+    def c_switchVideoFeed(self,button):
+        if button.get_text() == 'Limelight':
+            print('Switch feed to Limelight')
+            self.videoFeed.set_image('http://10.26.5.6:5800/')
+        elif button.get_text() == 'Camera 2':
+            print('Switch feed to Camera 2')
+            self.videoFeed.set_image('https://avatars2.githubusercontent.com/u/13607012?s=280&v=4')
+        else:
+            print('Switch feed to Camera 3')

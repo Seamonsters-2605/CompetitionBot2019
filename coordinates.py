@@ -35,7 +35,7 @@ class DriveCoordinate:
         if quadrant == 2 or quadrant == 3:
             newY = -newY
             newOrient = math.pi - newOrient
-        return DriveCoordinate(self.name + " quad " + str(quadrant),
+        return DriveCoordinate(self.name + " Q" + str(quadrant),
             newX, newY, newOrient, self.visionTarget)
 
     def moveForward(self, amount):
@@ -58,17 +58,21 @@ rocket1 = DriveCoordinate("Rocket1", 6.7, 11.9, math.radians(-60), True).moveAwa
 rocket2 = DriveCoordinate("Rocket2", 8.0, 134.56 / 12, math.radians(0), True).moveAwayFromWall() # from diagram
 rocket3 = DriveCoordinate("Rocket3", 9.3, 11.9, math.radians(60), True).moveAwayFromWall() # from image
 humanstation = DriveCoordinate("Human", 27, 11.3, math.radians(-90), True).moveAwayFromWall() # from image
-cargo1 = DriveCoordinate("Cargo1", 20.85 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall() # x diagram, y manual
-cargo2 = DriveCoordinate("Cargo2", 42.6 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall()
-cargo3 = DriveCoordinate("Cargo3", 64.35 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall()
-cargo4 = DriveCoordinate("Cargo4", 8.7, 10.875 / 12, math.radians(90), True).moveAwayFromWall() # x image, y diagram
+cargo1 = DriveCoordinate("Ship1", 20.85 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall() # x diagram, y manual
+cargo2 = DriveCoordinate("Ship2", 42.6 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall()
+cargo3 = DriveCoordinate("Ship3", 64.35 / 12, 27.75 / 12, math.radians(180), True).moveAwayFromWall()
+cargo4 = DriveCoordinate("Ship4", 8.7, 10.875 / 12, math.radians(90), True).moveAwayFromWall() # x image, y diagram
 
-startLevel1 = DriveCoordinate("Start level 1", 277.0 / 12, 3.6, math.radians(90)).moveTowardsWall() # x diagram, y image
-startLevel2 = DriveCoordinate("Start level 2", 27.0, 3.6, math.radians(90)).moveTowardsWall() # from image
-startCenter = DriveCoordinate("Start center", 277.0 / 12, 0, math.radians(90)).moveTowardsWall() # from diagram
+startLevel1 = DriveCoordinate("Hab side L1", 277.0 / 12, 3.6, math.radians(90)).moveTowardsWall() # x diagram, y image
+startLevel2 = DriveCoordinate("Hab side L2", 27.0, 3.6, math.radians(90)).moveTowardsWall() # from image
+startCenter = DriveCoordinate("Hab center L1", 277.0 / 12, 0, math.radians(90)).moveTowardsWall() # from diagram
+
+offHabCenter = DriveCoordinate("Off Hab center", 19.1, 0, math.radians(90)).moveTowardsWall()
+offHabSide = DriveCoordinate("Off Hab side", 19.1, 3.6, math.radians(90)).moveTowardsWall()
 
 quadrantTargetPoints = [rocket1, rocket2, rocket3, humanstation,
-    cargo1, cargo2, cargo3, cargo4, startLevel1, startLevel2, startCenter]
+    cargo1, cargo2, cargo3, cargo4, startLevel1, startLevel2, startCenter,
+    offHabCenter, offHabSide]
 targetPoints = []
 for quadrant in range(0, 4):
     for point in quadrantTargetPoints:

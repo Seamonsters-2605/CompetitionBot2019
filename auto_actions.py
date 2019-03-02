@@ -40,6 +40,15 @@ def createDriveToPointAction(pathFollower, vision, coord, speed):
         lambda: driveToPoint(pathFollower, vision, coord, speed),
         coords=[(coord.x, coord.y)])
 
+def rotateInPlace(pathFollower, coord):
+    coord = coordinates.DriveCoordinate("Rotated",
+        pathFollower.robotX, pathFollower.robotY, coord.orientation)
+    yield from driveToPoint(pathFollower, None, coord, 5)
+
+def createRotateInPlaceAction(pathFollower, coord):
+    return Action("Rotate to " + str(round(math.degrees(coord.orientation))),
+        lambda: rotateInPlace(pathFollower, coord))
+
 def navigateToPoint(pathFollower, vision, coord, speed):
     waypoints = coordinates.findWaypoints(coord,
         pathFollower.robotX, pathFollower.robotY, pathFollower.robotAngle)
