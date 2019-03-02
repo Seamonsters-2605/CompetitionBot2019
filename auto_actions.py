@@ -70,13 +70,7 @@ def endAuto(robot):
 
 def createEndAction(robot):
     return Action("--END--", lambda: endAuto(robot))
-"""
-def saveAutoSequence():
 
-
-def runAutoSequence():
-
-"""
 def createGenericAutoActions(robot, pathFollower, grabber):
     return [
         createPickUpHatchAction(pathFollower, grabber),

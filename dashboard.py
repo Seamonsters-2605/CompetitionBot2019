@@ -434,25 +434,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.schedulerList = gui.ListView()
         self.schedulerList.onselection.connect(self.c_removeAction)
         scheduleListBox.append(self.schedulerList)
-        
-        schedulePresetLbl = gui.Label("Open/Save Auto Schedule Preset:")
-        schedulerBox.append(schedulePresetLbl)
-        schedulePresets = gui.VBox()
-        schedulerBox.append(schedulePresets)
-        openPresetBox = gui.HBox()
-        schedulePresets.append(openPresetBox)
-        openPresetIn = gui.Input(default_value="file name")
-        openPresetBox.append(openPresetIn)
-        openPresetBtn = gui.Button("Open")
-        openPresetBtn.onclick.connect(self.c_openAutoPreset, openPresetIn)
-        openPresetBox.append(openPresetBtn)
-        savePresetsBox = gui.HBox()
-        schedulePresets.append(savePresetsBox)
-        savePresetIn = gui.Input(default_value="file name")
-        savePresetsBox.append(savePresetIn)
-        savePresetBtn = gui.Button("Save")
-        savePresetBtn.onclick.connect(self.c_saveAutoPreset, savePresetBtn)
-        savePresetsBox.append(savePresetBtn)
 
         return schedulerBox
     
@@ -622,12 +603,6 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_closeApp(self, button):
         self.close()
-
-    def c_openAutoPreset(self, button, textInput):
-        print(textInput.get_value())
-
-    def c_saveAutoPreset(self, button, textInput):
-        print(textInput.get_value())
 
     def c_setRobotPosition(self, button):
         coord = self.selectedCoord
