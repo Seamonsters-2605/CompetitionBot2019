@@ -451,7 +451,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         savePresetIn = gui.Input(default_value="file name")
         savePresetsBox.append(savePresetIn)
         savePresetBtn = gui.Button("Save")
-        savePresetBtn.onclick.connect(self.c_saveAutoPreset, savePresetBtn)
+        savePresetBtn.onclick.connect(self.c_saveAutoPreset, savePresetIn)
         savePresetsBox.append(savePresetBtn)
 
         return schedulerBox
