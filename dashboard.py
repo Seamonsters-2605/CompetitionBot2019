@@ -5,6 +5,7 @@ import coordinates
 import drivetrain
 import auto_actions
 import random
+import json
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -619,12 +620,15 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.close()
 
     def c_openAutoPreset(self, button, textInput):
-        execfile("auto_sequence_presets/" + textInput.get_value())
+        with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
+            autoPreset = json.load(presetFile)
+            self.robot.autoScheduler.toSchedule(autoPreset)
 
     def c_saveAutoPreset(self, button, textInput):
-        #file must be set up a certain way to work see presetTemplate.py
-        with open("auto_sequence_presets/" + textInput.get_value(),"a") as presetFile:
-            presetFile.write(self.robot.autoScheduler.actionList)
+        #file needs to be blank 
+        autoPreset = self.robot.autoScheduler.toJson()
+        with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
+            json.dump(autoPreset, presetFile)
         print("Preset saved")
         
     def c_setRobotPosition(self, button):

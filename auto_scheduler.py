@@ -31,3 +31,11 @@ class AutoScheduler:
                 self.actionList.remove(self.runningAction)
         finally:
             self.runningAction = None
+
+    def toJson(self):
+
+        return 
+
+    def toSchedule(self, jSched):
+
+        self.actionList = []
