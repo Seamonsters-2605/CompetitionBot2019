@@ -619,19 +619,19 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.close()
 
     def c_openAutoPreset(self, button, textInput):
-        presetFile = open("/auto_sequence_presets/" + textInput.get_value(),"r")
-        print(presetFile)
+        presetFile = open("auto_sequence_presets/" + textInput.get_value(),"r")
+        print(presetFile.read())
         presetFile.close()
 
     def c_saveAutoPreset(self, button, textInput):
         #will delete everything in the file so it should be blank
-        presetFile = open("/auto_sequence_presets/" + textInput.get_value(),"w")
-        presetFile.write("yeet")
-        presetFile.write("skeet")
-        presetFile.write("little")
-        presetFile.write("pete")
+        presetFile = open("auto_sequence_presets/" + textInput.get_value(),"w")
+        presetFile.write("yeet\n")
+        presetFile.write("skeet\n")
+        presetFile.write("little\n")
+        presetFile.write("pete\n")
         presetFile.close()
-
+        
     def c_setRobotPosition(self, button):
         coord = self.selectedCoord
         self.robot.pathFollower.setPosition(
