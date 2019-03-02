@@ -434,9 +434,20 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.schedulerList = gui.ListView()
         self.schedulerList.onselection.connect(self.c_removeAction)
         scheduleListBox.append(self.schedulerList)
+        
+        schedulePresetLabel = gui.Label("Open/Save Auto Schedule Preset:")
+        schedulerBox.append(schedulePresetLabel)
+        schedulePresets = gui.VBox()
+        schedulerBox.append(schedulePresets)
+        openPreset = gui.Input(default_value="enter text file to open preset")
+        openPreset.set_on_change_listener(self.c_openAutoPreset)
+        schedulerBox.append(openPreset)
+        savePreset = gui.Input(default_value="enter blank text file to save preset")
+        savePreset.set_on_change_listener(self.c_saveAutoPreset)
+        schedulerBox.append(savePreset)
 
         return schedulerBox
-
+    
     def initTestControl(self, robot):
         testBox = self.sectionBox()
         testBox.append(gui.Label("TEST MODE"))
@@ -603,6 +614,12 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_closeApp(self, button):
         self.close()
+
+    def c_openAutoPreset(self, Input):
+        print(Input.get_value())
+
+    def c_saveAutoPreset(self, Input):
+        print(Input.get_value())
 
     def c_setRobotPosition(self, button):
         coord = self.selectedCoord
