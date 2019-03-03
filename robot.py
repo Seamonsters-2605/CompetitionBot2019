@@ -275,9 +275,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             elif self.joystick.getRawButton(1):
                 self.grabberArm.clawOpen()
                 self.grabberArm.elevatorFloor()
+                #self.grabberArm.intake()
             else:
                 self.grabberArm.clawClosed()
                 self.elevatorControl()
+                #self.grabberArm.stopIntake()
 
             if self.joystick.getRawButton(2):
                 self.grabberArm.eject()
@@ -302,15 +304,20 @@ class CompetitionBot2019(sea.GeneratorBot):
         while True:
             self.grabberArm.clawHatch()
 
+            # if self.joystick.getRawButtonPressed(1):
+            #     self.runAutoAction(
+            #         auto_actions.createGrabHatchAction(self.pathFollower, self.grabberArm))
+            # if self.joystick.getRawButtonPressed(10):
+            #     self.runAutoAction(
+            #         auto_actions.createRemoveHatchAction(self.pathFollower, self.grabberArm))
+            # if self.joystick.getRawButtonPressed(2):
+            #     self.runAutoAction(
+            #         auto_actions.createPlaceHatchAction(self.pathFollower, self.grabberArm))
+
             if self.joystick.getRawButtonPressed(1):
-                self.runAutoAction(
-                    auto_actions.createGrabHatchAction(self.pathFollower, self.grabberArm))
-            if self.joystick.getRawButtonPressed(10):
-                self.runAutoAction(
-                    auto_actions.createRemoveHatchAction(self.pathFollower, self.grabberArm))
+                self.grabberArm.setExtendPiston(not self.grabberArm.extendOut)
             if self.joystick.getRawButtonPressed(2):
-                self.runAutoAction(
-                    auto_actions.createPlaceHatchAction(self.pathFollower, self.grabberArm))
+                self.grabberArm.setGrabPiston(not self.grabberArm.grabOut)
 
             if self.joystick.getRawButton(8):
                 self.grabberArm.elevatorHatchPosition(self.getThrottlePos())
