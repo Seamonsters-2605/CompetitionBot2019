@@ -175,6 +175,10 @@ class CompetitionBot2019(sea.GeneratorBot):
                 else:
                     self.driveVoltageMode()
             
+            if self.buttonBoard.getRawButtonPressed(6):
+                if self.app is not None:
+                    self.app.toggleVideoFeed()
+
             if self.buttonBoard.getRawButtonPressed(7):
                 self.manualAuxModeMachine.replace(self.defenseState)
             if self.buttonBoard.getRawButtonPressed(8):

@@ -174,11 +174,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         staticBox.append(relativeBox)
 
         self.videoFeed = gui.Image('http://10.26.5.6:5800/')
+        self.videoFeed.set_size(640, 240)
         self.videoFeed.style["top"] = "0px"
         self.videoFeed.style["left"] = "0px"
         self.videoFeed.style["position"] = "absolute"
         self.videoFeed.style["z-index"] = "1"
         relativeBox.append(self.videoFeed)
+        self.setVideoFeed(0)
 
         horizLine = gui.Widget()
         horizLine.set_size(CROSSHAIR_SIZE, CROSSHAIR_WIDTH)
@@ -599,6 +601,21 @@ class CompetitionBotDashboard(sea.Dashboard):
             x,y,angle)
         self.updateCursorPosition()
 
+    def setVideoFeed(self, num):
+        self.cameraNum = num
+        if num == 0:
+            print('Switch feed to Limelight')
+            self.videoFeed.set_image('http://10.26.5.6:5800/')
+        elif num == 1:
+            print('Switch feed to Camera 2')
+            self.videoFeed.set_image('http://10.26.5.2:5806/stream.mjpg')
+        elif num == 2:
+            print('Switch feed to Camera 3')
+            self.videoFeed.set_image('http://10.26.5.2:5807/stream.mjpg')
+
+    def toggleVideoFeed(self):
+        self.setVideoFeed((self.cameraNum + 1) % 3)
+
     # WIDGET CALLBACKS
 
     def c_closeApp(self, button):
@@ -639,10 +656,8 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_switchVideoFeed(self,button):
         if button.get_text() == 'Limelight':
-            print('Switch feed to Limelight')
-            self.videoFeed.set_image('http://10.26.5.6:5800/')
+            self.setVideoFeed(0)
         elif button.get_text() == 'Camera 2':
-            print('Switch feed to Camera 2')
-            self.videoFeed.set_image('https://avatars2.githubusercontent.com/u/13607012?s=280&v=4')
+            self.setVideoFeed(1)
         else:
-            print('Switch feed to Camera 3')
+            self.setVideoFeed(2)
