@@ -399,7 +399,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         def mediumSpeed():
             self.autoSpeed = 6
         def fastSpeed():
-            self.autoSpeed = 10
+            self.autoSpeed = 8
 
         speedTabBox = gui.TabBox()
         speedTabBox.add_tab(gui.Widget(), "Slow", slowSpeed)
