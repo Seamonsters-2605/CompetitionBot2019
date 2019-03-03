@@ -53,6 +53,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
         self.autoScheduler.idleFunction = self.autoIdle
+        self.autoScheduler.actionList.append(auto_actions.createEndAction(self))
 
         self.timingMonitor = sea.TimingMonitor()
 
