@@ -229,7 +229,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             if not self.holdGear:
                 self.manualGear.applyGear(self.superDrive)
 
-            if self.buttonBoard.getRawButton(1) or wpilib.RobotController.isBrownedOut():
+            if self.buttonBoard.getRawButton(1):
                 alignAngle = None
                 self.superDrive.disable()
             else:
