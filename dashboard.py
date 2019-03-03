@@ -144,8 +144,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         pf = self.robot.pathFollower
         self.updateRobotPosition(
             pf.robotX, pf.robotY, pf.robotAngle)
-        self.realTimeRatioLbl.set_text(
-            '%.3f' % (self.robot.timingMonitor.realTimeRatio,))
+        self.fpsLbl.set_text(
+            '%d FPS' % (self.robot.timingMonitor.fps,))
         for wheelButton in self.wheelBtns:
             wheelButton.update()
 
@@ -218,9 +218,8 @@ class CompetitionBotDashboard(sea.Dashboard):
             connectionTestButton.style["background"] = color
         connectionTestButton.onclick.connect(connectionTest)
 
-        self.realTimeRatioLbl = gui.Label("1.000")
-        generalBox.append(sea.hBoxWith(gui.Label("Slowdown:"),
-            self.spaceBox(), self.realTimeRatioLbl))
+        self.fpsLbl = gui.Label("FPS")
+        generalBox.append(self.fpsLbl)
 
         return generalBox
 
