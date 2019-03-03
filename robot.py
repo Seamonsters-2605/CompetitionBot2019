@@ -275,11 +275,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             elif self.joystick.getRawButton(1):
                 self.grabberArm.clawOpen()
                 self.grabberArm.elevatorFloor()
-                #self.grabberArm.intake()
+                self.grabberArm.intake()
             else:
                 self.grabberArm.clawClosed()
                 self.elevatorControl()
-                #self.grabberArm.stopIntake()
+                self.grabberArm.stopIntake()
 
             if self.joystick.getRawButton(2):
                 self.grabberArm.eject()
