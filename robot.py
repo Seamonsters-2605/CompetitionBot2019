@@ -83,7 +83,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.app = None # dashboard
         sea.startDashboard(self, dashboard.CompetitionBotDashboard)
 
-        #wpilib.CameraServer.launch('camera.py:main')
+        wpilib.CameraServer.launch('camera.py:main')
 
     def resetPositions(self):
         for wheel in self.superDrive.wheels:
