@@ -88,6 +88,7 @@ class GrabberArm():
         if self.clawState == "closed":
             return
         if self.clawState != "open" and not self.safeForArmsToClose():
+            self.clawHatch()
             return
         self.clawState = "closed"
         self._setClawPosition(CLOSED_POSITION)
@@ -96,6 +97,7 @@ class GrabberArm():
         if self.clawState == "open":
             return
         if self.clawState != "closed" and not self.safeForArmsToClose():
+            self.clawHatch()
             return
         self.clawState = "open"
         self._setClawPosition(OPEN_POSITION)
