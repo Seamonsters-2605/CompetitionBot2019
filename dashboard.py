@@ -438,7 +438,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         scheduleListBox.append(self.schedulerList)
 
         return schedulerBox
-
+    
     def initTestControl(self, robot):
         testBox = self.sectionBox()
         testBox.append(gui.Label("TEST MODE"))

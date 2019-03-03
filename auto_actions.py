@@ -88,5 +88,6 @@ def createGenericAutoActions(robot, pathFollower, grabber):
         Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(pathFollower, grabber, 1)),
         Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(pathFollower, grabber, 2)),
         Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3)),
-        createEndAction(robot)
+        createEndAction(robot),
+
     ]
