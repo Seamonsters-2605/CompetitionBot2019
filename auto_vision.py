@@ -36,7 +36,6 @@ def driveIntoVisionTarget(drive, vision, superDrive, distance=None):
 
             xOffset = vision.getNumber('tx', None)
             speed = sea.feedbackLoopScale(xOffset, ALIGN_SCALE, ALIGN_EXPONENT, ALIGN_MAX_VEL)
-            print("%.3f degrees %.3f speed" % (xOffset, speed))
             
             mag = math.hypot(speed, fwdSpeed)
             d = math.atan2(fwdSpeed, speed)
