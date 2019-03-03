@@ -613,7 +613,7 @@ class CompetitionBotDashboard(sea.Dashboard):
             self.videoFeed.set_image('http://10.26.5.2:5807/stream.mjpg')
 
     def toggleVideoFeed(self):
-        self.setVideoFeed((self.cameraNum + 1) % 3)
+        self.setVideoFeed((self.cameraNum + 1) % 2)
 
     # WIDGET CALLBACKS
 
