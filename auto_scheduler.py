@@ -38,7 +38,7 @@ class AutoScheduler:
         for action in self.actionList:
             coordinate = [action.coords.name, action.coords.x, action.coords.y, \
                 action.coords.orientation, action.coords.angle, action.coords.visionTarget]
-            schedulePreset.append(
+            schedulePreset.insert(0,
                 {
                     "name" : action.name,
                     "coords" : coordinate
@@ -47,8 +47,9 @@ class AutoScheduler:
         return schedulePreset
 
     def toSchedule(self, jSched):
-        for action in jSched:
+        normalSched = jSched
+        for action in normalSched:
             coordinate = coordinates.DriveCoordinate(action["coords"][0], action["coords"][1], action["coords"][2], \
                 action["coords"][3], action["coords"][4]) 
-            realAction = Action(action.name, """not sure what to put here yet""", coordinate)
-            self.actionList.append(realAction)
+            action["coords"] = coordinate
+        return normalSched

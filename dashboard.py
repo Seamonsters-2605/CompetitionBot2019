@@ -409,16 +409,16 @@ class CompetitionBotDashboard(sea.Dashboard):
 
         addActionBox.append(gui.Label("Auto actions:"))
 
-        genericActionList = gui.ListView()
-        genericActionList.append("Drive to Point", "drivetopoint")
-        genericActionList.append("Navigate to Point", "navigatetopoint")
-        genericActionList.append("Rotate in place", "rotate")
+        self.genericActionList = gui.ListView()
+        self.genericActionList.append("Drive to Point", "drivetopoint")
+        self.genericActionList.append("Navigate to Point", "navigatetopoint")
+        self.genericActionList.append("Rotate in place", "rotate")
         index = 0
         for action in robot.genericAutoActions:
-            genericActionList.append(gui.ListItem(action.name), str(index))
+            self.genericActionList.append(gui.ListItem(action.name), str(index))
             index += 1
-        genericActionList.onselection.connect(self.c_addGenericAction)
-        addActionBox.append(genericActionList)
+        self.genericActionList.onselection.connect(self.c_addGenericAction)
+        addActionBox.append(self.genericActionList)
 
         hbox.append(self.spaceBox())
 
@@ -614,6 +614,17 @@ class CompetitionBotDashboard(sea.Dashboard):
             x,y,angle)
         self.updateCursorPosition()
 
+    def makePresetUsable(self, preset):
+        for action in preset:
+            if "Drive" in action["name"]:
+                self.c_addGenericAction(self.genericActionList, "drivetopoint")
+            elif "Navigate" in action["name"]:
+                self.c_addGenericAction(self.genericActionList, "navigatetopoint")
+            elif "Rotate" in action["name"]:
+                self.c_addGenericAction(self.genericActionList, "rotate")
+            elif "Hatch" in action["name"]:
+                auto_actions.createPickUpHatchAction(self.pathFollower, self.grabber)
+
     # WIDGET CALLBACKS
 
     def c_closeApp(self, button):
@@ -622,7 +633,7 @@ class CompetitionBotDashboard(sea.Dashboard):
     def c_openAutoPreset(self, button, textInput):
         with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
             autoPreset = json.load(presetFile)
-            self.robot.autoScheduler.toSchedule(autoPreset)
+            self.makePresetUsable(self.robot.autoScheduler.toSchedule(autoPreset))
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
