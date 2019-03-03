@@ -103,12 +103,14 @@ class CompetitionBot2019(sea.GeneratorBot):
     def test(self):
         self.superDrive.disable()
         self.grabberArm.disableAllMotors()
+        self.vision.putNumber('pipeline', 1)
         yield from sea.parallel(
             self.dashboardUpdateGenerator(),
             self.timingMonitor.updateGenerator()
         )
 
     def mainGenerator(self):
+        self.vision.putNumber('pipeline', 1)
         self.resetPositions()
         self.manualAuxModeMachine.replace(self.auxDisabledState)
         yield from sea.parallel(
