@@ -28,6 +28,7 @@ class AutoScheduler:
                 self.runningAction = self.actionList[0]
                 self.updateCallback()
                 yield from self.runningAction.function()
-                self.actionList.remove(self.runningAction)
+                if self.runningAction in self.actionList:
+                    self.actionList.remove(self.runningAction)
         finally:
             self.runningAction = None
