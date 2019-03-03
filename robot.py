@@ -254,7 +254,9 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.auxModeGroup.highlight("disabled")
         self.grabberArm.disableAllMotors()
-        yield from sea.forever()
+        while True:
+            self.elevatorControl()
+            yield
 
     def manualDefenseMode(self):
         if self.app is not None:
