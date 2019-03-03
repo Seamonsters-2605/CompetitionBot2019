@@ -174,7 +174,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         staticBox.append(relativeBox)
 
         self.videoFeed = gui.Image('http://10.26.5.6:5800/')
-        self.videoFeed.set_size(640, 240)
         self.videoFeed.style["top"] = "0px"
         self.videoFeed.style["left"] = "0px"
         self.videoFeed.style["position"] = "absolute"
