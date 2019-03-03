@@ -9,7 +9,7 @@ CLOSED_POSITION = -3800
 ELEVATOR_FLOOR = -4338
 ELEVATOR_LIFTED = 36806
 ELEVATOR_CARGO_POSITIONS = [40833, 105547, 150471]
-ELEVATOR_HATCH_POSITIONS = [21154, 81352, 146561]
+ELEVATOR_HATCH_POSITIONS = [20416, 87393, 146561]
 
 class GrabberArm():
 
@@ -169,7 +169,7 @@ class GrabberArm():
         self._setElevatorPosition(ELEVATOR_HATCH_POSITIONS[pos-1])
 
     def safeForArmsToGoBack(self):
-        return self._getElevatorPosition() < ELEVATOR_HATCH_POSITIONS[0]
+        return self._getElevatorPosition() < 1000 # TODO TODO TODO
 
     def safeForArmsToClose(self):
         return self._getElevatorPosition() > 0
