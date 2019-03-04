@@ -32,5 +32,3 @@ class AutoScheduler:
                 self.actionList.remove(self.runningAction)
         finally:
             self.runningAction = None
-
-        #use eval()
