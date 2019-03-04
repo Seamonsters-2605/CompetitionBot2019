@@ -5,7 +5,6 @@ import coordinates
 import drivetrain
 import auto_actions
 import random
-import json
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -445,10 +444,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         openPresetBtn = gui.Button("Open")
         schedulePresets.append(openPresetBtn)
         openPresetBtn.onclick.connect(self.c_openAutoPreset, presetIn)
-        savePresetBtn = gui.Button("Save")
-        schedulePresets.append(savePresetBtn)
-        savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
-        schedulePresets.append(savePresetBtn)
+        self.savePresetBtn = gui.Button("Save")
+        schedulePresets.append(self.savePresetBtn)
+        self.savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
+        schedulePresets.append(self.savePresetBtn)
 
         return schedulerBox
     
@@ -614,32 +613,21 @@ class CompetitionBotDashboard(sea.Dashboard):
             x,y,angle)
         self.updateCursorPosition()
 
-    def makePresetUsable(self, preset):
-        for action in preset:
-            if "Drive" in action["name"]:
-                self.c_addGenericAction(self.genericActionList, "drivetopoint")
-            elif "Navigate" in action["name"]:
-                self.c_addGenericAction(self.genericActionList, "navigatetopoint")
-            elif "Rotate" in action["name"]:
-                self.c_addGenericAction(self.genericActionList, "rotate")
-            elif "Hatch" in action["name"]:
-                auto_actions.createPickUpHatchAction(self.pathFollower, self.grabber)
-
     # WIDGET CALLBACKS
 
     def c_closeApp(self, button):
         self.close()
 
     def c_openAutoPreset(self, button, textInput):
-        with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
-            autoPreset = json.load(presetFile)
-            self.makePresetUsable(self.robot.autoScheduler.toSchedule(autoPreset))
+        with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
+            file = presetFile.readlines()
+            self.robot.autoScheduler.actionList = [eval(action.rstrip('\n')) for action in file]
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
-        autoPreset = self.robot.autoScheduler.toJson()
-        with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
-            json.dump(autoPreset, presetFile)
+        with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
+            for action in self.robot.autoScheduler.actionList:
+                presetFile.write(str(action) + "\n")
         print("Preset saved")
         
     def c_setRobotPosition(self, button):
