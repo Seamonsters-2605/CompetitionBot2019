@@ -3,9 +3,9 @@ import coordinates
 
 class Action(sea.State):
 
-    def __init__(self, name, function, coords=[]):
+    def __init__(self, name, function, args = (), coords=[]):
         self.name = name
-        self.function = function
+        self.function = lambda : function(args)
         self.coords = coords
 
 class AutoScheduler:

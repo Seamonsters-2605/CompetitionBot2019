@@ -5,7 +5,6 @@ import coordinates
 import drivetrain
 import auto_actions
 import random
-import pickle
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -621,12 +620,12 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_openAutoPreset(self, button, textInput):
         with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
-            self.robot.autoScheduler.actionList = pickle.load(presetFile)
+            self.robot.autoScheduler.actionList = eval(presetFile.read())
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
         with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
-            pickle.dump(self.robot.autoScheduler.actionList, presetFile)
+            presetFile.write(str(self.robot.autoScheduler.actionList))
         print("Preset saved")
         
     def c_setRobotPosition(self, button):
