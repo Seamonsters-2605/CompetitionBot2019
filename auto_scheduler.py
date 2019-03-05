@@ -3,9 +3,9 @@ import coordinates
 
 class Action(sea.State):
 
-    def __init__(self, name, function, args = (), coords=[]):
+    def __init__(self, name, function, key, coords=[]):
         self.name = name
-        self.function = lambda : function(args)
+        self.function = function
         self.coords = coords
 
 class AutoScheduler:
@@ -32,3 +32,13 @@ class AutoScheduler:
                 self.actionList.remove(self.runningAction)
         finally:
             self.runningAction = None
+
+    def toJson(self):
+        schedulePreset = []
+        for action in self.actionList:
+            schedulePreset.insert(0,
+                {
+                    "key" : action.key
+                }
+            )
+        return schedulePreset

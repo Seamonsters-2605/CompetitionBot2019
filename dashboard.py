@@ -5,6 +5,7 @@ import coordinates
 import drivetrain
 import auto_actions
 import random
+import json
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -444,10 +445,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         openPresetBtn = gui.Button("Open")
         schedulePresets.append(openPresetBtn)
         openPresetBtn.onclick.connect(self.c_openAutoPreset, presetIn)
-        self.savePresetBtn = gui.Button("Save")
-        schedulePresets.append(self.savePresetBtn)
-        self.savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
-        schedulePresets.append(self.savePresetBtn)
+        savePresetBtn = gui.Button("Save")
+        schedulePresets.append(savePresetBtn)
+        savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
+        schedulePresets.append(savePresetBtn)
 
         return schedulerBox
     
@@ -620,12 +621,15 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_openAutoPreset(self, button, textInput):
         with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
-            self.robot.autoScheduler.actionList = eval(presetFile.read())
+            preset = json.load(presetFile)
+            for action in preset:
+                self.c_addGenericAction(self.genericActionList, action["key"])
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
+        autoPreset = self.robot.autoScheduler.toJson()
         with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
-            presetFile.write(str(self.robot.autoScheduler.actionList))
+            json.dump(autoPreset, presetFile)
         print("Preset saved")
         
     def c_setRobotPosition(self, button):
@@ -637,14 +641,14 @@ class CompetitionBotDashboard(sea.Dashboard):
         if key == "drivetopoint":
             action = auto_actions.createDriveToPointAction(
                 self.robot.pathFollower, self.robot.vision,
-                self.selectedCoord, self.autoSpeed)
+                self.selectedCoord, self.autoSpeed, key)
         elif key == "navigatetopoint":
             action = auto_actions.createNavigateToPointAction(
                 self.robot.pathFollower, self.robot.vision,
-                self.selectedCoord, self.autoSpeed)
+                self.selectedCoord, self.autoSpeed, key)
         elif key == "rotate":
             action = auto_actions.createRotateInPlaceAction(
-                self.robot.pathFollower, self.selectedCoord)
+                self.robot.pathFollower, self.selectedCoord, key)
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)
