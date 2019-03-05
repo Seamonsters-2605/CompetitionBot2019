@@ -55,7 +55,6 @@ class WheelButtonController:
         self._buttonColor("green")
         self.button.controller = self
         self.button.onclick.connect(robot.c_wheelButtonClicked)
-        self.encoderWorking = True
 
     def _buttonColor(self, color):
         self.button.style["background"] = color
@@ -63,10 +62,9 @@ class WheelButtonController:
     def update(self):
         if self.wheel.disabled:
             return
-        if self.encoderWorking and not self.wheel.encoderWorking:
+        while len(self.wheel.faults) > 0:
+            print("Wheel", self.name, "fault:", self.wheel.faults.pop(0))
             self._buttonColor("red")
-        elif self.wheel.encoderWorking and not self.encoderWorking:
-            self._buttonColor("green")
 
     def clicked(self):
         if not self.wheel.disabled:
