@@ -448,9 +448,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         openPresetBtn = gui.Button("Open")
         schedulePresets.append(openPresetBtn)
         openPresetBtn.onclick.connect(self.c_openAutoPreset, self.presetDropdown)
+        newPresetBtn = gui.Button("New")
+        schedulePresets.append(newPresetBtn)
+        newPresetBtn.onclick.connect(self.c_saveAutoPresetFromText, presetIn)
+        schedulePresets.append(newPresetBtn)
         savePresetBtn = gui.Button("Save")
         schedulePresets.append(savePresetBtn)
-        savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
+        savePresetBtn.onclick.connect(self.c_saveAutoPresetFromDropdown, self.presetDropdown)
         schedulePresets.append(savePresetBtn)
         deletePresetBtn = gui.Button("Delete")
         schedulePresets.append(deletePresetBtn)
@@ -641,6 +645,12 @@ class CompetitionBotDashboard(sea.Dashboard):
             fileName = file.replace("auto_sequence_presets\\", "")
             self.presetDropdown.append(fileName, file)
 
+    def saveAutoPreset(self, fileLocation):
+        autoPreset = self.robot.autoScheduler.toJson()
+        with open(fileLocation,"w") as presetFile:
+            json.dump(autoPreset, presetFile)
+        print("Preset saved")
+        self.updatePresetFileDropdown()
 
     # WIDGET CALLBACKS
 
@@ -661,13 +671,13 @@ class CompetitionBotDashboard(sea.Dashboard):
                     self.c_addGenericAction(self.genericActionList, action["key"], None)
         self.updatePresetFileDropdown()
 
-    def c_saveAutoPreset(self, button, textInput):
+    def c_saveAutoPresetFromText(self, button, textInput):
         #file needs to be blank 
-        autoPreset = self.robot.autoScheduler.toJson()
-        with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
-            json.dump(autoPreset, presetFile)
-        print("Preset saved")
-        self.updatePresetFileDropdown()
+        self.saveAutoPreset("auto_sequence_presets/" + textInput.get_value())
+
+    def c_saveAutoPresetFromDropdown(self, dropDownItem, file):
+        #file needs to be blank 
+        self.saveAutoPreset(file.get_key())
 
     def c_deleteAutoPreset(self, dropDownItem, file):
         os.unlink(file.get_key())
