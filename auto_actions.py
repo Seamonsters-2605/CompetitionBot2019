@@ -60,9 +60,17 @@ def createNavigateToPointAction(pathFollower, vision, coord, speed, key):
         lambda: navigateToPoint(pathFollower, vision, coord, speed), key,
         coords=[(coord.x, coord.y)], driveCoordinate=[coord.name, coord.x, coord.y, coord.orientation, coord.visionTarget])
 
-def createPickUpHatchAction(pathFollower, grabber, key):
-    return Action("Pick up hatch",
-        lambda: auto_grabber.pickUpHatch(pathFollower, grabber), key)
+def createGrabHatchAction(pathFollower, grabber, key):
+    return Action("Grab hatch",
+        lambda: auto_grabber.grabHatch(pathFollower, grabber), key)
+
+def createRemoveHatchAction(pathFollower, grabber, key):
+    return Action("Remove hatch",
+        lambda: auto_grabber.removeHatch(pathFollower, grabber), key)
+
+def createPlaceHatchAction(pathFollower, grabber, key):
+    return Action("Place hatch",
+        lambda: auto_grabber.placeHatch(pathFollower, grabber), key)
 
 def endAuto(robot):
     yield
@@ -73,7 +81,7 @@ def createEndAction(robot, key):
 
 def createGenericAutoActions(robot, pathFollower, grabber):
     return [
-        createPickUpHatchAction(pathFollower, grabber, 0),
+        Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(pathFollower, grabber), 0),
         Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(pathFollower, grabber, 1), 1),
         Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(pathFollower, grabber, 2), 2),
         Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(pathFollower, grabber, 3), 3),
