@@ -7,6 +7,7 @@ class Action(sea.State):
         self.name = name
         self.function = function
         self.coords = coords
+        self.key = key
 
 class AutoScheduler:
 
@@ -36,7 +37,7 @@ class AutoScheduler:
     def toJson(self):
         schedulePreset = []
         for action in self.actionList:
-            schedulePreset.insert(0,
+            schedulePreset.append(
                 {
                     "key" : action.key
                 }
