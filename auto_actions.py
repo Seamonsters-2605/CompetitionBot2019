@@ -35,19 +35,19 @@ def driveToPoint(pathFollower, vision, coord, speed):
             pathFollower.drive, vision, pathFollower.drive, distanceToTarget + VISION_APPROACH_MARGIN)
         pathFollower.setPosition(finalCoord.x, finalCoord.y, None)
 
-def createDriveToPointAction(pathFollower, vision, coord, speed):
+def createDriveToPointAction(pathFollower, vision, coord, speed, key):
     return Action("Drive to " + coord.name,
-        lambda: driveToPoint(pathFollower, vision, coord, speed),
-        coords=[(coord.x, coord.y)])
+        lambda: driveToPoint(pathFollower, vision, coord, speed), key,
+        coords=[(coord.x, coord.y)], driveCoordinate=[coord.name, coord.x, coord.y, coord.orientation, coord.visionTarget])
 
 def rotateInPlace(pathFollower, coord):
     coord = coordinates.DriveCoordinate("Rotated",
         pathFollower.robotX, pathFollower.robotY, coord.orientation)
     yield from driveToPoint(pathFollower, None, coord, 5)
 
-def createRotateInPlaceAction(pathFollower, coord):
+def createRotateInPlaceAction(pathFollower, coord, key):
     return Action("Rotate to " + str(round(math.degrees(coord.orientation))),
-        lambda: rotateInPlace(pathFollower, coord))
+        lambda: rotateInPlace(pathFollower, coord), key)
 
 def navigateToPoint(pathFollower, vision, coord, speed):
     waypoints = coordinates.findWaypoints(coord,
@@ -55,39 +55,31 @@ def navigateToPoint(pathFollower, vision, coord, speed):
     for pt in waypoints:
         yield from driveToPoint(pathFollower, vision, pt, speed)
 
-def createNavigateToPointAction(pathFollower, vision, coord, speed):
+def createNavigateToPointAction(pathFollower, vision, coord, speed, key):
     return Action("Navigate to " + coord.name,
-        lambda: navigateToPoint(pathFollower, vision, coord, speed),
-        coords=[(coord.x, coord.y)])
+        lambda: navigateToPoint(pathFollower, vision, coord, speed), key,
+        coords=[(coord.x, coord.y)], driveCoordinate=[coord.name, coord.x, coord.y, coord.orientation, coord.visionTarget])
 
-def createGrabHatchAction(pathFollower, grabber):
-    return Action("Grab hatch",
-        lambda: auto_grabber.grabHatch(pathFollower, grabber))
-
-def createRemoveHatchAction(pathFollower, grabber):
-    return Action("Remove hatch",
-        lambda: auto_grabber.removeHatch(pathFollower, grabber))
-
-def createPlaceHatchAction(pathFollower, grabber):
-    return Action("Place hatch",
-        lambda: auto_grabber.placeHatch(pathFollower, grabber))
+def createPickUpHatchAction(pathFollower, grabber, key):
+    return Action("Pick up hatch",
+        lambda: auto_grabber.pickUpHatch(pathFollower, grabber), key)
 
 def endAuto(robot):
     yield
     robot.manualMode()
 
-def createEndAction(robot):
-    return Action("--END--", lambda: endAuto(robot))
+def createEndAction(robot, key):
+    return Action("--END--", lambda: endAuto(robot), key)
 
 def createGenericAutoActions(robot, pathFollower, grabber):
     return [
-        Action("Pick up hatch", lambda: auto_grabber.pickUpHatch(pathFollower, grabber)),
-        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(pathFollower, grabber, 1)),
-        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(pathFollower, grabber, 2)),
-        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(pathFollower, grabber, 3)),
-        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(pathFollower, grabber, 1)),
-        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(pathFollower, grabber, 2)),
-        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3)),
-        createEndAction(robot),
+        createPickUpHatchAction(pathFollower, grabber, 0),
+        Action("Deposit hatch 1", lambda: auto_grabber.depositHatch(pathFollower, grabber, 1), 1),
+        Action("Deposit hatch 2", lambda: auto_grabber.depositHatch(pathFollower, grabber, 2), 2),
+        Action("Deposit hatch 3", lambda: auto_grabber.depositHatch(pathFollower, grabber, 3), 3),
+        Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(pathFollower, grabber, 1), 4),
+        Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(pathFollower, grabber, 2), 5),
+        Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3), 6),
+        createEndAction(robot, 7)
 
     ]
