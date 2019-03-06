@@ -624,9 +624,12 @@ class CompetitionBotDashboard(sea.Dashboard):
         with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
             preset = json.load(presetFile)
             for action in preset:
-                self.c_addGenericAction(self.genericActionList, action["key"], \
-                    coordinates.DriveCoordinate(action["coord"][0], action["coord"][1], action["coord"][2], \
-                        action["coord"][3], action["coord"][4]))
+                if action["coord"] != []:
+                    self.c_addGenericAction(self.genericActionList, action["key"], \
+                        coordinates.DriveCoordinate(action["coord"][0], action["coord"][1], action["coord"][2], \
+                            action["coord"][3], action["coord"][4]))
+                else:
+                    self.c_addGenericAction(self.genericActionList, action["key"], None)
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
