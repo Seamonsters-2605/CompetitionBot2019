@@ -7,6 +7,7 @@ import auto_actions
 import random
 import json
 import os
+import glob
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -439,18 +440,21 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulerBox.append(schedulePresetLbl)
         schedulePresets = gui.HBox()
         schedulerBox.append(schedulePresets)
+        self.presetDropdown = gui.DropDown()
+        self.updatePresetFileDropdown()
+        schedulerBox.append(self.presetDropdown)
         presetIn = gui.Input(default_value="file name")
         schedulePresets.append(presetIn)
         openPresetBtn = gui.Button("Open")
         schedulePresets.append(openPresetBtn)
-        openPresetBtn.onclick.connect(self.c_openAutoPreset, presetIn)
+        openPresetBtn.onclick.connect(self.c_openAutoPreset, self.presetDropdown)
         savePresetBtn = gui.Button("Save")
         schedulePresets.append(savePresetBtn)
         savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
         schedulePresets.append(savePresetBtn)
         deletePresetBtn = gui.Button("Delete")
         schedulePresets.append(deletePresetBtn)
-        deletePresetBtn.onclick.connect(self.c_deleteAutoPreset, presetIn)
+        deletePresetBtn.onclick.connect(self.c_deleteAutoPreset, self.presetDropdown)
         schedulePresets.append(deletePresetBtn)
 
         return schedulerBox
@@ -632,15 +636,21 @@ class CompetitionBotDashboard(sea.Dashboard):
     def toggleVideoFeed(self):
         self.setVideoFeed((self.cameraNum + 1) % 2)
 
+    def updatePresetFileDropdown(self):
+        for file in glob.glob("auto_sequence_presets/*.json"):
+            fileName = file.replace("auto_sequence_presets\\", "")
+            self.presetDropdown.append(fileName, file)
+
+
     # WIDGET CALLBACKS
 
     def c_closeApp(self, button):
         self.close()
 
-    def c_openAutoPreset(self, button, textInput):
+    def c_openAutoPreset(self, dropDownItem, file):
         #file should be blank because it will delete everything in it otherwise
         self.robot.autoScheduler.actionList.clear()
-        with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
+        with open(file.get_key(),"r") as presetFile:
             preset = json.load(presetFile)
             for action in preset:
                 if action["coord"] != []:
@@ -649,6 +659,7 @@ class CompetitionBotDashboard(sea.Dashboard):
                             action["coord"][3], action["coord"][4]))
                 else:
                     self.c_addGenericAction(self.genericActionList, action["key"], None)
+        self.updatePresetFileDropdown()
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
@@ -656,9 +667,11 @@ class CompetitionBotDashboard(sea.Dashboard):
         with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
             json.dump(autoPreset, presetFile)
         print("Preset saved")
+        self.updatePresetFileDropdown()
 
-    def c_deleteAutoPreset(self, button, textInput):
-        os.unlink("auto_sequence_presets/" + textInput.get_value())
+    def c_deleteAutoPreset(self, dropDownItem, file):
+        os.unlink(file.get_key())
+        self.updatePresetFileDropdown()
         
     def c_setRobotPosition(self, button):
         coord = self.selectedCoord
