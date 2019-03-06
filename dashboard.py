@@ -6,6 +6,7 @@ import drivetrain
 import auto_actions
 import random
 import json
+import os
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -434,7 +435,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.schedulerList.onselection.connect(self.c_removeAction)
         scheduleListBox.append(self.schedulerList)
         
-        schedulePresetLbl = gui.Label("Open/Save Auto Schedule Preset:")
+        schedulePresetLbl = gui.Label("Auto Schedule Presets")
         schedulerBox.append(schedulePresetLbl)
         schedulePresets = gui.HBox()
         schedulerBox.append(schedulePresets)
@@ -447,6 +448,10 @@ class CompetitionBotDashboard(sea.Dashboard):
         schedulePresets.append(savePresetBtn)
         savePresetBtn.onclick.connect(self.c_saveAutoPreset, presetIn)
         schedulePresets.append(savePresetBtn)
+        deletePresetBtn = gui.Button("Delete")
+        schedulePresets.append(deletePresetBtn)
+        deletePresetBtn.onclick.connect(self.c_deleteAutoPreset, presetIn)
+        schedulePresets.append(deletePresetBtn)
 
         return schedulerBox
     
@@ -651,6 +656,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         with open("auto_sequence_presets/" + textInput.get_value(),"w") as presetFile:
             json.dump(autoPreset, presetFile)
         print("Preset saved")
+
+    def c_deleteAutoPreset(self, button, textInput):
+        os.unlink("auto_sequence_presets/" + textInput.get_value())
         
     def c_setRobotPosition(self, button):
         coord = self.selectedCoord
