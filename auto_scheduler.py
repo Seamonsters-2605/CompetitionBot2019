@@ -43,7 +43,7 @@ class AutoScheduler:
                     "coord" : []
                 }
             if action.driveCoordinate != []:
-                newAction["coord"] = [action.driveCoordinate[0][0], action.driveCoordinate[0][1], action.driveCoordinate[0][2], \
-                    action.driveCoordinate[0][3], action.driveCoordinate[0][4]]
+                newAction["coord"] = [action.driveCoordinate[0], action.driveCoordinate[1], action.driveCoordinate[2], \
+                    action.driveCoordinate[3], action.driveCoordinate[4]]
             schedulePreset.append(newAction)
         return schedulePreset

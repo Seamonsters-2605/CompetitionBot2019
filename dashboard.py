@@ -417,7 +417,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         for action in robot.genericAutoActions:
             self.genericActionList.append(gui.ListItem(action.name), str(index))
             index += 1
-        self.genericActionList.onselection.connect(self.c_addGenericAction(self.selectedCoord))
+        self.genericActionList.onselection.connect(self.c_addGenericAction)
         addActionBox.append(self.genericActionList)
 
         hbox.append(self.spaceBox())
@@ -640,7 +640,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robot.pathFollower.setPosition(
             coord.x, coord.y, coord.orientation)
 
-    def c_addGenericAction(self, listview, key, driveCoordinate):
+    def c_addGenericAction(self, listview, key, driveCoordinate=None):
+        if driveCoordinate is None:
+            driveCoordinate = self.selectedCoord
         if key == "drivetopoint":
             action = auto_actions.createDriveToPointAction(
                 self.robot.pathFollower, self.robot.vision,
