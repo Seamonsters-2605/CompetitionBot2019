@@ -417,7 +417,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         for action in robot.genericAutoActions:
             self.genericActionList.append(gui.ListItem(action.name), str(index))
             index += 1
-        self.genericActionList.onselection.connect(self.c_addGenericAction)
+        self.genericActionList.onselection.connect(self.c_addGenericAction(self.selectedCoord))
         addActionBox.append(self.genericActionList)
 
         hbox.append(self.spaceBox())
@@ -620,10 +620,13 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.close()
 
     def c_openAutoPreset(self, button, textInput):
+        #need to save the self.selectedCoord in the json and it should work!! :)
         with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
             preset = json.load(presetFile)
             for action in preset:
-                self.c_addGenericAction(self.genericActionList, action["key"])
+                self.c_addGenericAction(self.genericActionList, action["key"], \
+                    coordinates.DriveCoordinate(action["coord"][0], action["coord"][1], action["coord"][2], \
+                        action["coord"][3], action["coord"][4]))
 
     def c_saveAutoPreset(self, button, textInput):
         #file needs to be blank 
@@ -637,18 +640,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.robot.pathFollower.setPosition(
             coord.x, coord.y, coord.orientation)
 
-    def c_addGenericAction(self, listview, key):
+    def c_addGenericAction(self, listview, key, driveCoordinate):
         if key == "drivetopoint":
             action = auto_actions.createDriveToPointAction(
                 self.robot.pathFollower, self.robot.vision,
-                self.selectedCoord, self.autoSpeed, key)
+                driveCoordinate, self.autoSpeed, key)
         elif key == "navigatetopoint":
             action = auto_actions.createNavigateToPointAction(
                 self.robot.pathFollower, self.robot.vision,
-                self.selectedCoord, self.autoSpeed, key)
+                driveCoordinate, self.autoSpeed, key)
         elif key == "rotate":
             action = auto_actions.createRotateInPlaceAction(
-                self.robot.pathFollower, self.selectedCoord, key)
+                self.robot.pathFollower, driveCoordinate, key)
         else:
             action = self.robot.genericAutoActions[int(key)]
         self.robot.autoScheduler.actionList.append(action)

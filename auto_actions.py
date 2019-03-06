@@ -38,7 +38,7 @@ def driveToPoint(pathFollower, vision, coord, speed):
 def createDriveToPointAction(pathFollower, vision, coord, speed, key):
     return Action("Drive to " + coord.name,
         lambda: driveToPoint(pathFollower, vision, coord, speed), key,
-        coords=[(coord.x, coord.y)])
+        coords=[(coord.x, coord.y)], driveCoordinate=[coord.name, coord.x, coord.y, coord.orientation, coord.visionTarget])
 
 def rotateInPlace(pathFollower, coord):
     coord = coordinates.DriveCoordinate("Rotated",
@@ -58,7 +58,7 @@ def navigateToPoint(pathFollower, vision, coord, speed):
 def createNavigateToPointAction(pathFollower, vision, coord, speed, key):
     return Action("Navigate to " + coord.name,
         lambda: navigateToPoint(pathFollower, vision, coord, speed), key,
-        coords=[(coord.x, coord.y)])
+        coords=[(coord.x, coord.y)], driveCoordinate=[coord.name, coord.x, coord.y, coord.orientation, coord.visionTarget])
 
 def createPickUpHatchAction(pathFollower, grabber, key):
     return Action("Pick up hatch",
