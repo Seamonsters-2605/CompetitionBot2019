@@ -1,11 +1,14 @@
 import seamonsters as sea
+import coordinates
 
 class Action(sea.State):
 
-    def __init__(self, name, function, coords=[]):
+    def __init__(self, name, function, key, coords=[], driveCoordinate=[]):
         self.name = name
         self.function = function
         self.coords = coords
+        self.key = key
+        self.driveCoordinate = driveCoordinate
 
 class AutoScheduler:
 
@@ -32,3 +35,16 @@ class AutoScheduler:
                     self.actionList.remove(self.runningAction)
         finally:
             self.runningAction = None
+
+    def toJson(self):
+        schedulePreset = []
+        for action in self.actionList:
+            newAction = {
+                    "key" : action.key,
+                    "coord" : []
+                }
+            if action.driveCoordinate != []:
+                newAction["coord"] = [action.driveCoordinate[0], action.driveCoordinate[1], action.driveCoordinate[2], \
+                    action.driveCoordinate[3], action.driveCoordinate[4]]
+            schedulePreset.append(newAction)
+        return schedulePreset

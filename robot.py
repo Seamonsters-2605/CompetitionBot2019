@@ -53,7 +53,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.autoScheduler = auto_scheduler.AutoScheduler()
         self.autoScheduler.updateCallback = self.updateScheduler
         self.autoScheduler.idleFunction = self.autoIdle
-        self.autoScheduler.actionList.append(auto_actions.createEndAction(self))
+        self.autoScheduler.actionList.append(auto_actions.createEndAction(self, 7))
 
         self.timingMonitor = sea.TimingMonitor()
 
@@ -136,7 +136,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def runAutoAction(self, action):
         self.autoScheduler.actionList.insert(0, action)
-        self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self))
+        self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self, 7))
         self.autoMode()
 
     def getThrottlePos(self):
