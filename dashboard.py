@@ -633,7 +633,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.close()
 
     def c_openAutoPreset(self, button, textInput):
-        #need to save the self.selectedCoord in the json and it should work!! :)
+        #file should be blank because it will delete everything in it otherwise
+        self.robot.autoScheduler.actionList.clear()
         with open("auto_sequence_presets/" + textInput.get_value(),"r") as presetFile:
             preset = json.load(presetFile)
             for action in preset:
