@@ -298,8 +298,8 @@ class CompetitionBot2019(sea.GeneratorBot):
 
             if self.joystick.getRawButtonPressed(1):
                 self.autoScheduler.actionList.insert(0,
-                    auto_actions.createPickUpHatchAction(self.pathFollower, self.grabberArm))
-                self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self))
+                    auto_actions.createPickUpHatchAction(self.pathFollower, self.grabberArm, 0))
+                self.autoScheduler.actionList.insert(1, auto_actions.createEndAction(self, 7))
                 self.autoMode()
 
             if self.joystick.getRawButton(8):
