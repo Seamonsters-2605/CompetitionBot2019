@@ -641,8 +641,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.setVideoFeed((self.cameraNum + 1) % 2)
 
     def updatePresetFileDropdown(self):
-        for file in glob.glob("auto_sequence_presets/*.json"):
-            fileName = file.replace("auto_sequence_presets\\", "")
+        for file in glob.glob(self.preset_path + "\\" + "*.json"):
+            fileName = file.replace(self.preset_path + "\\", "")
             self.presetDropdown.append(fileName, file)
 
     def saveAutoPreset(self, fileLocation):
@@ -673,7 +673,7 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_saveAutoPresetFromText(self, button, textInput):
         #file needs to be blank 
-        self.saveAutoPreset("auto_sequence_presets/" + textInput.get_value())
+        self.saveAutoPreset(self.preset_path + "\\" + textInput.get_value())
 
     def c_saveAutoPresetFromDropdown(self, dropDownItem, file):
         #file needs to be blank 

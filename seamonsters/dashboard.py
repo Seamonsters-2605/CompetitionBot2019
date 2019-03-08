@@ -101,6 +101,10 @@ class Dashboard(remi.App):
     """
     def __init__(self, *args, css=False, **kwargs):
         self.eventQueue = queue.Queue()
+        if sys.argv[1] == 'run': # running on robot
+            self.preset_path = "/home/lvuser/py/auto_sequence_presets"
+        else:
+            self.preset_path = os.path.join(os.getcwd(), 'auto_sequence_presets')
         if css:
             if sys.argv[1] == 'run': # running on robot
                 res_path = "/home/lvuser/py/res"
