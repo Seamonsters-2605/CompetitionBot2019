@@ -67,6 +67,7 @@ class WheelButtonController:
 
     def update(self):
         if self.wheel.disabled:
+            self.wheel.faults.clear()
             return
         while len(self.wheel.faults) > 0:
             print("Wheel", self.name, "fault:", self.wheel.faults.pop(0))
