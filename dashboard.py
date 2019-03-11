@@ -72,6 +72,10 @@ class WheelButtonController:
             print("Wheel", self.name, "fault:", self.wheel.faults.pop(0))
             self._buttonColor("red")
 
+    def reset(self):
+        if not self.wheel.disabled:
+            self._buttonColor("green")
+
     def clicked(self):
         if not self.wheel.disabled:
             self.wheel.disabled = True
@@ -209,15 +213,12 @@ class CompetitionBotDashboard(sea.Dashboard):
     def initGeneral(self, robot):
         generalBox = self.sectionBox()
 
-        dashboardBox = gui.HBox()
-        generalBox.append(dashboardBox)
-
         closeButton = gui.Button("Close")
         closeButton.onclick.connect(self.c_closeApp)
-        dashboardBox.append(closeButton)
+        generalBox.append(closeButton)
 
         connectionTestButton = gui.Button("Connection Test")
-        dashboardBox.append(connectionTestButton)
+        generalBox.append(connectionTestButton)
         def connectionTest(button):
             color = "rgb(%d, %d, %d)" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
             connectionTestButton.style["background"] = color
@@ -296,8 +297,17 @@ class CompetitionBotDashboard(sea.Dashboard):
     def initWheelControls(self, robot):
         wheelControlsBox = self.sectionBox()
 
+        def resetWheelButtons(widget):
+            for controller in self.wheelBtns:
+                controller.reset()
+
+        resetBtn = gui.Button("Reset")
+        resetBtn.onclick.connect(resetWheelButtons)
+        wheelControlsBox.append(resetBtn)
+
         grid = gui.GridBox()
-        grid.define_grid([['Cd','Cs','Dd','Ds'],['Ad','As','Bd','Bs']])
+        grid.define_grid([['Cd','Cs','space1','Dd','Ds'],
+                          ['Ad','As','space1','Bd','Bs']])
         wheelControlsBox.append(grid)
 
         self.wheelBtns = []
@@ -309,6 +319,8 @@ class CompetitionBotDashboard(sea.Dashboard):
                 robot.superDrive.wheels[wheelIndex].angledWheel, robot, False))
             addButton(WheelButtonController(wheelIndex,
                 robot.superDrive.wheels[wheelIndex], robot, True))
+        grid.append(self.spaceBox(), 'space1')
+        grid.append(self.spaceBox(), 'space2')
 
         return wheelControlsBox
 
