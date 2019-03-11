@@ -22,6 +22,14 @@ class GrabberArm():
         self.rightPivot = ctre.WPI_TalonSRX(23)
         self.setupPivotTalon(self.rightPivot)
 
+        #Motion Magic, add encoder values per 100 ms per ms
+        self.leftPivot.configMotionAcceleration()
+        self.rightPivot.configMotionAcceleration()
+
+        # params: encoder values per 100 ms
+        self.leftPivot.configMotionCruiseVelocity()
+        self.leftPivot.configMotionCruiseVelocity()
+        
         self.clawState = None
 
         # TODO fix names
@@ -43,8 +51,11 @@ class GrabberArm():
         self.slideMotor.config_kD(0, 3, 0)
         self.slideMotor.config_kF(0, 0, 0)
         self.slideValue = None
-
-        self.resetAllSensors()
+        ### Motion magic
+        # encoderCntAcc encoder counts per 100 ms per s
+        # encoderCntVelo encoder counts per 100 ms
+        self.slideMotor.configMotionAcceleration(encoderCntAcc)
+        self.slideMotor.configMotionCruiseVelocity(encoderCntVelo)
 
     def setupPivotTalon(self, talon):
         talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
@@ -81,8 +92,8 @@ class GrabberArm():
         self.rightSpinner.set(0)
 
     def _setClawPosition(self, position):
-        self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + position)
-        self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - position)
+        self.leftPivot.set(ctre.ControlMode.MotionMagic, self.leftPivotOrigin + position)
+        self.rightPivot.set(ctre.ControlMode.MotionMagic, self.rightPivotOrigin - position)
 
     def clawClosed(self):
         if self.clawState == "closed":
@@ -144,11 +155,13 @@ class GrabberArm():
         if speed != self.slideValue:
             self.slideMotor.set(speed)
             self.slideValue = speed
+            
 
     def _setElevatorPosition(self, pos):
         pos += self.slideOrigin
         if pos != self.slideValue:
-            self.slideMotor.set(ctre.ControlMode.Position, pos)
+            # used to be: ctre.ControlMode.Position
+            self.slideMotor.set(ctre.ControlMode.MotionMagic, pos)
             self.slideValue = pos
 
     def _getElevatorPosition(self):
