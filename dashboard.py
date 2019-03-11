@@ -98,6 +98,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         vbox.style['padding'] = '0.2em'
         return vbox
 
+    def presetPath(self):
+        return sea.getRobotPath('auto_sequence_presets')
+
     def spaceBox(self):
         return gui.HBox(width=10)
 
@@ -641,7 +644,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.setVideoFeed((self.cameraNum + 1) % 2)
 
     def updatePresetFileDropdown(self):
-        for file in glob.glob(os.path.join(self.preset_path, "*.json")):
+        for file in glob.glob(os.path.join(self.presetPath(), "*.json")):
             fileName = os.path.basename(file)
             self.presetDropdown.append(fileName, file)
 
@@ -676,7 +679,7 @@ class CompetitionBotDashboard(sea.Dashboard):
 
     def c_saveAutoPresetFromText(self, button, textInput):
         #file needs to be blank 
-        self.saveAutoPreset(os.path.join(self.preset_path, textInput.get_value() + ".json"))
+        self.saveAutoPreset(os.path.join(self.presetPath(), textInput.get_value() + ".json"))
 
     def c_saveAutoPresetFromDropdown(self, dropDownItem, file):
         #file needs to be blank
