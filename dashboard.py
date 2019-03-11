@@ -658,6 +658,9 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.close()
 
     def c_openAutoPreset(self, dropDownItem, file):
+        if file.get_key() is None:
+            print("No file selected")
+            return
         #file should be blank because it will delete everything in it otherwise
         self.robot.autoScheduler.actionList.clear()
         with open(file.get_key(),"r") as presetFile:
@@ -676,10 +679,16 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.saveAutoPreset(os.path.join(self.preset_path, textInput.get_value() + ".json"))
 
     def c_saveAutoPresetFromDropdown(self, dropDownItem, file):
-        #file needs to be blank 
+        #file needs to be blank
+        if file.get_key() is None:
+            print("No file selected")
+            return
         self.saveAutoPreset(file.get_key())
 
     def c_deleteAutoPreset(self, dropDownItem, file):
+        if file.get_key() is None:
+            print("No file selected")
+            return
         os.unlink(file.get_key())
         self.updatePresetFileDropdown()
         
