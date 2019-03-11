@@ -644,6 +644,7 @@ class CompetitionBotDashboard(sea.Dashboard):
         self.setVideoFeed((self.cameraNum + 1) % 2)
 
     def updatePresetFileDropdown(self):
+        self.presetDropdown.empty()
         for file in glob.glob(os.path.join(self.presetPath(), "*.json")):
             fileName = os.path.basename(file)
             self.presetDropdown.append(fileName, file)
