@@ -50,10 +50,13 @@ class Arrow(gui.SvgPolyline):
 
 class WheelButtonController:
 
-    def __init__(self, num, wheel, robot):
-        self.num = num
+    def __init__(self, num, wheel, robot, isSwerve):
         self.wheel = wheel
         self.name = chr(ord('A') + num)
+        if isSwerve:
+            self.name += 's'
+        else:
+            self.name += 'd'
         self.button = gui.Button(self.name)
         self._buttonColor("green")
         self.button.controller = self
@@ -75,8 +78,6 @@ class WheelButtonController:
             self._buttonColor("black")
         else:
             self.wheel.disabled = False
-            self.wheel.encoderWorking = True
-            self.encoderWorking = True
             self._buttonColor("green")
 
 class CompetitionBotDashboard(sea.Dashboard):
@@ -296,15 +297,18 @@ class CompetitionBotDashboard(sea.Dashboard):
         wheelControlsBox = self.sectionBox()
 
         grid = gui.GridBox()
-        grid.define_grid([['C','D'],['A','B']])
+        grid.define_grid([['Cd','Cs','Dd','Ds'],['Ad','As','Bd','Bs']])
         wheelControlsBox.append(grid)
 
         self.wheelBtns = []
+        def addButton(b):
+            grid.append(b.button, b.name)
+            self.wheelBtns.append(b)
         for wheelIndex in range(4):
-            newButton = WheelButtonController(wheelIndex,
-                robot.superDrive.wheels[wheelIndex].angledWheel, robot)
-            grid.append(newButton.button, newButton.name)
-            self.wheelBtns.append(newButton)
+            addButton(WheelButtonController(wheelIndex,
+                robot.superDrive.wheels[wheelIndex].angledWheel, robot, False))
+            addButton(WheelButtonController(wheelIndex,
+                robot.superDrive.wheels[wheelIndex], robot, True))
 
         return wheelControlsBox
 
