@@ -307,8 +307,8 @@ class CompetitionBotDashboard(sea.Dashboard):
         wheelControlsBox.append(resetBtn)
 
         grid = gui.GridBox()
-        grid.define_grid([['Cd','Cs','space1','Dd','Ds'],
-                          ['Ad','As','space1','Bd','Bs']])
+        grid.define_grid([['Cd','Dd','space1','Cs','Ds'],
+                          ['Ad','Bd','space1','As','Bs']])
         wheelControlsBox.append(grid)
 
         self.wheelBtns = []
