@@ -22,6 +22,8 @@ def initDrivetrain():
 def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     driveTalon = ctre.WPI_TalonSRX(driveTalonNum)
     rotateTalon = ctre.WPI_TalonSRX(rotateTalonNum)
+    driveTalon.configFactoryDefault(0)
+    rotateTalon.configFactoryDefault(0)
     driveTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     rotateTalon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
     driveTalon.setSensorPhase(False)

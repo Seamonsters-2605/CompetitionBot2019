@@ -15,7 +15,9 @@ class GrabberArm():
 
     def __init__(self):
         self.leftSpinner = ctre.WPI_TalonSRX(20)
+        self.leftSpinner.configFactoryDefault(0)
         self.rightSpinner = ctre.WPI_TalonSRX(21)
+        self.rightSpinner.configFactoryDefault(0)
 
         self.leftPivot = ctre.WPI_TalonSRX(22)
         self.setupPivotTalon(self.leftPivot)
@@ -36,6 +38,7 @@ class GrabberArm():
         self.grabOut = False
 
         self.slideMotor = ctre.WPI_TalonSRX(30)
+        self.slideMotor.configFactoryDefault(0)
         self.slideMotor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.slideMotor.setSensorPhase(False)
         self.slideMotor.config_kP(0, 0.3, 0)
@@ -47,6 +50,7 @@ class GrabberArm():
         self.resetAllSensors()
 
     def setupPivotTalon(self, talon):
+        talon.configFactoryDefault(0)
         talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         talon.setSensorPhase(False)
         talon.config_kP(0, 2, 0)

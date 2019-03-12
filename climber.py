@@ -6,8 +6,10 @@ class Climber:
 
     def __init__(self):
         self.motor1 = ctre.WPI_TalonSRX(31)
+        self.motor1.configFactoryDefault(0)
         self.motor1.setNeutralMode(ctre.NeutralMode.Brake)
         self.motor2 = ctre.WPI_TalonSRX(32)
+        self.motor2.configFactoryDefault(0)
         self.motor2.setNeutralMode(ctre.NeutralMode.Brake)
 
     def climb(self, speed):
