@@ -2,29 +2,18 @@ import wpilib
 import ctre
 import seamonsters as sea
 
-DEFENSE_POSITION = 0
-HATCH_POSITION = -891
-OPEN_POSITION = -3500
-CLOSED_POSITION = -3800
-ELEVATOR_FLOOR = -4338
-ELEVATOR_LIFTED = 36806
-ELEVATOR_CARGO_POSITIONS = [40833, 105547, 150471]
-ELEVATOR_HATCH_POSITIONS = [20416, 87393, 146561]
+ELEVATOR_FLOOR = 0
+ELEVATOR_LIFTED = 16390
+ELEVATOR_CARGO_POSITIONS = [46631, 106474, 106474]
+ELEVATOR_HATCH_POSITIONS = [0, 63328, 124587]
 
 class GrabberArm():
 
     def __init__(self):
-        self.leftSpinner = ctre.WPI_TalonSRX(20)
-        self.leftSpinner.configFactoryDefault(0)
-        self.rightSpinner = ctre.WPI_TalonSRX(21)
-        self.rightSpinner.configFactoryDefault(0)
-
-        self.leftPivot = ctre.WPI_TalonSRX(22)
-        self.setupPivotTalon(self.leftPivot)
-        self.rightPivot = ctre.WPI_TalonSRX(23)
-        self.setupPivotTalon(self.rightPivot)
-
-        self.clawState = None
+        self.topSpinner = ctre.WPI_TalonSRX(21)
+        self.topSpinner.configFactoryDefault(0)
+        self.bottomSpinner = ctre.WPI_TalonSRX(20)
+        self.bottomSpinner.configFactoryDefault(0)
 
         # TODO fix names
         self.solenoid0 = wpilib.Solenoid(0)
@@ -34,7 +23,7 @@ class GrabberArm():
         self.compressor = wpilib.Compressor(0)
         self.stopCompressor()
 
-        self.extendOut = False
+        self.armOut = False
         self.grabOut = False
 
         self.slideMotor = ctre.WPI_TalonSRX(30)
@@ -45,101 +34,44 @@ class GrabberArm():
         self.slideMotor.config_kI(0, 0, 0)
         self.slideMotor.config_kD(0, 3, 0)
         self.slideMotor.config_kF(0, 0, 0)
+        self.slideMotor.configPeakOutputReverse(-0.5, 0)
         self.slideValue = None
 
         self.resetAllSensors()
 
-    def setupPivotTalon(self, talon):
-        talon.configFactoryDefault(0)
-        talon.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        talon.setSensorPhase(False)
-        talon.config_kP(0, 2, 0)
-        talon.config_kI(0, 0, 0)
-        talon.config_kD(0, 12, 0)
-        talon.config_kF(0, 0, 0)
-        talon.configClosedLoopPeakOutput(0, 0.5, 0)
-
     def resetAllSensors(self):
-        self.leftPivotOrigin = self.leftPivot.getSelectedSensorPosition(0)
-        self.rightPivotOrigin = self.rightPivot.getSelectedSensorPosition(0)
         self.slideOrigin = self.slideMotor.getSelectedSensorPosition(0)
-        self.clawState = "back"
 
     def disableAllMotors(self):
-        self.leftPivot.disable()
-        self.rightPivot.disable()
         self.elevatorSlide(0)
+        self.stopIntake()
 
     #takes in the ball
     def intake(self):
-        self.leftSpinner.set(-0.35)
-        self.rightSpinner.set(0.35)
+        self.topSpinner.set(-0.35)
+        self.bottomSpinner.set(-0.35)
+
+    def cargoIdle(self):
+        self.topSpinner.set(-0.15)
+        self.bottomSpinner.set(-0.1)
 
     #shoots out the ball
     def eject(self):
-        self.leftSpinner.set(1)
-        self.rightSpinner.set(-1)
+        self.topSpinner.set(1)
+        self.bottomSpinner.set(1)
 
     def stopIntake(self):
-        self.leftSpinner.set(0)
-        self.rightSpinner.set(0)
+        self.topSpinner.set(0)
+        self.bottomSpinner.set(0)
 
-    def _setClawPosition(self, position):
-        self.leftPivot.set(ctre.ControlMode.Position, self.leftPivotOrigin + position)
-        self.rightPivot.set(ctre.ControlMode.Position, self.rightPivotOrigin - position)
-
-    def clawClosed(self):
-        if self.clawState == "closed":
-            return
-        if self.clawState != "open" and not self.safeForArmsToClose():
-            self.clawHatch()
-            return
-        self.clawState = "closed"
-        self._setClawPosition(CLOSED_POSITION)
-
-    def clawOpen(self):
-        if self.clawState == "open":
-            return
-        if self.clawState != "closed" and not self.safeForArmsToClose():
-            self.clawHatch()
-            return
-        self.clawState = "open"
-        self._setClawPosition(OPEN_POSITION)
-
-    def clawBack(self):
-        if self.clawState == "back":
-            return
-        if not self.safeForArmsToGoBack():
-            self.clawHatch()
-            return
-        if (self.clawState == "open" or self.clawState == "closed") \
-                and not self.safeForArmsToClose():
-            return
-        self.clawState = "back"
-        self._setClawPosition(DEFENSE_POSITION)
-
-    def clawHatch(self):
-        if self.clawState == "hatch":
-            return
-        if (self.clawState == "open" or self.clawState == "closed") \
-                and not self.safeForArmsToClose():
-            return
-        self.clawState = "hatch"
-        self._setClawPosition(HATCH_POSITION)
-
-    #clamps the arms while running the intake wheels to grab the ball
-    def grabBall(self):
-        self.clawClosed()
-        self.intake()
-
-    def setExtendPiston(self, value):
-        self.solenoid3.set(not value)
-        self.solenoid2.set(value)
-        self.extendOut = value
-
-    def setGrabPiston(self, value):
+    def setArmPiston(self, value):
         self.solenoid1.set(value)
         self.solenoid0.set(not value)
+        self.armOut = value
+
+    def setGrabPiston(self, value):
+        self.solenoid3.set(value)
+        self.solenoid2.set(not value)
         self.grabOut = value
 
     #grabber slides up
@@ -159,9 +91,6 @@ class GrabberArm():
         enc = self.slideMotor.getSelectedSensorPosition(0)
         return enc - self.slideOrigin
 
-    def elevatorToZero(self):
-        self._setElevatorPosition(0)
-
     def elevatorFloor(self):
         self._setElevatorPosition(ELEVATOR_FLOOR)
 
@@ -173,12 +102,6 @@ class GrabberArm():
 
     def elevatorHatchPosition(self, pos):
         self._setElevatorPosition(ELEVATOR_HATCH_POSITIONS[pos-1])
-
-    def safeForArmsToGoBack(self):
-        return self._getElevatorPosition() < 1000 # TODO TODO TODO
-
-    def safeForArmsToClose(self):
-        return self._getElevatorPosition() > 0
 
     def startCompressor(self):
         self.compressor.start()

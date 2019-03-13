@@ -112,6 +112,7 @@ class CompetitionBot2019(sea.GeneratorBot):
     def mainGenerator(self):
         self.vision.putNumber('pipeline', 1)
         self.resetPositions()
+        self.grabberArm.setArmPiston(False)
         self.manualAuxModeMachine.replace(self.auxDisabledState)
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(),
@@ -262,10 +263,15 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.auxModeGroup.highlight("defense")
         self.grabberArm.stopIntake()
-        self.grabberArm.elevatorToZero()
-        while True:
-            self.grabberArm.clawBack()
-            yield
+        self.grabberArm.elevatorFloor()
+        self.grabberArm.setArmPiston(True) # arm open
+        self.grabberArm.setGrabPiston(False)
+        try:
+            while True:
+                yield
+        finally:
+            self.grabberArm.setArmPiston(False)
+            
 
     def manualCargoMode(self):
         if self.app is not None:
@@ -275,18 +281,13 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.joystick.getRawButton(8):
                 self.grabberArm.elevatorCargoPosition(self.getThrottlePos())
             elif self.joystick.getRawButton(1):
-                self.grabberArm.clawOpen()
                 self.grabberArm.elevatorFloor()
                 self.grabberArm.intake()
-            else:
-                self.grabberArm.clawClosed()
-                self.elevatorControl()
-                self.grabberArm.stopIntake()
-
-            if self.joystick.getRawButton(2):
+            elif self.joystick.getRawButton(2):
                 self.grabberArm.eject()
-            if self.joystick.getRawButtonReleased(2):
-                self.grabberArm.stopIntake()
+            else:
+                self.elevatorControl()
+                self.grabberArm.cargoIdle()
 
             try:
                 yield
@@ -299,13 +300,12 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.auxModeGroup.highlight("hatch")
         self.grabberArm.stopIntake()
         self.grabberArm.elevatorSlide(0)
+        self.grabberArm.setGrabPiston(False)
 
         self.joystick.getRawButtonPressed(1)
         self.joystick.getRawButtonPressed(2)
         self.joystick.getRawButtonPressed(10)
         while True:
-            self.grabberArm.clawHatch()
-
             # if self.joystick.getRawButtonPressed(1):
             #     self.runAutoAction(
             #         auto_actions.createGrabHatchAction(self.pathFollower, self.grabberArm))
@@ -316,9 +316,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             #     self.runAutoAction(
             #         auto_actions.createPlaceHatchAction(self.pathFollower, self.grabberArm))
 
-            if self.joystick.getRawButtonPressed(1):
-                self.grabberArm.setExtendPiston(not self.grabberArm.extendOut)
-            if self.joystick.getRawButtonPressed(2):
+            if self.joystick.getRawButtonPressed(2) or self.joystick.getRawButtonPressed(1):
                 self.grabberArm.setGrabPiston(not self.grabberArm.grabOut)
 
             if self.joystick.getRawButton(8):
@@ -414,11 +412,6 @@ class CompetitionBot2019(sea.GeneratorBot):
             print("%.3f %.3f %.3f %.3f" %
                 (self.opticalSensors[0].getVoltage(), self.opticalSensors[1].getVoltage(),
                  self.opticalSensors[2].getVoltage(), self.opticalSensors[3].getVoltage()))
-            yield
-
-    def logElevator(self):
-        while True:
-            print(self.grabberArm.safeForArmsToClose(), self.grabberArm.safeForArmsToGoBack())
             yield
 
     def homeSwerveWheel(self, name, swerveWheel, sensor, angle):
@@ -540,10 +533,6 @@ class CompetitionBot2019(sea.GeneratorBot):
     @sea.queuedDashboardEvent
     def c_logOpticalSensors(self, button):
         return sea.AddParallelSignal(self.logOpticalSensors())
-
-    @sea.queuedDashboardEvent
-    def c_logElevator(self, button):
-        return sea.AddParallelSignal(self.logElevator())
 
     @sea.queuedDashboardEvent
     def c_resetClaw(self, button):

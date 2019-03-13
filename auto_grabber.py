@@ -25,8 +25,6 @@ def driveBackFromWall(pathFollower):
         10)
 
 def grabHatch(pathFollower, grabber):
-    grabber.setExtendPiston(True)
-    yield from driveWait(pathFollower, 15)
     grabber.setGrabPiston(True)
     yield from driveWait(pathFollower, 15)
 
@@ -34,7 +32,6 @@ def grabHatch(pathFollower, grabber):
 def removeHatch(pathFollower, grabber):             # REMOVE HATCH
     grabber.elevatorLifted()                        # elevator lift up
     yield from driveWait(pathFollower, 25)          # wait for elevator TODO
-    grabber.setExtendPiston(False)                  # retract extend piston
     yield from driveBackFromWall(pathFollower)      # drive backward
 
 def pickUpHatch(pathFollower, grabber):
@@ -42,11 +39,7 @@ def pickUpHatch(pathFollower, grabber):
     yield from removeHatch(pathFollower, grabber)
 
 def placeHatch(pathFollower, grabber):
-    grabber.setExtendPiston(True)
-    yield from driveWait(pathFollower, 15)
     grabber.setGrabPiston(False)
-    yield from driveWait(pathFollower, 15)
-    grabber.setExtendPiston(False)
     yield from driveWait(pathFollower, 15)
 
 def depositHatch(pathFollower, grabber, pos):       # DEPOSIT HATCH

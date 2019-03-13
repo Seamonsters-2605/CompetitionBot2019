@@ -504,10 +504,6 @@ class CompetitionBotDashboard(sea.Dashboard):
         logOpticalBtn.onclick.connect(robot.c_logOpticalSensors)
         logBox.append(logOpticalBtn)
 
-        logElevatorBtn = gui.Button("Log Elevator")
-        logElevatorBtn.onclick.connect(robot.c_logElevator)
-        logBox.append(logElevatorBtn)
-
         swerveBox = gui.HBox()
         testBox.append(swerveBox)
 
