@@ -116,6 +116,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.manualAuxModeMachine.replace(self.auxDisabledState)
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(),
+            self.generalJoystickControl(),
             self.dashboardUpdateGenerator(),
             self.timingMonitor.updateGenerator()
         )
@@ -149,17 +150,10 @@ class CompetitionBot2019(sea.GeneratorBot):
         else:
             return 2
 
-    def manualDriving(self):
-        self.manualMediumGear()
-
-        self.resetPositions()
-        
-        alignAngle = None
-
+    def generalJoystickControl(self):
         # clear joystick events
-        for i in range(1,13):
-            self.joystick.getRawButtonPressed(i)
-            self.joystick.getRawButtonReleased(i)
+        for i in range(1,11):
+            self.buttonBoard.getRawButtonPressed(i)
 
         while True:
             # BUTTON BOARD
@@ -189,6 +183,22 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.buttonBoard.getRawButtonPressed(10):
                 self.manualAuxModeMachine.replace(self.climbState)
 
+            yield
+
+
+    def manualDriving(self):
+        self.manualMediumGear()
+
+        self.resetPositions()
+        
+        alignAngle = None
+
+        # clear joystick events
+        for i in range(1,13):
+            self.joystick.getRawButtonPressed(i)
+            self.joystick.getRawButtonReleased(i)
+
+        while True:
             # DRIVING
 
             self.pathFollower.updateRobotPosition()
