@@ -34,7 +34,7 @@ class GrabberArm():
         self.slideMotor.config_kI(0, 0, 0)
         self.slideMotor.config_kD(0, 3, 0)
         self.slideMotor.config_kF(0, 0, 0)
-        self.slideMotor.configPeakOutputReverse(-0.5, 0)
+        self.slideMotor.configPeakOutputReverse(-0.75, 0)
         self.slideValue = None
 
         self.resetAllSensors()
