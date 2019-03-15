@@ -289,14 +289,18 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.elevatorSlide(0)
         while True:
             if self.joystick.getRawButton(8):
-                self.grabberArm.elevatorCargoPosition(self.getThrottlePos())
-            elif self.joystick.getRawButton(1):
-                self.grabberArm.elevatorFloor()
+                throttle = self.getThrottlePos()
+                if throttle == 1:
+                    self.grabberArm.elevatorFloor()
+                else:
+                    self.grabberArm.elevatorCargoPosition(self.getThrottlePos() - 1)
+            else:
+                self.elevatorControl()
+            if self.joystick.getRawButton(1):
                 self.grabberArm.intake()
             elif self.joystick.getRawButton(2):
                 self.grabberArm.eject()
             else:
-                self.elevatorControl()
                 self.grabberArm.cargoIdle()
 
             try:
