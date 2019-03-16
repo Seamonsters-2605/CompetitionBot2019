@@ -278,17 +278,13 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.elevatorFloor()
         self.grabberArm.setArmPiston(True) # arm open
         self.grabberArm.setGrabPiston(False)
-        try:
-            while True:
-                yield
-        finally:
-            self.grabberArm.setArmPiston(False)
-            
+        yield from sea.forever()
 
     def manualCargoMode(self):
         if self.app is not None:
             self.app.auxModeGroup.highlight("cargo")
         self.grabberArm.elevatorSlide(0)
+        self.grabberArm.setArmPiston(False) # arm closed
         while True:
             if self.joystick.getRawButton(8):
                 throttle = self.getThrottlePos()
@@ -316,7 +312,7 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.app.auxModeGroup.highlight("hatch")
         self.grabberArm.stopIntake()
         self.grabberArm.elevatorSlide(0)
-        self.grabberArm.setGrabPiston(False)
+        self.grabberArm.setArmPiston(False) # arm closed
 
         self.joystick.getRawButtonPressed(1)
         self.joystick.getRawButtonPressed(2)
@@ -350,6 +346,7 @@ class CompetitionBot2019(sea.GeneratorBot):
         if self.app is not None:
             self.app.auxModeGroup.highlight("climb")
         self.grabberArm.disableAllMotors()
+        self.grabberArm.setArmPiston(True) # arm open
         while True:
             self.climber.climb(-self.buttonBoard.getY())
             yield
