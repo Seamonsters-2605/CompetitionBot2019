@@ -8,6 +8,7 @@ import random
 import json
 import os
 import glob
+import wpilib
 
 CROSSHAIR_X = 320
 CROSSHAIR_Y = 120
@@ -529,12 +530,17 @@ class CompetitionBotDashboard(sea.Dashboard):
         swerveBrakeOnBtn = gui.Button("Swerve Brake On")
         swerveBrakeOnBtn.onclick.connect(robot.c_swerveBrakeOn)
         swerveBrakeBox.append(swerveBrakeOnBtn)
-        
-
 
         resetClawBtn = gui.Button("Reset Claw")
         resetClawBtn.onclick.connect(robot.c_resetClaw)
         testBox.append(resetClawBtn)
+
+        def restartCamServer(widget):
+            print("restarting camera server")
+            wpilib.CameraServer.launch('camera.py:main')
+        camserverBtn = gui.Button("restart camera server")
+        camserverBtn.onclick.connect(restartCamServer)
+        testBox.append(camserverBtn)
 
         posBox = gui.HBox()
         testBox.append(posBox)
