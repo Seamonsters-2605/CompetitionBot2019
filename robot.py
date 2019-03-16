@@ -463,13 +463,13 @@ class CompetitionBot2019(sea.GeneratorBot):
     def homeAllSwerveWheels(self):
         yield from sea.parallel(
             self.homeSwerveWheel('A', self.superDrive.wheels[0], self.opticalSensors[0],
-                math.radians(-180 + 82.589)),
+                math.radians(-180 + 82.589), 0),
             self.homeSwerveWheel('B', self.superDrive.wheels[1], self.opticalSensors[1],
-                math.radians(20.759)),
+                math.radians(20.759),        0),
             self.homeSwerveWheel('C', self.superDrive.wheels[2], self.opticalSensors[2],
-                math.radians(-180 + 21.875)),
+                math.radians(-180 + 21.875), 0),
             self.homeSwerveWheel('D', self.superDrive.wheels[3], self.opticalSensors[3],
-                math.radians(90 + 58.705)))
+                math.radians(90 + 58.705),   0))
 
 
     # dashboard callbacks
