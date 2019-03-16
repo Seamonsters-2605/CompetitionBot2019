@@ -73,7 +73,7 @@ def createPlaceHatchAction(pathFollower, grabber, key):
         lambda: auto_grabber.placeHatch(pathFollower, grabber), key)
 
 def waitOneSecond():
-    yield from sea.wait(50)
+    yield from sea.wait(sea.ITERATIONS_PER_SECOND)
 
 def endAuto(robot):
     yield
