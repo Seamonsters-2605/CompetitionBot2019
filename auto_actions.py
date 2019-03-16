@@ -72,6 +72,9 @@ def createPlaceHatchAction(pathFollower, grabber, key):
     return Action("Place hatch",
         lambda: auto_grabber.placeHatch(pathFollower, grabber), key)
 
+def waitOneSecond():
+    yield from sea.wait(50)
+
 def endAuto(robot):
     yield
     robot.manualMode()
@@ -88,6 +91,6 @@ def createGenericAutoActions(robot, pathFollower, grabber):
         Action("Deposit cargo 1", lambda: auto_grabber.depositCargo(pathFollower, grabber, 1), 4),
         Action("Deposit cargo 2", lambda: auto_grabber.depositCargo(pathFollower, grabber, 2), 5),
         Action("Deposit cargo 3", lambda: auto_grabber.depositCargo(pathFollower, grabber, 3), 6),
-        createEndAction(robot, 7)
-
+        createEndAction(robot, 7),
+        Action("Wait 1 sec", waitOneSecond, 8)
     ]
