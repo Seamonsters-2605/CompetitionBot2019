@@ -430,9 +430,11 @@ class CompetitionBot2019(sea.GeneratorBot):
             yield
 
     def liftElevator(self):
-        self.grabberArm.elevatorSlide(0.5)
-        yield from sea.wait(sea.ITERATIONS_PER_SECOND)
-        self.grabberArm.elevatorSlide(0)
+        try:
+            self.grabberArm.elevatorSlide(0.5)
+            yield from sea.wait(sea.ITERATIONS_PER_SECOND)
+        finally:
+            self.grabberArm.elevatorSlide(0)
 
     def waitALilBitAndLowerTheElevatorAgain(self):
         yield from sea.wait(sea.ITERATIONS_PER_SECOND * 2)
