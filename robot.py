@@ -95,10 +95,12 @@ class CompetitionBot2019(sea.GeneratorBot):
     
     def autonomous(self):
         self.grabberArm.resetAllSensors()
-        yield from self.homeAllSwerveWheels()
+        yield from sea.parallel(
+            self.homeAllSwerveWheels(), self.liftElevator())
 
         self.autoMode()
-        yield from self.mainGenerator()
+        yield from sea.parallel(self.mainGenerator(),
+            self.waitALilBitAndLowerTheElevatorAgain())
 
     def test(self):
         self.superDrive.disable()
@@ -428,7 +430,16 @@ class CompetitionBot2019(sea.GeneratorBot):
                  self.opticalSensors[2].getVoltage(), self.opticalSensors[3].getVoltage()))
             yield
 
-    def homeSwerveWheel(self, name, swerveWheel, sensor, angle):
+    def liftElevator(self):
+        self.grabberArm.elevatorSlide(0.5)
+        yield from sea.wait(sea.ITERATIONS_PER_SECOND)
+        self.grabberArm.elevatorSlide(0)
+
+    def waitALilBitAndLowerTheElevatorAgain(self):
+        yield from sea.wait(sea.ITERATIONS_PER_SECOND * 2)
+        self.grabberArm.elevatorFloor()
+
+    def homeSwerveWheel(self, name, swerveWheel, sensor, angle, fallbackRotation):
         swerveWheel.zeroSteering()
         motor = swerveWheel.steerMotor
         initialPos = motor.getSelectedSensorPosition(0)
