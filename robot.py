@@ -114,8 +114,10 @@ class CompetitionBot2019(sea.GeneratorBot):
     def mainGenerator(self):
         self.vision.putNumber('pipeline', 1)
         self.resetPositions()
-        self.grabberArm.setArmPiston(False)
         self.manualAuxModeMachine.replace(self.auxDisabledState)
+
+        self.grabberArm.setArmPiston(False) # arm closed
+
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(),
             self.generalJoystickControl(),
