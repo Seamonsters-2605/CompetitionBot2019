@@ -32,6 +32,11 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
     driveTalon.setNeutralMode(ctre.NeutralMode.Brake)
     rotateTalon.setNeutralMode(ctre.NeutralMode.Brake)
 
+    driveTalon.setStatusFramePeriod(ctre.WPI_TalonSRX.StatusFrame.Status_1_General, 50, 0)
+    driveTalon.setStatusFramePeriod(ctre.WPI_TalonSRX.StatusFrame.Status_2_Feedback0, 50, 0)
+    rotateTalon.setStatusFramePeriod(ctre.WPI_TalonSRX.StatusFrame.Status_1_General, 100, 0)
+    rotateTalon.setStatusFramePeriod(ctre.WPI_TalonSRX.StatusFrame.Status_2_Feedback0, 100, 0)
+
     # rotate talon PIDs (drive talon is configured by DriveGear)
     rotateTalon.config_kP(0, 30.0, 0)
     rotateTalon.config_kI(0, 0.0, 0)
