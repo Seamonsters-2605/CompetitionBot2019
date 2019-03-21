@@ -67,16 +67,16 @@ def _makeSwerveWheel(superDrive, driveTalonNum, rotateTalonNum, xPos, yPos):
 slowVoltageGear = DriveGear("Slow Voltage", ctre.ControlMode.PercentOutput,
     moveScale=4, turnScale=math.radians(90)) 
 mediumVoltageGear = DriveGear("Medium Voltage", ctre.ControlMode.PercentOutput,
-    moveScale=8, turnScale=math.radians(180))
+    moveScale=12, turnScale=math.radians(180))
 fastVoltageGear = DriveGear("Fast Voltage", ctre.ControlMode.PercentOutput,
-    moveScale=14, turnScale=math.radians(270))
+    moveScale=15, turnScale=math.radians(270))
 
 slowPositionGear = DriveGear("Slow Position", ctre.ControlMode.Position,
     moveScale=4, turnScale=math.radians(90),
     p=0.13, i=0.0, d=6.0, f=0.0)
 mediumPositionGear = DriveGear("Medium Position", ctre.ControlMode.Position,
     moveScale=8, turnScale=math.radians(180),
-    p=0.07, i=0.0, d=12.0, f=0.0)
+    p=0.04, i=0.0, d=12.0, f=0.0)
 fastPositionGear = DriveGear("Fast Position", ctre.ControlMode.Position,
     moveScale=14, turnScale=math.radians(270),
     p=0.032, i=0.0, d=6.0, f=0.0)
