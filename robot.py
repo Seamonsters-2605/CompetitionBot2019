@@ -91,10 +91,12 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     def teleop(self):
         self.manualMode()
+        self.grabberArm.setArmPiston(False) # arm closed
         yield from self.mainGenerator()
     
     def autonomous(self):
         self.grabberArm.resetAllSensors()
+        self.grabberArm.setArmPiston(False) # arm closed
         yield from sea.parallel(
             self.homeAllSwerveWheels(), self.liftElevator())
 
@@ -115,8 +117,6 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.vision.putNumber('pipeline', 1)
         self.resetPositions()
         self.manualAuxModeMachine.replace(self.auxDisabledState)
-
-        self.grabberArm.setArmPiston(False) # arm closed
 
         yield from sea.parallel(
             self.controlModeMachine.updateGenerator(),
