@@ -187,6 +187,10 @@ class CompetitionBot2019(sea.GeneratorBot):
             if self.buttonBoard.getRawButtonPressed(10):
                 self.manualAuxModeMachine.replace(self.climbState)
 
+            if self.joystick.getRawButtonPressed(12):
+                self.climber.fast = not self.climber.fast
+                print("Climber fast mode", self.climber.fast)
+
             yield
 
 
@@ -351,6 +355,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.setArmPiston(True) # arm open
         while True:
             self.climber.climb(-self.buttonBoard.getY())
+            print(self.climber.motor1.getOutputCurrent())
+            print(self.climber.motor2.getOutputCurrent())
             yield
 
     def updateDashboardLabels(self):
