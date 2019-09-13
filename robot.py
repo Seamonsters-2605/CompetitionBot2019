@@ -97,9 +97,8 @@ class CompetitionBot2019(sea.GeneratorBot):
     def autonomous(self):
         self.grabberArm.resetAllSensors()
         self.grabberArm.setArmPiston(False) # arm closed
-        yield from sea.parallel(
-            #self.homeAllSwerveWheels(), #comment this line to disable swerve homing
-            self.liftElevator())
+        self.zeroAllSwerveWheels()
+        yield from self.liftElevator()
 
         self.autoMode()
         yield from sea.parallel(self.mainGenerator(),
@@ -479,6 +478,9 @@ class CompetitionBot2019(sea.GeneratorBot):
             self.homeSwerveWheel('D', self.superDrive.wheels[3], self.opticalSensors[3],
                 math.radians(90 + 58.705),   0))
 
+    def zeroAllSwerveWheels(self):
+        for wheel in self.superDrive.wheels:
+            wheel.zeroSteering()
 
     # dashboard callbacks
 
@@ -556,8 +558,7 @@ class CompetitionBot2019(sea.GeneratorBot):
 
     @sea.queuedDashboardEvent
     def c_setSwerveZero(self, button):
-        for wheel in self.superDrive.wheels:
-            wheel.zeroSteering()
+        self.zeroAllSwerveWheels()
 
     @sea.queuedDashboardEvent
     def c_homeSwerveWheels(self, button):
