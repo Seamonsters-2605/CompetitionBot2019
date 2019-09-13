@@ -98,7 +98,8 @@ class CompetitionBot2019(sea.GeneratorBot):
         self.grabberArm.resetAllSensors()
         self.grabberArm.setArmPiston(False) # arm closed
         yield from sea.parallel(
-            self.homeAllSwerveWheels(), self.liftElevator())
+            #self.homeAllSwerveWheels(), #comment this line to disable swerve homing
+            self.liftElevator())
 
         self.autoMode()
         yield from sea.parallel(self.mainGenerator(),
